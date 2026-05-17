@@ -9,7 +9,7 @@ import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Select } from "../components/ui/select";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
-import { formatDate } from "../lib/utils";
+import { formatDate, resolveMediaUrl } from "../lib/utils";
 import type { EventSeries, ScanResult } from "../types/api";
 
 type CheckInPayload = {
@@ -222,7 +222,7 @@ export function ScannerPage() {
                     alt={lastResult.attendee.name}
                     className="size-16 rounded-[22px] object-cover ring-1 ring-white/10"
                     src={
-                      lastResult.attendee.profileImageUrl ??
+                      resolveMediaUrl(lastResult.attendee.profileImageUrl) ??
                       "https://placehold.co/160x160/0f172a/f8fafc?text=QR"
                     }
                   />

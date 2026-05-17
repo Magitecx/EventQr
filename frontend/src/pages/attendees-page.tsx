@@ -9,13 +9,13 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { resolveMediaUrl } from "../lib/utils";
 import type { Attendee } from "../types/api";
 
 const attendeeSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
   phone: z.string().optional(),
-  profileImageUrl: z.string().url().optional().or(z.literal("")),
 });
 
 type AttendeeFormValues = z.infer<typeof attendeeSchema>;
@@ -23,6 +23,8 @@ type AttendeeFormValues = z.infer<typeof attendeeSchema>;
 export function AttendeesPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [imageInputKey, setImageInputKey] = useState(0);
   const deferredSearch = useDeferredValue(search);
   const {
     register,
@@ -40,9 +42,27 @@ export function AttendeesPage() {
 
   const mutation = useMutation({
     mutationFn: async (values: AttendeeFormValues) =>
-      unwrapResponse<Attendee>(await api.post("/attendees", values)),
+      unwrapResponse<Attendee>(
+        await api.post(
+          "/attendees",
+          (() => {
+            const formData = new FormData();
+            formData.append("name", values.name);
+            formData.append("email", values.email);
+            if (values.phone) {
+              formData.append("phone", values.phone);
+            }
+            if (profileImageFile) {
+              formData.append("profileImage", profileImageFile);
+            }
+            return formData;
+          })(),
+        ),
+      ),
     onSuccess: () => {
       reset();
+      setProfileImageFile(null);
+      setImageInputKey((value) => value + 1);
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
     },
   });
@@ -88,10 +108,18 @@ export function AttendeesPage() {
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm text-slate-300">Profile image URL</span>
-            <Input placeholder="https://..." {...register("profileImageUrl")} />
-            {errors.profileImageUrl ? (
-              <p className="mt-2 text-xs text-rose-300">{errors.profileImageUrl.message}</p>
+            <span className="mb-2 block text-sm text-slate-300">Profile image file</span>
+            <Input
+              key={imageInputKey}
+              accept="image/*"
+              onChange={(event) => setProfileImageFile(event.target.files?.[0] ?? null)}
+              type="file"
+            />
+            <p className="mt-2 text-xs text-slate-500">
+              PNG, JPG, WebP, or GIF up to 5 MB. This is optional.
+            </p>
+            {profileImageFile ? (
+              <p className="mt-2 text-xs text-slate-300">Selected: {profileImageFile.name}</p>
             ) : null}
           </label>
 
@@ -142,7 +170,10 @@ export function AttendeesPage() {
                   <img
                     alt={attendee.name}
                     className="size-12 rounded-2xl object-cover ring-1 ring-white/10"
-                    src={attendee.profileImageUrl ?? "https://placehold.co/120x120/0f172a/f8fafc?text=QR"}
+                    src={
+                      resolveMediaUrl(attendee.profileImageUrl) ??
+                      "https://placehold.co/120x120/0f172a/f8fafc?text=QR"
+                    }
                   />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-white">{attendee.name}</p>

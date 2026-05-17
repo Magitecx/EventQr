@@ -4,6 +4,17 @@ import { successResponse } from "../../utils/api-response";
 import { asyncHandler } from "../../utils/async-handler";
 import { generateQrToken } from "../../utils/qr-token";
 import { createAttendeeSchema, updateAttendeeSchema } from "./attendees.schemas";
+import { removeStoredAttendeeImage, saveAttendeeImage } from "./attendees.upload";
+
+function getRequestBody(request: { body?: Record<string, unknown> }) {
+  const body = request.body ?? {};
+
+  return {
+    name: typeof body.name === "string" ? body.name : undefined,
+    email: typeof body.email === "string" ? body.email : undefined,
+    phone: typeof body.phone === "string" ? body.phone : undefined,
+  };
+}
 
 export const listAttendees = asyncHandler(async (request, response) => {
   const organizationId = request.auth!.organizationId as string;
@@ -22,14 +33,16 @@ export const listAttendees = asyncHandler(async (request, response) => {
 });
 
 export const createAttendee = asyncHandler(async (request, response) => {
-  const body = createAttendeeSchema.parse(request.body);
+  const body = createAttendeeSchema.parse(getRequestBody(request));
   const organizationId = request.auth!.organizationId as string;
+  const image = await saveAttendeeImage(request.file);
 
   const attendee = await prisma.attendee.create({
     data: {
       ...body,
       organizationId,
       qrToken: generateQrToken(),
+      profileImageUrl: image?.publicUrl,
     },
   });
 
@@ -70,7 +83,7 @@ export const getAttendee = asyncHandler(async (request, response) => {
 
 export const updateAttendee = asyncHandler(async (request, response) => {
   const attendeeId = request.params.id as string;
-  const body = updateAttendeeSchema.parse(request.body);
+  const body = updateAttendeeSchema.parse(getRequestBody(request));
   const organizationId = request.auth!.organizationId as string;
 
   const existing = await prisma.attendee.findFirst({
@@ -85,11 +98,19 @@ export const updateAttendee = asyncHandler(async (request, response) => {
     throw new ApiError(404, "Attendee not found");
   }
 
+  const image = await saveAttendeeImage(request.file);
+  if (image?.publicUrl) {
+    await removeStoredAttendeeImage(existing.profileImageUrl);
+  }
+
   const attendee = await prisma.attendee.update({
     where: {
       id: existing.id,
     },
-    data: body,
+    data: {
+      ...body,
+      ...(image?.publicUrl ? { profileImageUrl: image.publicUrl } : {}),
+    },
   });
 
   response.json(successResponse(attendee, "Attendee updated"));

@@ -5,7 +5,7 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { api, unwrapResponse } from "../lib/api";
-import { formatDate, formatPercentage } from "../lib/utils";
+import { formatDate, formatPercentage, resolveMediaUrl } from "../lib/utils";
 import type { Attendee, EventSeries, SeriesReport } from "../types/api";
 
 export function DashboardPage() {
@@ -244,7 +244,7 @@ export function DashboardPage() {
                     <img
                       alt={item.name}
                       className="size-11 rounded-2xl object-cover ring-1 ring-white/10"
-                      src={item.profileImageUrl ?? "https://placehold.co/120x120/0f172a/f8fafc?text=QR"}
+                      src={resolveMediaUrl(item.profileImageUrl) ?? "https://placehold.co/120x120/0f172a/f8fafc?text=QR"}
                     />
                     <div>
                       <p className="font-medium text-white">{item.name}</p>

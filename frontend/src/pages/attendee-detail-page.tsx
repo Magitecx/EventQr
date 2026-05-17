@@ -10,14 +10,13 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
-import { formatDate } from "../lib/utils";
+import { formatDate, resolveMediaUrl } from "../lib/utils";
 import type { Attendee, AttendeeDetail } from "../types/api";
 
 const updateAttendeeSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
   phone: z.string().optional(),
-  profileImageUrl: z.string().url().optional().or(z.literal("")),
 });
 
 type UpdateAttendeeValues = z.infer<typeof updateAttendeeSchema>;
@@ -27,6 +26,9 @@ export function AttendeeDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
+  const [imageInputKey, setImageInputKey] = useState(0);
   const attendeeQuery = useQuery({
     queryKey: ["attendee", id],
     queryFn: async () => unwrapResponse<AttendeeDetail>(await api.get(`/attendees/${id}`)),
@@ -67,16 +69,48 @@ export function AttendeeDetailPage() {
       name: attendee.name,
       email: attendee.email,
       phone: attendee.phone ?? "",
-      profileImageUrl: attendee.profileImageUrl ?? "",
     });
+    setProfileImageFile(null);
+    setImagePreviewUrl("");
+    setImageInputKey((value) => value + 1);
   }, [attendee, reset]);
+
+  useEffect(() => {
+    if (!profileImageFile) {
+      setImagePreviewUrl("");
+      return;
+    }
+
+    const preview = URL.createObjectURL(profileImageFile);
+    setImagePreviewUrl(preview);
+
+    return () => URL.revokeObjectURL(preview);
+  }, [profileImageFile]);
 
   const updateMutation = useMutation({
     mutationFn: async (values: UpdateAttendeeValues) =>
-      unwrapResponse<Attendee>(await api.patch(`/attendees/${id}`, values)),
+      unwrapResponse<Attendee>(
+        await api.patch(
+          `/attendees/${id}`,
+          (() => {
+            const formData = new FormData();
+            formData.append("name", values.name);
+            formData.append("email", values.email);
+            if (values.phone) {
+              formData.append("phone", values.phone);
+            }
+            if (profileImageFile) {
+              formData.append("profileImage", profileImageFile);
+            }
+            return formData;
+          })(),
+        ),
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attendee", id] });
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
+      setProfileImageFile(null);
+      setImageInputKey((value) => value + 1);
     },
   });
 
@@ -92,6 +126,11 @@ export function AttendeeDetailPage() {
     return <Card>Loading attendee profile...</Card>;
   }
 
+  const currentImageSrc =
+    imagePreviewUrl ||
+    resolveMediaUrl(attendee.profileImageUrl) ||
+    "https://placehold.co/160x160/0f172a/f8fafc?text=QR";
+
   return (
     <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
       <div className="space-y-6">
@@ -100,7 +139,7 @@ export function AttendeeDetailPage() {
             <img
               alt={attendee.name}
               className="size-24 rounded-[28px] object-cover ring-1 ring-white/10"
-              src={attendee.profileImageUrl ?? "https://placehold.co/160x160/0f172a/f8fafc?text=QR"}
+              src={currentImageSrc}
             />
             <div className="flex-1">
               <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Attendee profile</p>
@@ -175,8 +214,19 @@ export function AttendeeDetailPage() {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm text-slate-300">Profile image URL</span>
-              <Input {...register("profileImageUrl")} />
+              <span className="mb-2 block text-sm text-slate-300">Profile image file</span>
+              <Input
+                key={imageInputKey}
+                accept="image/*"
+                onChange={(event) => setProfileImageFile(event.target.files?.[0] ?? null)}
+                type="file"
+              />
+              <p className="mt-2 text-xs text-slate-500">
+                PNG, JPG, WebP, or GIF up to 5 MB. Leave blank to keep the current image.
+              </p>
+              {profileImageFile ? (
+                <p className="mt-2 text-xs text-slate-300">Selected: {profileImageFile.name}</p>
+              ) : null}
             </label>
 
             {updateMutation.isError ? (
