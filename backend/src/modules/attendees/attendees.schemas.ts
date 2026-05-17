@@ -12,4 +12,6 @@ export const createAttendeeSchema = z.object({
   phone: optionalString,
 });
 
-export const updateAttendeeSchema = createAttendeeSchema.partial();
+export const updateAttendeeSchema = createAttendeeSchema.partial().extend({
+  removeProfileImage: z.boolean().optional(),
+});

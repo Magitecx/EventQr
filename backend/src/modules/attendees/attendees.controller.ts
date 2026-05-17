@@ -13,6 +13,10 @@ function getRequestBody(request: { body?: Record<string, unknown> }) {
     name: typeof body.name === "string" ? body.name : undefined,
     email: typeof body.email === "string" ? body.email : undefined,
     phone: typeof body.phone === "string" ? body.phone : undefined,
+    removeProfileImage:
+      typeof body.removeProfileImage === "string"
+        ? body.removeProfileImage === "true"
+        : Boolean(body.removeProfileImage),
   };
 }
 
@@ -83,7 +87,7 @@ export const getAttendee = asyncHandler(async (request, response) => {
 
 export const updateAttendee = asyncHandler(async (request, response) => {
   const attendeeId = request.params.id as string;
-  const body = updateAttendeeSchema.parse(getRequestBody(request));
+  const { removeProfileImage, ...body } = updateAttendeeSchema.parse(getRequestBody(request));
   const organizationId = request.auth!.organizationId as string;
 
   const existing = await prisma.attendee.findFirst({
@@ -99,7 +103,13 @@ export const updateAttendee = asyncHandler(async (request, response) => {
   }
 
   const image = await saveAttendeeImage(request.file);
+  const shouldRemoveProfileImage = removeProfileImage && !image?.publicUrl;
+
   if (image?.publicUrl) {
+    await removeStoredAttendeeImage(existing.profileImageUrl);
+  }
+
+  if (shouldRemoveProfileImage) {
     await removeStoredAttendeeImage(existing.profileImageUrl);
   }
 
@@ -109,7 +119,7 @@ export const updateAttendee = asyncHandler(async (request, response) => {
     },
     data: {
       ...body,
-      ...(image?.publicUrl ? { profileImageUrl: image.publicUrl } : {}),
+      profileImageUrl: image?.publicUrl ? image.publicUrl : shouldRemoveProfileImage ? null : existing.profileImageUrl,
     },
   });
 
@@ -140,6 +150,8 @@ export const deleteAttendee = asyncHandler(async (request, response) => {
       deletedAt: new Date(),
     },
   });
+
+  await removeStoredAttendeeImage(existing.profileImageUrl);
 
   response.json(successResponse(null, "Attendee deleted"));
 });

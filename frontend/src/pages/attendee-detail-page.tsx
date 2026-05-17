@@ -29,6 +29,7 @@ export function AttendeeDetailPage() {
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [imageInputKey, setImageInputKey] = useState(0);
+  const [removeProfileImage, setRemoveProfileImage] = useState(false);
   const attendeeQuery = useQuery({
     queryKey: ["attendee", id],
     queryFn: async () => unwrapResponse<AttendeeDetail>(await api.get(`/attendees/${id}`)),
@@ -73,6 +74,7 @@ export function AttendeeDetailPage() {
     setProfileImageFile(null);
     setImagePreviewUrl("");
     setImageInputKey((value) => value + 1);
+    setRemoveProfileImage(false);
   }, [attendee, reset]);
 
   useEffect(() => {
@@ -83,6 +85,7 @@ export function AttendeeDetailPage() {
 
     const preview = URL.createObjectURL(profileImageFile);
     setImagePreviewUrl(preview);
+    setRemoveProfileImage(false);
 
     return () => URL.revokeObjectURL(preview);
   }, [profileImageFile]);
@@ -101,6 +104,8 @@ export function AttendeeDetailPage() {
             }
             if (profileImageFile) {
               formData.append("profileImage", profileImageFile);
+            } else if (removeProfileImage) {
+              formData.append("removeProfileImage", "true");
             }
             return formData;
           })(),
@@ -111,6 +116,7 @@ export function AttendeeDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
       setProfileImageFile(null);
       setImageInputKey((value) => value + 1);
+      setRemoveProfileImage(false);
     },
   });
 
@@ -128,7 +134,7 @@ export function AttendeeDetailPage() {
 
   const currentImageSrc =
     imagePreviewUrl ||
-    resolveMediaUrl(attendee.profileImageUrl) ||
+    (removeProfileImage ? null : resolveMediaUrl(attendee.profileImageUrl)) ||
     "https://placehold.co/160x160/0f172a/f8fafc?text=QR";
 
   return (
@@ -218,7 +224,10 @@ export function AttendeeDetailPage() {
               <Input
                 key={imageInputKey}
                 accept="image/*"
-                onChange={(event) => setProfileImageFile(event.target.files?.[0] ?? null)}
+                onChange={(event) => {
+                  setProfileImageFile(event.target.files?.[0] ?? null);
+                  setRemoveProfileImage(false);
+                }}
                 type="file"
               />
               <p className="mt-2 text-xs text-slate-500">
@@ -228,6 +237,24 @@ export function AttendeeDetailPage() {
                 <p className="mt-2 text-xs text-slate-300">Selected: {profileImageFile.name}</p>
               ) : null}
             </label>
+
+            {attendee.profileImageUrl && !profileImageFile ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/4 px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-white">Current photo</p>
+                  <p className="text-xs text-slate-400">
+                    {removeProfileImage ? "Photo will be removed on save." : "Photo will stay unchanged."}
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setRemoveProfileImage((value) => !value)}
+                  type="button"
+                  variant={removeProfileImage ? "secondary" : "ghost"}
+                >
+                  {removeProfileImage ? "Keep photo" : "Remove photo"}
+                </Button>
+              </div>
+            ) : null}
 
             {updateMutation.isError ? (
               <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
