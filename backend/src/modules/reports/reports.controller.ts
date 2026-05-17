@@ -107,13 +107,15 @@ function buildReportRowsForExport(report: Awaited<ReturnType<typeof buildAttenda
 
 export const getSeriesReport = asyncHandler(async (request, response) => {
   const seriesId = request.params.id as string;
-  const report = await buildAttendanceReport(seriesId, request.auth!.organizationId);
+  const organizationId = request.auth!.organizationId as string;
+  const report = await buildAttendanceReport(seriesId, organizationId);
   response.json(successResponse(report));
 });
 
 export const exportSeriesReportCsv = asyncHandler(async (request, response) => {
   const seriesId = request.params.id as string;
-  const report = await buildAttendanceReport(seriesId, request.auth!.organizationId);
+  const organizationId = request.auth!.organizationId as string;
+  const report = await buildAttendanceReport(seriesId, organizationId);
 
   const csv = stringify(buildReportRowsForExport(report), { header: true });
 
@@ -127,7 +129,8 @@ export const exportSeriesReportCsv = asyncHandler(async (request, response) => {
 
 export const exportSeriesReportExcel = asyncHandler(async (request, response) => {
   const seriesId = request.params.id as string;
-  const report = await buildAttendanceReport(seriesId, request.auth!.organizationId);
+  const organizationId = request.auth!.organizationId as string;
+  const report = await buildAttendanceReport(seriesId, organizationId);
 
   const workbook = XLSX.utils.book_new();
   const attendanceSheet = XLSX.utils.json_to_sheet(buildReportRowsForExport(report));

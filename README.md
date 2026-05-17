@@ -1,4 +1,4 @@
-# Event QR Attendance MVP
+# Event QR Attendance
 
 Reusable QR attendance platform for recurring workshops and event series.
 
@@ -11,29 +11,43 @@ Reusable QR attendance platform for recurring workshops and event series.
 - Auth: JWT
 - Dev database: Docker Compose for PostgreSQL
 
-## What’s included
+## What is included
 
-- Admin login with JWT auth
-- Public organization registration with first admin onboarding
-- Organizations, event series, and event sessions
+- Public landing page
+- Account-first registration flow
+- JWT login plus protected app routes
+- Multi-organization memberships per user
+- Organization creation, join codes, and invite links
+- Account settings and organization settings
+- Owner-only member role management and member removal
 - Attendee CRUD with secure random `qrToken`
 - QR code rendering and download on attendee profile
-- Browser camera QR scanner with duplicate check protection
-- Attendance dashboard and series report percentages
+- Browser camera QR scanner with duplicate protection
+- Attendance matrix with per-session joined/missed state
 - CSV and Excel export for event-series attendance
-- Prisma migration and seed data
+- Prisma migrations and seed data
+
+## Product flow
+
+1. A user creates an account at `/register`.
+2. After sign-in, they can:
+   - create a new organization
+   - join an organization with a join code
+   - open an invite link and auto-join
+3. A user can belong to multiple organizations and switch the active workspace from the app shell or account settings.
+4. Event series, sessions, attendees, scanning, and reports are scoped to the active organization.
 
 ## Project structure
 
 ```text
 .
-├─ backend/
-│  ├─ prisma/
-│  └─ src/
-├─ frontend/
-│  └─ src/
-├─ docker-compose.yml
-└─ README.md
+|-- backend/
+|   |-- prisma/
+|   `-- src/
+|-- frontend/
+|   `-- src/
+|-- docker-compose.yml
+`-- README.md
 ```
 
 ## Environment files
@@ -59,21 +73,23 @@ npm run install:all
 docker compose up -d
 ```
 
-3. Run the Prisma migration:
+3. Apply migrations:
 
 ```bash
-npm run prisma:migrate --prefix backend -- --name init
+cd backend
+npx prisma migrate deploy
 ```
 
 4. Seed the database:
 
 ```bash
-npm run prisma:seed --prefix backend
+npm run prisma:seed
 ```
 
 5. Start the backend:
 
 ```bash
+cd ..
 npm run dev:backend
 ```
 
@@ -88,28 +104,64 @@ npm run dev:frontend
 - Frontend: `http://localhost:5173`
 - Backend health: `http://localhost:4000/api/health`
 
-The frontend now uses:
+## Frontend routes
 
-- `/` for the public landing page
-- `/login` for sign-in
-- `/register` for organization/admin signup
-- `/app/*` for the authenticated workspace
+- `/` public landing page
+- `/login` sign-in
+- `/register` account creation
+- `/invite/:token` invite acceptance
+- `/app/onboarding` create or join an organization
+- `/app/*` authenticated workspace
 
-## Seeded admin login
+## Seeded accounts and data
 
-- Email: `admin@example.com`
-- Password: `admin123`
+Seed creates:
+
+- 2 organizations
+- 1 event series
+- 5 event sessions
+- 10 attendees
+- sample attendance records
+
+Optional seeded user:
+
+- If `SEED_USER_NAME`, `SEED_USER_EMAIL`, and `SEED_USER_PASSWORD` are set in `backend/.env`, seed will also create a user, attach that user to both organizations, and create a sample invite.
+- If those variables are left blank, no login account is created by seed.
 
 ## Important local note
 
-`docker-compose.yml` intentionally exposes PostgreSQL on port `5432` as requested. If you already have a local PostgreSQL service using `5432`, stop that service before running `docker compose up -d`, or the container will fail to bind that port.
+`docker-compose.yml` exposes PostgreSQL on port `5432` as requested. If you already have another PostgreSQL service using `5432`, stop that service before running `docker compose up -d`, or the container will fail to bind the port.
 
-During verification in this workspace, an existing PostgreSQL instance was already bound to `5432`, so the Prisma migration and seed were run against that live local instance instead.
+During verification in this workspace, another PostgreSQL instance was already bound to `5432`, so migrations and seed were run against that live local instance instead.
 
 ## Main API routes
 
+Auth:
+
 - `POST /api/auth/login`
 - `POST /api/auth/register`
+- `GET /api/auth/me`
+- `POST /api/auth/switch-organization`
+- `PATCH /api/auth/account`
+- `POST /api/auth/change-password`
+
+Organizations:
+
+- `GET /api/organizations`
+- `POST /api/organizations`
+- `POST /api/organizations/join`
+- `GET /api/organizations/invites/:token`
+- `POST /api/organizations/invites/:token/accept`
+- `GET /api/organizations/current`
+- `PATCH /api/organizations/current`
+- `POST /api/organizations/current/regenerate-join-code`
+- `POST /api/organizations/current/invites`
+- `POST /api/organizations/current/leave`
+- `PATCH /api/organizations/current/members/:membershipId`
+- `DELETE /api/organizations/current/members/:membershipId`
+
+Attendance product:
+
 - `GET /api/event-series`
 - `POST /api/event-series`
 - `GET /api/event-series/:id`
@@ -141,17 +193,21 @@ npm run dev:frontend
 npm run seed
 ```
 
-## Verification completed
+## Verification
 
-- Backend TypeScript build passed
-- Frontend production build passed
-- Prisma migration was created and applied
-- Seed script ran successfully
+Verified in this workspace:
+
+- backend TypeScript build passed
+- frontend production build passed
+- Prisma client regenerated successfully
+- migrations applied successfully, including the multi-organization migration
+- seed script ran successfully
 - API smoke tests passed for:
-  - login
-  - attendee list/detail
-  - event series list
-  - event series report
-  - scan success
-  - duplicate scan protection
-  - invalid QR response
+  - account-only registration
+  - create organization
+  - join organization by code
+  - accept invite link
+  - switch active organization
+  - owner role update for a member
+  - member leave organization
+- browser render checks were performed for the landing page and register page

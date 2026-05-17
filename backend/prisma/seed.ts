@@ -16,6 +16,22 @@ function createInviteToken() {
   return randomBytes(24).toString("hex");
 }
 
+function getOptionalSeedUser() {
+  const name = process.env.SEED_USER_NAME?.trim();
+  const email = process.env.SEED_USER_EMAIL?.trim().toLowerCase();
+  const password = process.env.SEED_USER_PASSWORD?.trim();
+
+  if (!name || !email || !password) {
+    return null;
+  }
+
+  return {
+    name,
+    email,
+    password,
+  };
+}
+
 async function main() {
   await prisma.attendanceRecord.deleteMany();
   await prisma.eventSession.deleteMany();
@@ -40,39 +56,43 @@ async function main() {
     },
   });
 
-  const passwordHash = await bcrypt.hash("admin123", 10);
+  const seedUser = getOptionalSeedUser();
 
-  const adminUser = await prisma.user.create({
-    data: {
-      name: "Admin User",
-      email: "admin@example.com",
-      passwordHash,
-    },
-  });
+  if (seedUser) {
+    const passwordHash = await bcrypt.hash(seedUser.password, 10);
 
-  await prisma.organizationMembership.createMany({
-    data: [
-      {
-        userId: adminUser.id,
+    const seededUser = await prisma.user.create({
+      data: {
+        name: seedUser.name,
+        email: seedUser.email,
+        passwordHash,
+      },
+    });
+
+    await prisma.organizationMembership.createMany({
+      data: [
+        {
+          userId: seededUser.id,
+          organizationId: organization.id,
+          role: OrganizationRole.OWNER,
+        },
+        {
+          userId: seededUser.id,
+          organizationId: secondOrganization.id,
+          role: OrganizationRole.ADMIN,
+        },
+      ],
+    });
+
+    await prisma.organizationInvite.create({
+      data: {
         organizationId: organization.id,
-        role: OrganizationRole.OWNER,
+        createdByUserId: seededUser.id,
+        token: createInviteToken(),
+        expiresAt: new Date("2027-01-01T00:00:00.000Z"),
       },
-      {
-        userId: adminUser.id,
-        organizationId: secondOrganization.id,
-        role: OrganizationRole.ADMIN,
-      },
-    ],
-  });
-
-  await prisma.organizationInvite.create({
-    data: {
-      organizationId: organization.id,
-      createdByUserId: adminUser.id,
-      token: createInviteToken(),
-      expiresAt: new Date("2027-01-01T00:00:00.000Z"),
-    },
-  });
+    });
+  }
 
   const series = await prisma.eventSeries.create({
     data: {

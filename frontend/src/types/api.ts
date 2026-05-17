@@ -40,6 +40,12 @@ export type OrganizationDetail = {
   id: string;
   name: string;
   joinCode: string;
+  currentUserRole: "OWNER" | "ADMIN" | "MEMBER";
+  permissions: {
+    canManageOrganization: boolean;
+    canManageMembers: boolean;
+    canCreateInvites: boolean;
+  };
   members: Array<{
     membershipId: string;
     userId: string;

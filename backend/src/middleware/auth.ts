@@ -1,3 +1,4 @@
+import type { OrganizationRole } from "@prisma/client";
 import type { NextFunction, Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { ApiError } from "../utils/api-error";
@@ -45,4 +46,14 @@ export async function requireActiveOrganization(
 
   request.auth.role = membership.role;
   next();
+}
+
+export function requireOrganizationRole(allowedRoles: OrganizationRole[]) {
+  return (request: Request, _response: Response, next: NextFunction) => {
+    if (!request.auth?.role || !allowedRoles.includes(request.auth.role)) {
+      return next(new ApiError(403, "You do not have permission to manage this organization"));
+    }
+
+    next();
+  };
 }

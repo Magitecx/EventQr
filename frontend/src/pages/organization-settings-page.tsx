@@ -1,0 +1,356 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Copy, DoorOpen, RotateCw, Shield, Trash2, UserCog } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Select } from "../components/ui/select";
+import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
+import { formatDate } from "../lib/utils";
+import type { AuthResponse, OrganizationDetail } from "../types/api";
+
+export function OrganizationSettingsPage() {
+  const navigate = useNavigate();
+  const { activeMembership, auth, setAuthState } = useAuth();
+  const queryClient = useQueryClient();
+  const [organizationName, setOrganizationName] = useState("");
+  const [inviteExpiryDays, setInviteExpiryDays] = useState("30");
+  const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
+  const [joinCodeCopied, setJoinCodeCopied] = useState(false);
+
+  const organizationQuery = useQuery({
+    queryKey: ["organization-current"],
+    enabled: Boolean(activeMembership),
+    queryFn: async () => unwrapResponse<OrganizationDetail>(await api.get("/organizations/current")),
+  });
+
+  const organization = organizationQuery.data;
+  const canManageOrganization = organization?.permissions.canManageOrganization ?? false;
+  const canManageMembers = organization?.permissions.canManageMembers ?? false;
+  const canCreateInvites = organization?.permissions.canCreateInvites ?? false;
+
+  useEffect(() => {
+    if (organization?.name) {
+      setOrganizationName(organization.name);
+    }
+  }, [organization?.name]);
+
+  const updateMutation = useMutation({
+    mutationFn: async (name: string) => unwrapResponse(await api.patch("/organizations/current", { name })),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+  });
+
+  const regenerateMutation = useMutation({
+    mutationFn: async () =>
+      unwrapResponse<{ joinCode: string }>(await api.post("/organizations/current/regenerate-join-code")),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: async () =>
+      unwrapResponse(
+        await api.post("/organizations/current/invites", { expiresInDays: Number(inviteExpiryDays) }),
+      ),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+  });
+
+  const updateMemberRoleMutation = useMutation({
+    mutationFn: async ({ membershipId, role }: { membershipId: string; role: "ADMIN" | "MEMBER" }) =>
+      unwrapResponse(await api.patch(`/organizations/current/members/${membershipId}`, { role })),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+  });
+
+  const removeMemberMutation = useMutation({
+    mutationFn: async (membershipId: string) =>
+      unwrapResponse(await api.delete(`/organizations/current/members/${membershipId}`)),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+  });
+
+  const leaveOrganizationMutation = useMutation({
+    mutationFn: async () => unwrapResponse<AuthResponse>(await api.post("/organizations/current/leave")),
+    onSuccess: (result) => {
+      setAuthState(result);
+      queryClient.removeQueries({ queryKey: ["organization-current"] });
+      navigate(result.activeOrganizationId ? "/app" : "/app/onboarding");
+    },
+  });
+
+  const inviteBaseUrl = typeof window === "undefined" ? "" : window.location.origin;
+
+  async function copyJoinCode() {
+    if (!organization?.joinCode) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(organization.joinCode);
+    setJoinCodeCopied(true);
+    window.setTimeout(() => setJoinCodeCopied(false), 1800);
+  }
+
+  async function copyInviteLink(inviteId: string, inviteUrl: string) {
+    await navigator.clipboard.writeText(inviteUrl);
+    setCopiedInviteId(inviteId);
+    window.setTimeout(() => {
+      setCopiedInviteId((current) => (current === inviteId ? null : current));
+    }, 1800);
+  }
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
+      <Card className="p-8">
+        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Organization settings</p>
+        <h1 className="mt-3 font-display text-3xl font-semibold text-white">Workspace configuration</h1>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <span className="rounded-full border border-white/10 bg-white/6 px-4 py-2 text-sm text-slate-200">
+            Your role: {organization?.currentUserRole ?? activeMembership?.role ?? "MEMBER"}
+          </span>
+          {!canManageOrganization ? (
+            <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-sm text-amber-100">
+              View-only access
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-8 space-y-4">
+          <label className="block">
+            <span className="mb-2 block text-sm text-slate-300">Organization name</span>
+            <Input
+              disabled={!canManageOrganization}
+              onChange={(event) => setOrganizationName(event.target.value)}
+              value={organizationName}
+            />
+          </label>
+
+          {updateMutation.isError ? (
+            <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              {getErrorMessage(updateMutation.error)}
+            </p>
+          ) : null}
+
+          <Button
+            disabled={!canManageOrganization || updateMutation.isPending}
+            onClick={() => updateMutation.mutate(organizationName)}
+            type="button"
+          >
+            {updateMutation.isPending ? "Saving..." : "Save organization"}
+          </Button>
+        </div>
+
+        <div className="mt-10 rounded-[24px] border border-white/10 bg-white/4 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-white">Join code</p>
+              <p className="mt-1 text-sm text-slate-400">Share this code for manual organization joins.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button icon={<Copy className="size-4" />} onClick={copyJoinCode} type="button" variant="ghost">
+                {joinCodeCopied ? "Copied" : "Copy"}
+              </Button>
+              <Button
+                disabled={!canManageOrganization || regenerateMutation.isPending}
+                icon={<RotateCw className="size-4" />}
+                onClick={() => regenerateMutation.mutate()}
+                type="button"
+                variant="secondary"
+              >
+                Regenerate
+              </Button>
+            </div>
+          </div>
+          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 font-mono text-lg text-amber-200">
+            {organization?.joinCode ?? "Loading..."}
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-[24px] border border-white/10 bg-white/4 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-white">Invite links</p>
+              <p className="mt-1 text-sm text-slate-400">Create a shareable invite link for direct auto-join.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Select
+                className="min-w-[140px]"
+                disabled={!canCreateInvites || inviteMutation.isPending}
+                onChange={(event) => setInviteExpiryDays(event.target.value)}
+                value={inviteExpiryDays}
+              >
+                <option value="7">7 days</option>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+              </Select>
+              <Button
+                disabled={!canCreateInvites || inviteMutation.isPending}
+                onClick={() => inviteMutation.mutate()}
+                type="button"
+                variant="secondary"
+              >
+                Create invite
+              </Button>
+            </div>
+          </div>
+          {!canCreateInvites ? (
+            <p className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-400">
+              Invite creation is available to organization admins and owners.
+            </p>
+          ) : null}
+        </div>
+
+        <div className="mt-6 rounded-[24px] border border-rose-400/16 bg-rose-500/8 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-white">Leave organization</p>
+              <p className="mt-1 text-sm text-slate-400">
+                Remove your own access to this workspace. Your account will remain active.
+              </p>
+            </div>
+            <Button
+              disabled={leaveOrganizationMutation.isPending}
+              icon={<DoorOpen className="size-4" />}
+              onClick={() => leaveOrganizationMutation.mutate()}
+              type="button"
+              variant="danger"
+            >
+              {leaveOrganizationMutation.isPending ? "Leaving..." : "Leave workspace"}
+            </Button>
+          </div>
+          {leaveOrganizationMutation.isError ? (
+            <p className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              {getErrorMessage(leaveOrganizationMutation.error)}
+            </p>
+          ) : null}
+        </div>
+      </Card>
+
+      <div className="grid gap-6">
+        <Card className="p-8">
+          <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Members</p>
+          <h2 className="mt-3 text-3xl font-semibold text-white">{organization?.members.length ?? 0} team members</h2>
+          {!canManageMembers ? (
+            <p className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-400">
+              Only owners can update roles or remove members.
+            </p>
+          ) : null}
+
+          <div className="mt-6 space-y-3">
+            {organization?.members.map((member) => (
+              <div key={member.membershipId} className="rounded-[22px] border border-white/10 bg-white/4 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-white">{member.name}</p>
+                    <p className="mt-1 text-sm text-slate-400">{member.email}</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-300">
+                      {member.role}
+                    </span>
+                    {member.userId === auth?.user.id ? (
+                      <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-emerald-200">
+                        You
+                      </span>
+                    ) : null}
+                    {canManageMembers && member.userId !== auth?.user.id && member.role !== "OWNER" ? (
+                      <>
+                        <Select
+                          className="min-w-[130px]"
+                          disabled={updateMemberRoleMutation.isPending}
+                          onChange={(event) =>
+                            updateMemberRoleMutation.mutate({
+                              membershipId: member.membershipId,
+                              role: event.target.value as "ADMIN" | "MEMBER",
+                            })
+                          }
+                          value={member.role}
+                        >
+                          <option value="ADMIN">Admin</option>
+                          <option value="MEMBER">Member</option>
+                        </Select>
+                        <Button
+                          disabled={removeMemberMutation.isPending}
+                          icon={<Trash2 className="size-4" />}
+                          onClick={() => removeMemberMutation.mutate(member.membershipId)}
+                          type="button"
+                          variant="danger"
+                        >
+                          Remove
+                        </Button>
+                      </>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-8">
+          <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Invite history</p>
+          <h2 className="mt-3 text-3xl font-semibold text-white">{organization?.invites.length ?? 0} invite links</h2>
+
+          <div className="mt-6 space-y-3">
+            {organization?.invites.map((invite) => {
+              const inviteUrl = `${inviteBaseUrl}/invite/${invite.token}`;
+
+              return (
+                <div key={invite.id} className="rounded-[22px] border border-white/10 bg-white/4 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-white">Invite created by {invite.createdByName}</p>
+                      <p className="mt-2 break-all text-sm text-slate-400">{inviteUrl}</p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">
+                        Created {formatDate(invite.createdAt)} - Used {invite.usedCount} times
+                      </p>
+                    </div>
+                    <Button
+                      icon={<Copy className="size-4" />}
+                      onClick={() => copyInviteLink(invite.id, inviteUrl)}
+                      type="button"
+                      variant="ghost"
+                    >
+                      {copiedInviteId === invite.id ? "Copied" : "Copy"}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+
+        <Card className="p-8">
+          <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Admin controls</p>
+          <h2 className="mt-3 text-3xl font-semibold text-white">Operational permissions</h2>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {[
+              {
+                title: "Workspace config",
+                enabled: canManageOrganization,
+                icon: Shield,
+              },
+              {
+                title: "Invite creation",
+                enabled: canCreateInvites,
+                icon: UserCog,
+              },
+              {
+                title: "Member management",
+                enabled: canManageMembers,
+                icon: UserCog,
+              },
+            ].map((item) => (
+              <div key={item.title} className="rounded-[22px] border border-white/10 bg-white/4 p-4">
+                <item.icon className="size-5 text-amber-200" />
+                <p className="mt-4 font-semibold text-white">{item.title}</p>
+                <p className="mt-2 text-sm text-slate-400">
+                  {item.enabled ? "Enabled for your role" : "Requires higher organization access"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}

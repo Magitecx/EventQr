@@ -3,6 +3,7 @@ import {
   CalendarDays,
   ChevronRight,
   LogOut,
+  Settings2,
   PlusCircle,
   QrCode,
   Radio,
@@ -10,25 +11,41 @@ import {
   Users,
 } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../../lib/auth";
+import { api, unwrapResponse } from "../../lib/api";
 import { cn } from "../../lib/utils";
+import type { AuthResponse } from "../../types/api";
 import { Button } from "../ui/button";
+import { Select } from "../ui/select";
 
 const navigation = [
   { to: "/app", label: "Dashboard", icon: BarChart3 },
   { to: "/app/event-series", label: "Event Series", icon: CalendarDays },
   { to: "/app/attendees", label: "Attendees", icon: Users },
   { to: "/app/scanner", label: "Scanner", icon: Radio },
+  { to: "/app/settings/account", label: "Settings", icon: Settings2 },
 ];
 
 export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { auth, logout } = useAuth();
+  const { activeMembership, auth, logout, setAuthState } = useAuth();
 
   const pathLabel =
     navigation.find((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`))
       ?.label ?? "Workspace";
+
+  const switchMutation = useMutation({
+    mutationFn: async (organizationId: string) =>
+      unwrapResponse<AuthResponse>(await api.post("/auth/switch-organization", { organizationId })),
+    onSuccess: (result) => {
+      setAuthState(result);
+      if (location.pathname === "/app/onboarding") {
+        navigate("/app");
+      }
+    },
+  });
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.16),transparent_24%),radial-gradient(circle_at_top_right,rgba(34,197,94,0.12),transparent_18%),linear-gradient(180deg,#020617,#0f172a_40%,#111827)] text-slate-100">
@@ -81,6 +98,39 @@ export function AppShell() {
           </div>
 
           <div className="mt-8 rounded-[24px] border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Current organization</p>
+            <p className="mt-2 text-lg font-semibold text-white">
+              {activeMembership?.organizationName ?? "No active organization"}
+            </p>
+            <div className="mt-3">
+              <Select
+                disabled={switchMutation.isPending || (auth?.memberships.length ?? 0) === 0}
+                onChange={(event) => {
+                  if (event.target.value) {
+                    switchMutation.mutate(event.target.value);
+                  }
+                }}
+                value={auth?.activeOrganizationId ?? ""}
+              >
+                <option value="">Select organization</option>
+                {auth?.memberships.map((membership) => (
+                  <option key={membership.membershipId} value={membership.organizationId}>
+                    {membership.organizationName}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link to="/app/onboarding">
+                <Button variant="ghost">Create or join</Button>
+              </Link>
+              <Link to="/app/settings/organization">
+                <Button variant="ghost">Org settings</Button>
+              </Link>
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-[24px] border border-white/10 bg-white/5 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Signed in as</p>
             <p className="mt-2 text-lg font-semibold">{auth?.user.name}</p>
             <p className="text-sm text-slate-400">{auth?.user.email}</p>
@@ -124,9 +174,9 @@ export function AppShell() {
               <Link to="/app/scanner">
                 <Button icon={<Radio className="size-4" />}>Open scanner</Button>
               </Link>
-              <Link to="/app/event-series">
+              <Link to="/app/settings/account">
                 <Button icon={<Sheet className="size-4" />} variant="ghost">
-                  Reports
+                  Account
                 </Button>
               </Link>
             </div>

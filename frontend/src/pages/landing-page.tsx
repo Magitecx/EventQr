@@ -85,7 +85,7 @@ export function LandingPage() {
               </Link>
               <Link to="/login">
                 <Button className="px-6 py-3 text-base" variant="secondary">
-                  Open demo admin
+                  Go to login
                 </Button>
               </Link>
             </div>

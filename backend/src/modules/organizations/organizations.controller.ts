@@ -9,6 +9,7 @@ import {
   createInviteSchema,
   createOrganizationSchema,
   joinOrganizationSchema,
+  updateMembershipRoleSchema,
   updateOrganizationSchema,
 } from "./organizations.schemas";
 
@@ -252,6 +253,12 @@ export const getCurrentOrganization = asyncHandler(async (request, response) => 
       id: organization.id,
       name: organization.name,
       joinCode: organization.joinCode,
+      currentUserRole: request.auth!.role,
+      permissions: {
+        canManageOrganization: request.auth!.role === OrganizationRole.OWNER || request.auth!.role === OrganizationRole.ADMIN,
+        canManageMembers: request.auth!.role === OrganizationRole.OWNER,
+        canCreateInvites: request.auth!.role === OrganizationRole.OWNER || request.auth!.role === OrganizationRole.ADMIN,
+      },
       members: organization.memberships.map((membership) => ({
         membershipId: membership.id,
         userId: membership.userId,
@@ -337,6 +344,123 @@ export const createInvite = asyncHandler(async (request, response) => {
         createdByName: invite.createdBy.name,
       },
       "Invite created",
+    ),
+  );
+});
+
+export const updateMembershipRole = asyncHandler(async (request, response) => {
+  const body = updateMembershipRoleSchema.parse(request.body);
+  const organizationId = request.auth!.organizationId!;
+  const membershipId = request.params.membershipId as string;
+
+  const membership = await prisma.organizationMembership.findFirst({
+    where: {
+      id: membershipId,
+      organizationId,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  if (!membership) {
+    throw new ApiError(404, "Membership not found");
+  }
+
+  if (membership.userId === request.auth!.userId) {
+    throw new ApiError(400, "Use leave organization instead of changing your own role");
+  }
+
+  if (membership.role === OrganizationRole.OWNER) {
+    throw new ApiError(400, "Owner role cannot be changed from this screen");
+  }
+
+  const updatedMembership = await prisma.organizationMembership.update({
+    where: {
+      id: membership.id,
+    },
+    data: {
+      role: body.role,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  response.json(
+    successResponse(
+      {
+        membershipId: updatedMembership.id,
+        userId: updatedMembership.userId,
+        name: updatedMembership.user.name,
+        email: updatedMembership.user.email,
+        role: updatedMembership.role,
+        createdAt: updatedMembership.createdAt,
+      },
+      "Member role updated",
+    ),
+  );
+});
+
+export const removeMembership = asyncHandler(async (request, response) => {
+  const organizationId = request.auth!.organizationId!;
+  const membershipId = request.params.membershipId as string;
+
+  const membership = await prisma.organizationMembership.findFirst({
+    where: {
+      id: membershipId,
+      organizationId,
+    },
+  });
+
+  if (!membership) {
+    throw new ApiError(404, "Membership not found");
+  }
+
+  if (membership.userId === request.auth!.userId) {
+    throw new ApiError(400, "Use leave organization to remove yourself");
+  }
+
+  if (membership.role === OrganizationRole.OWNER) {
+    throw new ApiError(400, "Owner cannot be removed from this screen");
+  }
+
+  await prisma.organizationMembership.delete({
+    where: {
+      id: membership.id,
+    },
+  });
+
+  response.json(successResponse(null, "Member removed"));
+});
+
+export const leaveCurrentOrganization = asyncHandler(async (request, response) => {
+  const organizationId = request.auth!.organizationId!;
+  const membership = await requireMembership(request.auth!.userId, organizationId);
+
+  if (membership.role === OrganizationRole.OWNER) {
+    const ownerCount = await prisma.organizationMembership.count({
+      where: {
+        organizationId,
+        role: OrganizationRole.OWNER,
+      },
+    });
+
+    if (ownerCount <= 1) {
+      throw new ApiError(400, "Transfer ownership or add another owner before leaving");
+    }
+  }
+
+  await prisma.organizationMembership.delete({
+    where: {
+      id: membership.id,
+    },
+  });
+
+  response.json(
+    successResponse(
+      await buildAuthPayload(request.auth!.userId, undefined),
+      "You left the organization",
     ),
   );
 });

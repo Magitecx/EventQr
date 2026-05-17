@@ -6,9 +6,11 @@ import { generateQrToken } from "../../utils/qr-token";
 import { createAttendeeSchema, updateAttendeeSchema } from "./attendees.schemas";
 
 export const listAttendees = asyncHandler(async (request, response) => {
+  const organizationId = request.auth!.organizationId as string;
+
   const attendees = await prisma.attendee.findMany({
     where: {
-      organizationId: request.auth!.organizationId,
+      organizationId,
       deletedAt: null,
     },
     orderBy: {
@@ -21,11 +23,12 @@ export const listAttendees = asyncHandler(async (request, response) => {
 
 export const createAttendee = asyncHandler(async (request, response) => {
   const body = createAttendeeSchema.parse(request.body);
+  const organizationId = request.auth!.organizationId as string;
 
   const attendee = await prisma.attendee.create({
     data: {
       ...body,
-      organizationId: request.auth!.organizationId,
+      organizationId,
       qrToken: generateQrToken(),
     },
   });
@@ -35,11 +38,12 @@ export const createAttendee = asyncHandler(async (request, response) => {
 
 export const getAttendee = asyncHandler(async (request, response) => {
   const attendeeId = request.params.id as string;
+  const organizationId = request.auth!.organizationId as string;
 
   const attendee = await prisma.attendee.findFirst({
     where: {
       id: attendeeId,
-      organizationId: request.auth!.organizationId,
+      organizationId,
     },
     include: {
       attendance: {
@@ -67,11 +71,12 @@ export const getAttendee = asyncHandler(async (request, response) => {
 export const updateAttendee = asyncHandler(async (request, response) => {
   const attendeeId = request.params.id as string;
   const body = updateAttendeeSchema.parse(request.body);
+  const organizationId = request.auth!.organizationId as string;
 
   const existing = await prisma.attendee.findFirst({
     where: {
       id: attendeeId,
-      organizationId: request.auth!.organizationId,
+      organizationId,
       deletedAt: null,
     },
   });
@@ -92,11 +97,12 @@ export const updateAttendee = asyncHandler(async (request, response) => {
 
 export const deleteAttendee = asyncHandler(async (request, response) => {
   const attendeeId = request.params.id as string;
+  const organizationId = request.auth!.organizationId as string;
 
   const existing = await prisma.attendee.findFirst({
     where: {
       id: attendeeId,
-      organizationId: request.auth!.organizationId,
+      organizationId,
       deletedAt: null,
     },
   });

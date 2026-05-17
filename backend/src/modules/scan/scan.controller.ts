@@ -5,13 +5,14 @@ import { checkInSchema } from "./scan.schemas";
 
 export const checkIn = asyncHandler(async (request, response) => {
   const body = checkInSchema.parse(request.body);
+  const organizationId = request.auth!.organizationId as string;
 
   const [session, attendee] = await Promise.all([
     prisma.eventSession.findFirst({
       where: {
         id: body.eventSessionId,
         eventSeries: {
-          organizationId: request.auth!.organizationId,
+          organizationId,
         },
       },
     }),
@@ -44,7 +45,7 @@ export const checkIn = asyncHandler(async (request, response) => {
     );
   }
 
-  if (attendee.organizationId !== request.auth!.organizationId) {
+  if (attendee.organizationId !== organizationId) {
     return response.json(
       successResponse(
         {

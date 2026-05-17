@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Building2, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { LockKeyhole, Mail, UserRound } from "lucide-react";
 import { startTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,12 +8,11 @@ import { z } from "zod";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
-import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { api, getErrorMessage, getPendingInviteToken, unwrapResponse } from "../lib/api";
 import { useAuth } from "../lib/auth";
-import type { LoginResponse, RegisterPayload } from "../types/api";
+import type { AuthResponse, RegisterPayload } from "../types/api";
 
 const registerSchema = z.object({
-  organizationName: z.string().trim().min(2),
   name: z.string().trim().min(2),
   email: z.email(),
   password: z.string().min(6),
@@ -40,10 +39,11 @@ export function RegisterPage() {
 
   const mutation = useMutation({
     mutationFn: async (values: RegisterPayload) =>
-      unwrapResponse<LoginResponse>(await api.post("/auth/register", values)),
+      unwrapResponse<AuthResponse>(await api.post("/auth/register", values)),
     onSuccess: (result) => {
       login(result);
-      startTransition(() => navigate("/app"));
+      const pendingInviteToken = getPendingInviteToken();
+      startTransition(() => navigate(pendingInviteToken ? `/invite/${pendingInviteToken}` : "/app/onboarding"));
     },
   });
 
@@ -62,26 +62,15 @@ export function RegisterPage() {
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <Card className="overflow-hidden p-8">
             <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Create account</p>
-            <h1 className="mt-3 font-display text-4xl font-semibold text-white">Launch your attendance workspace</h1>
+            <h1 className="mt-3 font-display text-4xl font-semibold text-white">Create your operator account</h1>
             <p className="mt-4 text-base leading-7 text-slate-300">
-              Start with your organization and first admin account. You’ll land directly in the app
-              ready to add attendees, sessions, and reports.
+              Start with your account first. After sign-up, you can create your own organization,
+              join one with a code, or accept an invite link.
             </p>
 
             <form className="mt-8 grid gap-4" onSubmit={handleSubmit((values) => mutation.mutate(values))}>
               <label className="block">
-                <span className="mb-2 block text-sm text-slate-300">Organization name</span>
-                <div className="relative">
-                  <Building2 className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-500" />
-                  <Input className="pl-11" placeholder="Acme Learning Lab" {...register("organizationName")} />
-                </div>
-                {errors.organizationName ? (
-                  <p className="mt-2 text-xs text-rose-300">{errors.organizationName.message}</p>
-                ) : null}
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm text-slate-300">Admin name</span>
+                <span className="mb-2 block text-sm text-slate-300">Your name</span>
                 <div className="relative">
                   <UserRound className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-500" />
                   <Input className="pl-11" placeholder="Jordan Lee" {...register("name")} />
@@ -127,13 +116,13 @@ export function RegisterPage() {
 
           <div className="grid gap-6">
             <Card className="p-8">
-              <p className="text-sm uppercase tracking-[0.24em] text-amber-200/80">What you get next</p>
+              <p className="text-sm uppercase tracking-[0.24em] text-amber-200/80">What happens next</p>
               <div className="mt-6 grid gap-4">
                 {[
-                  ["1. Create your first series", "Set the program name and session cadence."],
-                  ["2. Add attendees", "Create profiles and generate QR codes instantly."],
-                  ["3. Start scanning", "Open the camera flow with the target session selected."],
-                  ["4. Review the matrix", "See every joined or missed session and export Excel."],
+                  ["1. Create or join an organization", "Pick the workspace you want to operate in first."],
+                  ["2. Create your first series", "Set the program name and session cadence."],
+                  ["3. Add attendees", "Create profiles and generate QR codes instantly."],
+                  ["4. Start scanning", "Open the camera flow with the target session selected."],
                 ].map(([title, copy]) => (
                   <div key={title} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
                     <p className="font-semibold text-white">{title}</p>
@@ -144,10 +133,10 @@ export function RegisterPage() {
             </Card>
 
             <Card className="p-8">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Need the seeded demo?</p>
+              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Already have access?</p>
               <p className="mt-3 text-base leading-7 text-slate-300">
-                You can still use the seeded admin account for testing while keeping registration
-                available for real onboarding.
+                Sign in with your existing account, then switch organizations or accept an invite link
+                when needed.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link to="/login">

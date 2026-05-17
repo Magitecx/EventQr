@@ -5,9 +5,11 @@ import { asyncHandler } from "../../utils/async-handler";
 import { createEventSeriesSchema, createEventSessionSchema } from "./event-series.schemas";
 
 export const listEventSeries = asyncHandler(async (request, response) => {
+  const organizationId = request.auth!.organizationId as string;
+
   const eventSeries = await prisma.eventSeries.findMany({
     where: {
-      organizationId: request.auth!.organizationId,
+      organizationId,
     },
     include: {
       sessions: {
@@ -31,6 +33,7 @@ export const listEventSeries = asyncHandler(async (request, response) => {
 
 export const createEventSeries = asyncHandler(async (request, response) => {
   const body = createEventSeriesSchema.parse(request.body);
+  const organizationId = request.auth!.organizationId as string;
 
   const eventSeries = await prisma.eventSeries.create({
     data: {
@@ -38,7 +41,7 @@ export const createEventSeries = asyncHandler(async (request, response) => {
       description: body.description,
       startDate: body.startDate ? new Date(body.startDate) : undefined,
       endDate: body.endDate ? new Date(body.endDate) : undefined,
-      organizationId: request.auth!.organizationId,
+      organizationId,
     },
   });
 
@@ -47,11 +50,12 @@ export const createEventSeries = asyncHandler(async (request, response) => {
 
 export const getEventSeries = asyncHandler(async (request, response) => {
   const eventSeriesId = request.params.id as string;
+  const organizationId = request.auth!.organizationId as string;
 
   const eventSeries = await prisma.eventSeries.findFirst({
     where: {
       id: eventSeriesId,
-      organizationId: request.auth!.organizationId,
+      organizationId,
     },
     include: {
       sessions: {
@@ -79,11 +83,12 @@ export const getEventSeries = asyncHandler(async (request, response) => {
 export const createEventSession = asyncHandler(async (request, response) => {
   const eventSeriesId = request.params.id as string;
   const body = createEventSessionSchema.parse(request.body);
+  const organizationId = request.auth!.organizationId as string;
 
   const eventSeries = await prisma.eventSeries.findFirst({
     where: {
       id: eventSeriesId,
-      organizationId: request.auth!.organizationId,
+      organizationId,
     },
   });
 
