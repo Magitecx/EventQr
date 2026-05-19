@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
+import { Seo } from "../components/seo/seo";
 import { api, getErrorMessage, getPendingInviteToken, unwrapResponse } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import type { AuthResponse } from "../types/api";
@@ -48,6 +49,12 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen px-4 py-6">
+      <Seo
+        description="Log in to EventQR Hub to manage attendee QR codes, event sessions, scanner flows, and attendance reports."
+        noindex
+        pathname="/login"
+        title="Login"
+      />
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
           <Link className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900" to="/">

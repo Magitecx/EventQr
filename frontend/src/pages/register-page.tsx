@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
+import { Seo } from "../components/seo/seo";
 import { api, getErrorMessage, getPendingInviteToken, unwrapResponse } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import type { AuthResponse, RegisterPayload } from "../types/api";
@@ -49,6 +50,12 @@ export function RegisterPage() {
 
   return (
     <div className="min-h-screen px-4 py-6">
+      <Seo
+        description="Create your EventQR Hub account, then create or join an organization to manage recurring event attendance with QR check-ins."
+        noindex
+        pathname="/register"
+        title="Create Account"
+      />
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
           <Link className="font-display text-2xl font-semibold text-slate-900" to="/">

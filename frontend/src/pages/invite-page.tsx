@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
+import { Seo } from "../components/seo/seo";
 import {
   api,
   clearPendingInviteToken,
@@ -45,6 +46,12 @@ export function InvitePage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 text-slate-900">
+      <Seo
+        description="Accept an EventQR Hub organization invite and join the workspace for attendee and attendance management."
+        noindex
+        pathname={`/invite/${token}`}
+        title="Organization Invite"
+      />
       <Card className="w-full max-w-2xl p-8">
         <div className="w-fit rounded-2xl bg-emerald-50 p-3 text-emerald-700">
           <Link2 className="size-5" />

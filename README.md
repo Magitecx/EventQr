@@ -57,6 +57,8 @@ Example files are included:
 - [backend/.env.example](backend/.env.example)
 - [frontend/.env.example](frontend/.env.example)
 
+Set `VITE_SITE_URL` in `frontend/.env` to your real production domain before building for production so canonical URLs, sitemap, and robots output use the correct host.
+
 For local verification in this workspace, `.env` files were also created and are gitignored.
 
 ## Quick start

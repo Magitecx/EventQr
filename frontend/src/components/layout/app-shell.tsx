@@ -16,8 +16,10 @@ import { useAuth } from "../../lib/auth";
 import { api, unwrapResponse } from "../../lib/api";
 import { cn } from "../../lib/utils";
 import type { AuthResponse } from "../../types/api";
+import { Seo } from "../seo/seo";
 import { Button } from "../ui/button";
 import { Select } from "../ui/select";
+import { ThemeToggle } from "../ui/theme-toggle";
 
 const navigation = [
   { to: "/app", label: "Dashboard", icon: BarChart3 },
@@ -49,8 +51,9 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen text-slate-900">
+      <Seo noindex pathname={location.pathname} title={pathLabel} />
       <div className="mx-auto grid min-h-screen max-w-[1480px] gap-6 px-4 py-4 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-6">
-        <aside className="rounded-[32px] border border-[var(--color-border)] bg-[rgba(255,255,255,0.86)] p-6 shadow-[0_18px_60px_rgba(148,163,184,0.12)] backdrop-blur">
+        <aside className="rounded-[32px] border border-[var(--color-border)] bg-[var(--color-panel)] p-6 shadow-[0_18px_60px_rgba(148,163,184,0.12)] backdrop-blur">
           <div className="flex items-center gap-3">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
               <QrCode className="size-6" />
@@ -150,7 +153,7 @@ export function AppShell() {
         </aside>
 
         <main className="min-w-0 py-2">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[rgba(255,255,255,0.86)] px-5 py-4 backdrop-blur">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-panel)] px-5 py-4 backdrop-blur">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Workspace</p>
               <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
@@ -161,6 +164,7 @@ export function AppShell() {
             </div>
 
             <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2 xl:flex">
+              <ThemeToggle />
               <Link to="/app/event-series">
                 <Button className="w-full" icon={<PlusCircle className="size-4" />} variant="secondary">
                   New series

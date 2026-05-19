@@ -9,8 +9,11 @@ import {
   UserRound,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getSiteUrl } from "../lib/seo";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
+import { Seo } from "../components/seo/seo";
+import { ThemeToggle } from "../components/ui/theme-toggle";
 
 const features = [
   { title: "Series", icon: CalendarDays },
@@ -44,9 +47,43 @@ const featureDetails = [
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen px-4 py-5 text-slate-900 lg:px-6">
+    <div className="min-h-screen px-4 py-5 text-[var(--color-text)] lg:px-6">
+      <Seo
+        description="Run recurring workshops and event series with secure attendee QR codes, live browser scanning, attendance percentages, and export-ready reports."
+        keywords={[
+          "QR attendance platform",
+          "event attendance software",
+          "workshop attendance tracker",
+          "QR check in system",
+          "attendance report software",
+        ]}
+        pathname="/"
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            applicationCategory: "BusinessApplication",
+            name: "EventQR Hub",
+            operatingSystem: "Web",
+            description:
+              "QR attendance platform for recurring workshops and event series with secure attendee check-ins and reporting.",
+            offers: {
+              "@type": "Offer",
+              price: "0",
+              priceCurrency: "USD",
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "EventQR Hub",
+            url: getSiteUrl(),
+          },
+        ]}
+        title="QR Attendance Platform for Recurring Events"
+      />
       <div className="mx-auto max-w-[1320px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[rgba(255,255,255,0.88)] px-5 py-4 shadow-[0_18px_40px_rgba(148,163,184,0.1)] backdrop-blur">
+        <header className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-panel)] px-5 py-4 shadow-[0_18px_40px_rgba(148,163,184,0.1)] backdrop-blur">
           <div className="flex items-center gap-3">
             <div className="flex size-11 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
               <QrCode className="size-5" />
@@ -65,6 +102,7 @@ export function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link to="/login">
               <Button variant="ghost">Login</Button>
             </Link>
