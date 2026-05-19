@@ -8,13 +8,13 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants = {
   primary:
-    "bg-[var(--color-accent)] text-slate-950 hover:bg-[var(--color-accent-strong)] shadow-[0_14px_30px_rgba(245,158,11,0.28)]",
+    "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-strong)] shadow-[0_16px_30px_rgba(180,83,9,0.18)]",
   secondary:
-    "bg-white/10 text-slate-100 ring-1 ring-white/10 hover:bg-white/14",
+    "bg-[var(--color-surface)] text-slate-700 ring-1 ring-[var(--color-border)] hover:bg-[var(--color-surface-soft)]",
   ghost:
-    "bg-transparent text-slate-200 hover:bg-white/8 ring-1 ring-white/10",
+    "bg-transparent text-slate-600 hover:bg-white/80 ring-1 ring-[var(--color-border)]",
   danger:
-    "bg-rose-500/18 text-rose-200 ring-1 ring-rose-400/20 hover:bg-rose-500/24",
+    "bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100",
 };
 
 export function Button({ className, variant = "primary", icon, children, ...props }: ButtonProps) {

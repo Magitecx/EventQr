@@ -102,46 +102,38 @@ export function OnboardingPage() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+    <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
       <Card className="p-8">
-        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Workspace onboarding</p>
-        <h1 className="mt-3 font-display text-4xl font-semibold text-white">Set up your first organization</h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-          Your account exists independently from organizations now. Create your own workspace, join
-          one with a code, or accept an invite link and continue from there.
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+            <Building2 className="size-5" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Workspace setup</p>
+            <p className="text-sm text-slate-500">Choose how to continue</p>
+          </div>
+        </div>
 
         {pendingInviteToken ? (
-          <div className="mt-6 rounded-[24px] border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-100">
-            A pending invite is attached to this account. The app is attempting to join the
-            organization automatically.
+          <div className="mt-6 rounded-[24px] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+            Invite detected. Joining...
           </div>
         ) : null}
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {[
-            {
-              title: "Create workspace",
-              copy: "Become the owner of a new organization and start adding series and attendees.",
-              icon: Building2,
-            },
-            {
-              title: "Join with code",
-              copy: "Enter a join code from an existing organization and start collaborating.",
-              icon: Users,
-            },
-            {
-              title: "Accept invite",
-              copy: "Invite links can take you directly into the right workspace after login.",
-              icon: Link2,
-            },
+            { title: "Create", icon: Building2 },
+            { title: "Join code", icon: Users },
+            { title: "Invite", icon: Link2 },
           ].map((item) => (
-            <div key={item.title} className="rounded-[24px] border border-white/10 bg-white/4 p-5">
-              <div className="rounded-2xl bg-white/8 p-3 text-amber-200 w-fit">
+            <div
+              key={item.title}
+              className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"
+            >
+              <div className="w-fit rounded-2xl bg-white p-3 text-amber-700 ring-1 ring-[var(--color-border)]">
                 <item.icon className="size-5" />
               </div>
-              <p className="mt-4 font-semibold text-white">{item.title}</p>
-              <p className="mt-2 text-sm leading-6 text-slate-400">{item.copy}</p>
+              <p className="mt-4 text-lg font-semibold text-slate-900">{item.title}</p>
             </div>
           ))}
         </div>
@@ -149,26 +141,24 @@ export function OnboardingPage() {
         {auth.memberships.length > 0 ? (
           <div className="mt-8">
             <div className="flex items-center gap-3">
-              <ArrowRightLeft className="size-4 text-amber-200" />
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Existing memberships</p>
+              <ArrowRightLeft className="size-4 text-slate-500" />
+              <p className="text-sm font-semibold text-slate-600">Your organizations</p>
             </div>
             <div className="mt-4 grid gap-3">
               {auth.memberships.map((membership) => (
                 <button
                   key={membership.membershipId}
-                  className="rounded-[24px] border border-white/10 bg-white/4 p-4 text-left transition hover:bg-white/8"
+                  className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4 text-left transition hover:bg-white"
                   onClick={() => switchMutation.mutate(membership.organizationId)}
                   type="button"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="font-semibold text-white">{membership.organizationName}</p>
-                      <p className="mt-2 text-sm text-slate-400">
-                        Existing membership - {membership.role.toLowerCase()}
-                      </p>
+                      <p className="font-semibold text-slate-900">{membership.organizationName}</p>
+                      <p className="mt-1 text-sm text-slate-500">{membership.role.toLowerCase()}</p>
                     </div>
                     <Button disabled={switchMutation.isPending} type="button" variant="ghost">
-                      Open workspace
+                      Open
                     </Button>
                   </div>
                 </button>
@@ -181,76 +171,60 @@ export function OnboardingPage() {
       <div className="grid gap-6">
         <Card className="p-8">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-amber-300/14 p-3 text-amber-200">
+            <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
               <Building2 className="size-5" />
             </div>
-            <div>
-              <p className="text-sm uppercase tracking-[0.22em] text-slate-400">Create organization</p>
-              <h2 className="mt-1 text-2xl font-semibold text-white">Start your own workspace</h2>
-            </div>
+            <h2 className="text-2xl font-semibold text-slate-900">Create organization</h2>
           </div>
 
           <form className="mt-6 space-y-4" onSubmit={createForm.handleSubmit((values) => createMutation.mutate(values))}>
             <label className="block">
-              <span className="mb-2 block text-sm text-slate-300">Organization name</span>
+              <span className="mb-2 block text-sm font-medium text-slate-600">Organization name</span>
               <Input placeholder="Acme Learning Lab" {...createForm.register("name")} />
               {createForm.formState.errors.name ? (
-                <p className="mt-2 text-xs text-rose-300">{createForm.formState.errors.name.message}</p>
+                <p className="mt-2 text-xs text-rose-500">{createForm.formState.errors.name.message}</p>
               ) : null}
             </label>
 
             {createMutation.isError ? (
-              <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(createMutation.error)}
               </p>
             ) : null}
 
             <Button className="w-full" disabled={createMutation.isPending} type="submit">
-              {createMutation.isPending ? "Creating organization..." : "Create organization"}
+              {createMutation.isPending ? "Creating..." : "Create"}
             </Button>
           </form>
         </Card>
 
         <Card className="p-8">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-emerald-500/14 p-3 text-emerald-200">
+            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
               <Users className="size-5" />
             </div>
-            <div>
-              <p className="text-sm uppercase tracking-[0.22em] text-slate-400">Join organization</p>
-              <h2 className="mt-1 text-2xl font-semibold text-white">Use a join code</h2>
-            </div>
+            <h2 className="text-2xl font-semibold text-slate-900">Join with code</h2>
           </div>
 
           <form className="mt-6 space-y-4" onSubmit={joinForm.handleSubmit((values) => joinMutation.mutate(values))}>
             <label className="block">
-              <span className="mb-2 block text-sm text-slate-300">Organization code</span>
+              <span className="mb-2 block text-sm font-medium text-slate-600">Join code</span>
               <Input placeholder="AB12CD34" {...joinForm.register("joinCode")} />
               {joinForm.formState.errors.joinCode ? (
-                <p className="mt-2 text-xs text-rose-300">{joinForm.formState.errors.joinCode.message}</p>
+                <p className="mt-2 text-xs text-rose-500">{joinForm.formState.errors.joinCode.message}</p>
               ) : null}
             </label>
 
             {joinMutation.isError ? (
-              <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(joinMutation.error)}
               </p>
             ) : null}
 
             <Button className="w-full" disabled={joinMutation.isPending} type="submit" variant="secondary">
-              {joinMutation.isPending ? "Joining..." : "Join organization"}
+              {joinMutation.isPending ? "Joining..." : "Join"}
             </Button>
           </form>
-
-          <div className="mt-5 flex items-start gap-3 rounded-[22px] border border-white/10 bg-white/4 p-4">
-            <div className="rounded-xl bg-white/10 p-2 text-slate-300">
-              <Link2 className="size-4" />
-            </div>
-            <p className="text-sm leading-6 text-slate-400">
-              Invite links work too. When a user opens the invite while signed in, the organization
-              is joined automatically and becomes their active workspace.
-            </p>
-          </div>
         </Card>
       </div>
     </div>

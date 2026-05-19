@@ -39,11 +39,8 @@ export function AttendanceReportPage() {
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Attendance report</p>
-          <h1 className="mt-3 font-display text-4xl font-semibold text-white">{report.series.name}</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
-            {report.series.description ?? "Attendance percentage across every session in this series."}
-          </p>
+          <p className="text-sm font-semibold text-slate-900">Attendance report</p>
+          <h1 className="mt-2 font-display text-4xl font-semibold text-slate-900">{report.series.name}</h1>
           <div className="mt-5 flex flex-wrap gap-3">
             <Badge>{report.sessions.length} sessions</Badge>
             <Badge>{report.items.length} attendees</Badge>
@@ -79,20 +76,80 @@ export function AttendanceReportPage() {
         </div>
       </div>
 
-      <div className="mt-8 rounded-[28px] border border-white/10">
-        <div className="overflow-x-auto">
+      <div className="mt-8 rounded-[28px] border border-[var(--color-border)]">
+        <div className="space-y-4 p-4 md:hidden">
+          {report.items.map((item) => (
+            <div
+              key={item.attendeeId}
+              className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4"
+            >
+              <div className="flex items-center gap-3">
+                <img
+                  alt={item.name}
+                  className="size-12 rounded-2xl object-cover ring-1 ring-[var(--color-border)]"
+                  src={
+                    resolveMediaUrl(item.profileImageUrl) ??
+                    "https://placehold.co/120x120/f7f5f0/334155?text=QR"
+                  }
+                />
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-slate-900">{item.name}</p>
+                  <p className="truncate text-sm text-slate-500">{item.email}</p>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Badge>{item.attendedSessions}/{item.totalSessions}</Badge>
+                <Badge>{formatPercentage(item.attendancePercentage)}</Badge>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {item.sessionAttendance.map((session) => {
+                  const sessionInfo = report.sessions.find((entry) => entry.id === session.sessionId);
+
+                  return (
+                    <div
+                      key={session.sessionId}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-3 py-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-slate-900">
+                          {sessionInfo?.title ?? "Session"}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {sessionInfo?.sessionDate ? formatDate(sessionInfo.sessionDate) : ""}
+                        </p>
+                      </div>
+                      <span
+                        className={
+                          session.attended
+                            ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+                            : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+                        }
+                      >
+                        {session.attended ? "Joined" : "Missed"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden overflow-x-auto md:block">
           <table className="min-w-full border-collapse text-left">
-            <thead className="bg-white/6 text-xs uppercase tracking-[0.22em] text-slate-400">
+            <thead className="bg-[var(--color-surface-soft)] text-xs uppercase tracking-[0.22em] text-slate-500">
               <tr>
-                <th className="sticky left-0 z-20 min-w-[280px] bg-slate-900/95 px-5 py-4">Attendee</th>
+                <th className="sticky left-0 z-20 min-w-[280px] bg-[var(--color-surface-soft)] px-5 py-4">Attendee</th>
                 <th className="min-w-[110px] px-4 py-4">Attended</th>
                 <th className="min-w-[110px] px-4 py-4">Total</th>
                 <th className="min-w-[140px] px-4 py-4">Attendance %</th>
                 {report.sessions.map((session) => (
                   <th key={session.id} className="min-w-[180px] px-4 py-4">
                     <div className="space-y-1">
-                      <p className="whitespace-normal text-slate-200">{session.title}</p>
-                      <p className="normal-case tracking-normal text-slate-500">
+                      <p className="whitespace-normal text-slate-700">{session.title}</p>
+                      <p className="normal-case tracking-normal text-slate-400">
                         {formatDate(session.sessionDate)}
                       </p>
                     </div>
@@ -101,28 +158,28 @@ export function AttendanceReportPage() {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-white/10">
+            <tbody className="divide-y divide-[var(--color-border)]">
               {report.items.map((item) => (
-                <tr key={item.attendeeId} className="bg-slate-950/25 align-top">
-                  <td className="sticky left-0 z-10 bg-slate-950 px-5 py-4">
+                <tr key={item.attendeeId} className="bg-white align-top">
+                  <td className="sticky left-0 z-10 bg-white px-5 py-4">
                     <div className="flex min-w-0 items-center gap-3">
                       <img
                         alt={item.name}
-                        className="size-12 rounded-2xl object-cover ring-1 ring-white/10"
+                        className="size-12 rounded-2xl object-cover ring-1 ring-[var(--color-border)]"
                         src={
                           resolveMediaUrl(item.profileImageUrl) ??
-                          "https://placehold.co/120x120/0f172a/f8fafc?text=QR"
+                          "https://placehold.co/120x120/f7f5f0/334155?text=QR"
                         }
                       />
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-white">{item.name}</p>
-                        <p className="truncate text-sm text-slate-400">{item.email}</p>
+                        <p className="truncate font-medium text-slate-900">{item.name}</p>
+                        <p className="truncate text-sm text-slate-500">{item.email}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-slate-300">{item.attendedSessions}</td>
-                  <td className="px-4 py-4 text-slate-300">{item.totalSessions}</td>
-                  <td className="px-4 py-4 font-semibold text-amber-200">
+                  <td className="px-4 py-4 text-slate-700">{item.attendedSessions}</td>
+                  <td className="px-4 py-4 text-slate-700">{item.totalSessions}</td>
+                  <td className="px-4 py-4 font-semibold text-amber-700">
                     {formatPercentage(item.attendancePercentage)}
                   </td>
                   {item.sessionAttendance.map((session) => (
@@ -130,20 +187,20 @@ export function AttendanceReportPage() {
                       <div
                         className={
                           session.attended
-                            ? "rounded-2xl border border-emerald-400/20 bg-emerald-500/12 px-3 py-2"
-                            : "rounded-2xl border border-white/10 bg-white/4 px-3 py-2"
+                            ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2"
+                            : "rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-3 py-2"
                         }
                       >
                         <p
                           className={
                             session.attended
-                              ? "text-sm font-semibold text-emerald-200"
-                              : "text-sm font-semibold text-slate-300"
+                              ? "text-sm font-semibold text-emerald-700"
+                              : "text-sm font-semibold text-slate-600"
                           }
                         >
-                          {session.attended ? "Joined" : "Did not join"}
+                          {session.attended ? "Joined" : "Missed"}
                         </p>
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="mt-1 text-xs text-slate-400">
                           {session.checkedInAt ? formatDate(session.checkedInAt) : "No check-in"}
                         </p>
                       </div>

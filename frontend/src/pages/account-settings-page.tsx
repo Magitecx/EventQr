@@ -69,25 +69,22 @@ export function AccountSettingsPage() {
   return (
     <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <Card className="p-8">
-        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Account settings</p>
-        <h1 className="mt-3 font-display text-3xl font-semibold text-white">Profile and security</h1>
-        <p className="mt-4 text-sm leading-6 text-slate-400">
-          Update your account profile, switch workspaces, and manage your password.
-        </p>
+        <p className="text-sm font-semibold text-slate-900">Account settings</p>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-slate-900">Profile</h1>
 
         <form className="mt-8 space-y-4" onSubmit={accountForm.handleSubmit((values) => accountMutation.mutate(values))}>
           <label className="block">
-            <span className="mb-2 block text-sm text-slate-300">Name</span>
+            <span className="mb-2 block text-sm font-medium text-slate-600">Name</span>
             <Input {...accountForm.register("name")} />
           </label>
 
           <label className="block">
-            <span className="mb-2 block text-sm text-slate-300">Email</span>
+            <span className="mb-2 block text-sm font-medium text-slate-600">Email</span>
             <Input disabled value={auth?.user.email ?? ""} />
           </label>
 
           {accountMutation.isError ? (
-            <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(accountMutation.error)}
             </p>
           ) : null}
@@ -96,12 +93,12 @@ export function AccountSettingsPage() {
         </form>
 
         <form className="mt-10 space-y-4" onSubmit={passwordForm.handleSubmit((values) => passwordMutation.mutate(values))}>
-          <h2 className="text-xl font-semibold text-white">Change password</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Password</h2>
           <Input placeholder="Current password" type="password" {...passwordForm.register("currentPassword")} />
           <Input placeholder="New password" type="password" {...passwordForm.register("newPassword")} />
           <Input placeholder="Confirm new password" type="password" {...passwordForm.register("confirmPassword")} />
           {passwordMutation.isError ? (
-            <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(passwordMutation.error)}
             </p>
           ) : null}
@@ -110,8 +107,8 @@ export function AccountSettingsPage() {
           </Button>
         </form>
 
-        <div className="mt-10 rounded-[24px] border border-white/10 bg-white/4 p-5">
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Workspace actions</p>
+        <div className="mt-10 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
+          <p className="text-sm font-semibold text-slate-900">Workspace</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link to="/app/onboarding">
               <Button icon={<Building2 className="size-4" />} variant="secondary">
@@ -130,11 +127,11 @@ export function AccountSettingsPage() {
       <Card className="p-8">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Organizations</p>
-            <h2 className="mt-3 text-3xl font-semibold text-white">{auth?.memberships.length ?? 0} memberships</h2>
+            <p className="text-sm font-semibold text-slate-900">Organizations</p>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900">{auth?.memberships.length ?? 0}</h2>
           </div>
           {activeMembership ? (
-            <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
               Active: {activeMembership.organizationName}
             </span>
           ) : null}
@@ -142,11 +139,11 @@ export function AccountSettingsPage() {
 
         <div className="mt-6 space-y-3">
           {auth?.memberships.map((membership) => (
-            <div key={membership.membershipId} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+            <div key={membership.membershipId} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-white">{membership.organizationName}</p>
-                  <p className="mt-1 text-sm text-slate-400">{membership.role.toLowerCase()} membership</p>
+                  <p className="font-semibold text-slate-900">{membership.organizationName}</p>
+                  <p className="mt-1 text-sm text-slate-500">{membership.role.toLowerCase()} membership</p>
                 </div>
 
                 {membership.organizationId === auth?.activeOrganizationId ? (

@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft, LockKeyhole, Mail } from "lucide-react";
+import { ArrowLeft, LockKeyhole, Mail, QrCode, ScanLine, Sheet } from "lucide-react";
 import { startTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -47,64 +47,46 @@ export function LoginPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),transparent_28%),linear-gradient(160deg,#020617,#111827_48%,#1e293b)] px-4 py-6 text-slate-100">
+    <div className="min-h-screen px-4 py-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
-          <Link className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white" to="/">
+          <Link className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900" to="/">
             <ArrowLeft className="size-4" />
-            Back to landing
+            Back
           </Link>
           <Link to="/register">
-            <Button variant="secondary">Create account</Button>
+            <Button variant="secondary">Register</Button>
           </Link>
         </div>
 
-        <div className="grid w-full max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="rounded-[36px] border border-white/10 bg-[linear-gradient(135deg,rgba(245,158,11,0.14),rgba(15,23,42,0.9)_45%,rgba(2,6,23,0.96))] p-10 shadow-[0_45px_140px_rgba(2,6,23,0.45)]">
-            <p className="text-sm uppercase tracking-[0.3em] text-amber-200/90">Recurring event ops</p>
-            <h1 className="mt-6 max-w-2xl font-display text-5xl font-semibold leading-tight text-white">
-              Reusable QR attendance tracking for workshop series and live sessions.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">
-              Manage attendees, generate secure QR codes, scan check-ins from the browser camera,
-              and track attendance percentages across every session in a series.
-            </p>
-
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              {[
-                ["Secure QR tokens", "Randomized attendee tokens instead of numeric IDs."],
-                ["Live scanner", "Browser-based camera check-ins with duplicate protection."],
-                ["Series reporting", "Attendance percentages and CSV export per series."],
-              ].map(([title, copy]) => (
-                <div key={title} className="rounded-[24px] border border-white/10 bg-slate-950/40 p-5">
-                  <h2 className="font-semibold text-white">{title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">{copy}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <Card className="self-center p-8">
-            <p className="text-sm uppercase tracking-[0.22em] text-slate-400">Account access</p>
-            <h2 className="mt-3 font-display text-3xl font-semibold text-white">Sign in</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              Sign in to your account and continue into your active organization workspace.
-            </p>
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+                <QrCode className="size-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Login</p>
+                <p className="text-sm text-slate-500">Account access</p>
+              </div>
+            </div>
+
+            <h1 className="mt-6 font-display text-4xl font-semibold text-slate-900">Welcome back</h1>
 
             <form className="mt-8 space-y-4" onSubmit={handleSubmit((values) => mutation.mutate(values))}>
               <label className="block">
-                <span className="mb-2 block text-sm text-slate-300">Email</span>
+                <span className="mb-2 block text-sm font-medium text-slate-600">Email</span>
                 <div className="relative">
-                  <Mail className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-500" />
+                  <Mail className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-400" />
                   <Input autoComplete="email" className="pl-11" {...register("email")} />
                 </div>
-                {errors.email ? <p className="mt-2 text-xs text-rose-300">{errors.email.message}</p> : null}
+                {errors.email ? <p className="mt-2 text-xs text-rose-500">{errors.email.message}</p> : null}
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm text-slate-300">Password</span>
+                <span className="mb-2 block text-sm font-medium text-slate-600">Password</span>
                 <div className="relative">
-                  <LockKeyhole className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-500" />
+                  <LockKeyhole className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-400" />
                   <Input
                     autoComplete="current-password"
                     className="pl-11"
@@ -113,12 +95,12 @@ export function LoginPage() {
                   />
                 </div>
                 {errors.password ? (
-                  <p className="mt-2 text-xs text-rose-300">{errors.password.message}</p>
+                  <p className="mt-2 text-xs text-rose-500">{errors.password.message}</p>
                 ) : null}
               </label>
 
               {mutation.isError ? (
-                <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {getErrorMessage(mutation.error)}
                 </p>
               ) : null}
@@ -127,17 +109,40 @@ export function LoginPage() {
                 {mutation.isPending ? "Signing in..." : "Log in"}
               </Button>
             </form>
+          </Card>
 
-            <div className="mt-8 flex items-center justify-between rounded-[24px] border border-white/10 bg-white/4 p-4 text-sm">
+          <div className="grid gap-6">
+            <Card className="p-8">
+              <h2 className="font-display text-4xl font-semibold text-slate-900">Scan. Track. Export.</h2>
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                {[
+                  { title: "QR", icon: QrCode },
+                  { title: "Check-in", icon: ScanLine },
+                  { title: "Excel", icon: Sheet },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"
+                  >
+                    <div className="w-fit rounded-2xl bg-amber-50 p-3 text-amber-700">
+                      <item.icon className="size-5" />
+                    </div>
+                    <p className="mt-4 text-lg font-semibold text-slate-900">{item.title}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="flex items-center justify-between gap-4 p-6">
               <div>
-                <p className="font-semibold text-white">Need a fresh workspace?</p>
-                <p className="mt-1 text-slate-400">Create an account, then create or join an organization.</p>
+                <p className="text-sm font-semibold text-slate-900">New here?</p>
+                <p className="text-sm text-slate-500">Create account first. Join or create workspace after.</p>
               </div>
               <Link to="/register">
-                <Button variant="secondary">Register</Button>
+                <Button variant="secondary">Create account</Button>
               </Link>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

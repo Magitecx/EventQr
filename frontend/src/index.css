@@ -7,12 +7,22 @@
 }
 
 :root {
-  --color-accent: #fbbf24;
-  --color-accent-strong: #f59e0b;
+  --color-bg: #f6f2ea;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f7f5f0;
+  --color-border: #e5ddd1;
+  --color-text: #1f2937;
+  --color-muted: #6b7280;
+  --color-accent: #d97706;
+  --color-accent-strong: #b45309;
+  --color-accent-soft: #fef3c7;
+  --color-success-soft: #dcfce7;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 * {
@@ -29,6 +39,10 @@ body {
   min-width: 320px;
   min-height: 100vh;
   font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 24%),
+    linear-gradient(180deg, #faf7f2 0%, #f6f2ea 56%, #f3eee6 100%);
+  color: var(--color-text);
 }
 
 a {
@@ -44,4 +58,8 @@ select {
 
 #root {
   min-height: 100vh;
+}
+
+::selection {
+  background: rgba(217, 119, 6, 0.18);
 }

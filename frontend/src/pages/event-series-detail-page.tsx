@@ -26,9 +26,9 @@ export function EventSeriesDetailPage() {
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="max-w-3xl">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Event series detail</p>
-            <h1 className="mt-3 font-display text-4xl font-semibold text-white">{series.name}</h1>
-            <p className="mt-4 text-base leading-7 text-slate-300">
+            <p className="text-sm font-semibold text-slate-900">Series</p>
+            <h1 className="mt-2 font-display text-4xl font-semibold text-slate-900">{series.name}</h1>
+            <p className="mt-4 text-base leading-7 text-slate-500">
               {series.description ?? "No description set for this program."}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -40,16 +40,16 @@ export function EventSeriesDetailPage() {
 
           <div className="grid gap-3">
             <Link
-              className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+              className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
               to={`/app/event-series/${series.id}/sessions`}
             >
-              Manage sessions
+              Sessions
             </Link>
             <Link
-              className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+              className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
               to={`/app/reports/event-series/${series.id}`}
             >
-              View report
+              Report
             </Link>
           </div>
         </div>
@@ -75,14 +75,14 @@ export function EventSeriesDetailPage() {
                 icon: TableProperties,
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+              <div key={item.title} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-amber-300/12 p-3 text-amber-200">
+                  <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
                     <item.icon className="size-4" />
                   </div>
                   <div>
-                    <h2 className="font-semibold text-white">{item.title}</h2>
-                    <p className="mt-1 text-sm leading-6 text-slate-400">{item.description}</p>
+                    <h2 className="font-semibold text-slate-900">{item.title}</h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-500">{item.description}</p>
                   </div>
                 </div>
               </div>
@@ -93,27 +93,27 @@ export function EventSeriesDetailPage() {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Sessions</p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">Program schedule</h2>
+              <p className="text-sm font-semibold text-slate-900">Sessions</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Schedule</h2>
             </div>
-            <Link className="text-sm font-medium text-amber-200 hover:text-amber-100" to="/app/scanner">
+            <Link className="text-sm font-medium text-amber-700 hover:text-amber-800" to="/app/scanner">
               Open scanner
             </Link>
           </div>
 
           <div className="mt-6 space-y-3">
             {series.sessions.map((session) => (
-              <div key={session.id} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
+              <div key={session.id} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-white">{session.title}</h3>
-                    <p className="mt-1 text-sm text-slate-400">
+                    <h3 className="font-semibold text-slate-900">{session.title}</h3>
+                    <p className="mt-1 text-sm text-slate-500">
                       {session.description ?? "No description set."}
                     </p>
                   </div>
-                  <div className="text-right text-sm text-slate-300">
+                  <div className="text-right text-sm text-slate-600">
                     <p>{formatDate(session.sessionDate)}</p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">
+                    <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
                       {session._count?.attendance ?? 0} check-ins
                     </p>
                   </div>
@@ -122,7 +122,7 @@ export function EventSeriesDetailPage() {
             ))}
 
             {series.sessions.length === 0 ? (
-              <p className="rounded-[24px] border border-dashed border-white/10 p-4 text-sm text-slate-400">
+              <p className="rounded-[24px] border border-dashed border-[var(--color-border)] p-4 text-sm text-slate-500">
                 No sessions created yet.
               </p>
             ) : null}

@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { LockKeyhole, Mail, UserRound } from "lucide-react";
+import { LockKeyhole, Mail, UserRound, Users } from "lucide-react";
 import { startTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -48,49 +48,54 @@ export function RegisterPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.14),transparent_18%),radial-gradient(circle_at_top_left,rgba(245,158,11,0.16),transparent_24%),linear-gradient(180deg,#020617,#0f172a_42%,#111827)] px-4 py-6 text-slate-100">
+    <div className="min-h-screen px-4 py-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
-          <Link className="font-display text-2xl font-semibold text-white" to="/">
+          <Link className="font-display text-2xl font-semibold text-slate-900" to="/">
             EventQR Hub
           </Link>
           <Link to="/login">
-            <Button variant="ghost">Already have an account?</Button>
+            <Button variant="ghost">Login</Button>
           </Link>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <Card className="overflow-hidden p-8">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Create account</p>
-            <h1 className="mt-3 font-display text-4xl font-semibold text-white">Create your operator account</h1>
-            <p className="mt-4 text-base leading-7 text-slate-300">
-              Start with your account first. After sign-up, you can create your own organization,
-              join one with a code, or accept an invite link.
-            </p>
+          <Card className="p-8">
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+                <Users className="size-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Register</p>
+                <p className="text-sm text-slate-500">Create account first</p>
+              </div>
+            </div>
+
+            <h1 className="mt-6 font-display text-4xl font-semibold text-slate-900">Create account</h1>
 
             <form className="mt-8 grid gap-4" onSubmit={handleSubmit((values) => mutation.mutate(values))}>
               <label className="block">
-                <span className="mb-2 block text-sm text-slate-300">Your name</span>
+                <span className="mb-2 block text-sm font-medium text-slate-600">Name</span>
                 <div className="relative">
-                  <UserRound className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-500" />
+                  <UserRound className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-400" />
                   <Input className="pl-11" placeholder="Jordan Lee" {...register("name")} />
                 </div>
-                {errors.name ? <p className="mt-2 text-xs text-rose-300">{errors.name.message}</p> : null}
+                {errors.name ? <p className="mt-2 text-xs text-rose-500">{errors.name.message}</p> : null}
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm text-slate-300">Email</span>
+                <span className="mb-2 block text-sm font-medium text-slate-600">Email</span>
                 <div className="relative">
-                  <Mail className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-500" />
+                  <Mail className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-400" />
                   <Input autoComplete="email" className="pl-11" placeholder="jordan@example.com" {...register("email")} />
                 </div>
-                {errors.email ? <p className="mt-2 text-xs text-rose-300">{errors.email.message}</p> : null}
+                {errors.email ? <p className="mt-2 text-xs text-rose-500">{errors.email.message}</p> : null}
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm text-slate-300">Password</span>
+                <span className="mb-2 block text-sm font-medium text-slate-600">Password</span>
                 <div className="relative">
-                  <LockKeyhole className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-500" />
+                  <LockKeyhole className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-400" />
                   <Input
                     autoComplete="new-password"
                     className="pl-11"
@@ -99,53 +104,44 @@ export function RegisterPage() {
                     {...register("password")}
                   />
                 </div>
-                {errors.password ? <p className="mt-2 text-xs text-rose-300">{errors.password.message}</p> : null}
+                {errors.password ? <p className="mt-2 text-xs text-rose-500">{errors.password.message}</p> : null}
               </label>
 
               {mutation.isError ? (
-                <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {getErrorMessage(mutation.error)}
                 </p>
               ) : null}
 
               <Button className="mt-2 w-full py-3 text-base" disabled={mutation.isPending} type="submit">
-                {mutation.isPending ? "Creating account..." : "Create account"}
+                {mutation.isPending ? "Creating..." : "Create account"}
               </Button>
             </form>
           </Card>
 
           <div className="grid gap-6">
             <Card className="p-8">
-              <p className="text-sm uppercase tracking-[0.24em] text-amber-200/80">What happens next</p>
-              <div className="mt-6 grid gap-4">
-                {[
-                  ["1. Create or join an organization", "Pick the workspace you want to operate in first."],
-                  ["2. Create your first series", "Set the program name and session cadence."],
-                  ["3. Add attendees", "Create profiles and generate QR codes instantly."],
-                  ["4. Start scanning", "Open the camera flow with the target session selected."],
-                ].map(([title, copy]) => (
-                  <div key={title} className="rounded-[24px] border border-white/10 bg-white/4 p-4">
-                    <p className="font-semibold text-white">{title}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-400">{copy}</p>
+              <h2 className="font-display text-4xl font-semibold text-slate-900">After sign up</h2>
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                {["Create workspace", "Join by code", "Open invite link", "Start scanning"].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"
+                  >
+                    <p className="text-lg font-semibold text-slate-900">{item}</p>
                   </div>
                 ))}
               </div>
             </Card>
 
-            <Card className="p-8">
-              <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Already have access?</p>
-              <p className="mt-3 text-base leading-7 text-slate-300">
-                Sign in with your existing account, then switch organizations or accept an invite link
-                when needed.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link to="/login">
-                  <Button variant="secondary">Go to login</Button>
-                </Link>
-                <Link to="/">
-                  <Button variant="ghost">Back to landing page</Button>
-                </Link>
+            <Card className="flex items-center justify-between gap-4 p-6">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Already have an account?</p>
+                <p className="text-sm text-slate-500">Go straight to login.</p>
               </div>
+              <Link to="/login">
+                <Button variant="secondary">Login</Button>
+              </Link>
             </Card>
           </div>
         </div>

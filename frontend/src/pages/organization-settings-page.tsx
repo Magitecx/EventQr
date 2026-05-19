@@ -100,14 +100,14 @@ export function OrganizationSettingsPage() {
   return (
     <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
       <Card className="p-8">
-        <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Organization settings</p>
-        <h1 className="mt-3 font-display text-3xl font-semibold text-white">Workspace configuration</h1>
+        <p className="text-sm font-semibold text-slate-900">Organization settings</p>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-slate-900">Workspace</h1>
         <div className="mt-5 flex flex-wrap gap-3">
-          <span className="rounded-full border border-white/10 bg-white/6 px-4 py-2 text-sm text-slate-200">
+          <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-700">
             Your role: {organization?.currentUserRole ?? activeMembership?.role ?? "MEMBER"}
           </span>
           {!canManageOrganization ? (
-            <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-sm text-amber-100">
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
               View-only access
             </span>
           ) : null}
@@ -115,7 +115,7 @@ export function OrganizationSettingsPage() {
 
         <div className="mt-8 space-y-4">
           <label className="block">
-            <span className="mb-2 block text-sm text-slate-300">Organization name</span>
+            <span className="mb-2 block text-sm font-medium text-slate-600">Organization name</span>
             <Input
               disabled={!canManageOrganization}
               onChange={(event) => setOrganizationName(event.target.value)}
@@ -124,7 +124,7 @@ export function OrganizationSettingsPage() {
           </label>
 
           {updateMutation.isError ? (
-            <p className="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(updateMutation.error)}
             </p>
           ) : null}
@@ -138,11 +138,11 @@ export function OrganizationSettingsPage() {
           </Button>
         </div>
 
-        <div className="mt-10 rounded-[24px] border border-white/10 bg-white/4 p-5">
+        <div className="mt-10 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-white">Join code</p>
-              <p className="mt-1 text-sm text-slate-400">Share this code for manual organization joins.</p>
+              <p className="text-sm font-semibold text-slate-900">Join code</p>
+              <p className="mt-1 text-sm text-slate-500">Share for manual joins.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button icon={<Copy className="size-4" />} onClick={copyJoinCode} type="button" variant="ghost">
@@ -159,16 +159,16 @@ export function OrganizationSettingsPage() {
               </Button>
             </div>
           </div>
-          <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 font-mono text-lg text-amber-200">
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-white px-4 py-3 font-mono text-lg text-amber-700">
             {organization?.joinCode ?? "Loading..."}
           </div>
         </div>
 
-        <div className="mt-6 rounded-[24px] border border-white/10 bg-white/4 p-5">
+        <div className="mt-6 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-white">Invite links</p>
-              <p className="mt-1 text-sm text-slate-400">Create a shareable invite link for direct auto-join.</p>
+              <p className="text-sm font-semibold text-slate-900">Invite links</p>
+              <p className="mt-1 text-sm text-slate-500">Create a shareable auto-join link.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Select
@@ -192,17 +192,17 @@ export function OrganizationSettingsPage() {
             </div>
           </div>
           {!canCreateInvites ? (
-            <p className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-400">
+            <p className="mt-4 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-slate-500">
               Invite creation is available to organization admins and owners.
             </p>
           ) : null}
         </div>
 
-        <div className="mt-6 rounded-[24px] border border-rose-400/16 bg-rose-500/8 p-5">
+        <div className="mt-6 rounded-[24px] border border-rose-200 bg-rose-50 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-white">Leave organization</p>
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="text-sm font-semibold text-slate-900">Leave organization</p>
+              <p className="mt-1 text-sm text-slate-500">
                 Remove your own access to this workspace. Your account will remain active.
               </p>
             </div>
@@ -217,7 +217,7 @@ export function OrganizationSettingsPage() {
             </Button>
           </div>
           {leaveOrganizationMutation.isError ? (
-            <p className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <p className="mt-4 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(leaveOrganizationMutation.error)}
             </p>
           ) : null}
@@ -226,28 +226,28 @@ export function OrganizationSettingsPage() {
 
       <div className="grid gap-6">
         <Card className="p-8">
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Members</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white">{organization?.members.length ?? 0} team members</h2>
+          <p className="text-sm font-semibold text-slate-900">Members</p>
+          <h2 className="mt-2 text-3xl font-semibold text-slate-900">{organization?.members.length ?? 0} team members</h2>
           {!canManageMembers ? (
-            <p className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-400">
+            <p className="mt-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm text-slate-500">
               Only owners can update roles or remove members.
             </p>
           ) : null}
 
           <div className="mt-6 space-y-3">
             {organization?.members.map((member) => (
-              <div key={member.membershipId} className="rounded-[22px] border border-white/10 bg-white/4 p-4">
+              <div key={member.membershipId} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-white">{member.name}</p>
-                    <p className="mt-1 text-sm text-slate-400">{member.email}</p>
+                    <p className="font-semibold text-slate-900">{member.name}</p>
+                    <p className="mt-1 text-sm text-slate-500">{member.email}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-300">
+                    <span className="rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-600">
                       {member.role}
                     </span>
                     {member.userId === auth?.user.id ? (
-                      <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-emerald-200">
+                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs uppercase tracking-[0.18em] text-emerald-700">
                         You
                       </span>
                     ) : null}
@@ -286,20 +286,20 @@ export function OrganizationSettingsPage() {
         </Card>
 
         <Card className="p-8">
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Invite history</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white">{organization?.invites.length ?? 0} invite links</h2>
+          <p className="text-sm font-semibold text-slate-900">Invite history</p>
+          <h2 className="mt-2 text-3xl font-semibold text-slate-900">{organization?.invites.length ?? 0} invite links</h2>
 
           <div className="mt-6 space-y-3">
             {organization?.invites.map((invite) => {
               const inviteUrl = `${inviteBaseUrl}/invite/${invite.token}`;
 
               return (
-                <div key={invite.id} className="rounded-[22px] border border-white/10 bg-white/4 p-4">
+                <div key={invite.id} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-white">Invite created by {invite.createdByName}</p>
-                      <p className="mt-2 break-all text-sm text-slate-400">{inviteUrl}</p>
-                      <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-500">
+                      <p className="text-sm font-semibold text-slate-900">Invite created by {invite.createdByName}</p>
+                      <p className="mt-2 break-all text-sm text-slate-500">{inviteUrl}</p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-400">
                         Created {formatDate(invite.createdAt)} - Used {invite.usedCount} times
                       </p>
                     </div>
@@ -319,8 +319,8 @@ export function OrganizationSettingsPage() {
         </Card>
 
         <Card className="p-8">
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Admin controls</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white">Operational permissions</h2>
+          <p className="text-sm font-semibold text-slate-900">Admin controls</p>
+          <h2 className="mt-2 text-3xl font-semibold text-slate-900">Permissions</h2>
 
           <div className="mt-6 grid gap-3 md:grid-cols-3">
             {[
@@ -340,10 +340,10 @@ export function OrganizationSettingsPage() {
                 icon: UserCog,
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-[22px] border border-white/10 bg-white/4 p-4">
-                <item.icon className="size-5 text-amber-200" />
-                <p className="mt-4 font-semibold text-white">{item.title}</p>
-                <p className="mt-2 text-sm text-slate-400">
+              <div key={item.title} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+                <item.icon className="size-5 text-amber-700" />
+                <p className="mt-4 font-semibold text-slate-900">{item.title}</p>
+                <p className="mt-2 text-sm text-slate-500">
                   {item.enabled ? "Enabled for your role" : "Requires higher organization access"}
                 </p>
               </div>
