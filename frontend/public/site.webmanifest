@@ -1,5 +1,5 @@
 {
-  "name": "EventQR Hub",
+  "name": "EventQR",
   "short_name": "EventQR",
   "description": "QR attendance platform for recurring event series and workshops.",
   "start_url": "/",
@@ -8,9 +8,9 @@
   "theme_color": "#d97706",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }

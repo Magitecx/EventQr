@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
+import { BrandBadge } from "../components/brand/brand-badge";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -58,7 +59,10 @@ export function AttendeeDetailPage() {
         dark: "#020617",
         light: "#f8fafc",
       },
-    }).then(setQrCodeDataUrl);
+    }).then(async (rawQrCodeUrl) => {
+      const brandedQrCodeUrl = await createBrandedQrCode(rawQrCodeUrl);
+      setQrCodeDataUrl(brandedQrCodeUrl);
+    });
   }, [attendee?.qrToken]);
 
   useEffect(() => {
@@ -184,6 +188,9 @@ export function AttendeeDetailPage() {
             <div className="flex-1 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Raw token</p>
               <p className="mt-3 break-all font-mono text-sm leading-7 text-slate-700">{attendee.qrToken}</p>
+              <div className="mt-6 border-t border-[var(--color-border)] pt-4">
+                <BrandBadge compact />
+              </div>
             </div>
           </div>
         </Card>
@@ -291,4 +298,75 @@ export function AttendeeDetailPage() {
       </div>
     </div>
   );
+}
+
+async function createBrandedQrCode(qrCodeUrl: string) {
+  const qrImage = await loadImage(qrCodeUrl);
+  const logoImage = await loadImage("/logo.png");
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return qrCodeUrl;
+  }
+
+  canvas.width = 900;
+  canvas.height = 1120;
+
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  context.strokeStyle = "#e5ddd1";
+  context.lineWidth = 4;
+  roundRect(context, 24, 24, canvas.width - 48, canvas.height - 48, 40);
+  context.stroke();
+
+  const logoWidth = 280;
+  const logoHeight = (logoImage.height / logoImage.width) * logoWidth;
+  context.drawImage(logoImage, (canvas.width - logoWidth) / 2, 70, logoWidth, logoHeight);
+
+  const qrSize = 540;
+  context.drawImage(qrImage, (canvas.width - qrSize) / 2, 260, qrSize, qrSize);
+
+  context.fillStyle = "#1f2937";
+  context.font = "700 38px 'DM Sans', sans-serif";
+  context.textAlign = "center";
+  context.fillText("EventQR", canvas.width / 2, 870);
+
+  context.fillStyle = "#6b7280";
+  context.font = "500 28px 'DM Sans', sans-serif";
+  context.fillText("Powered by Magitecx", canvas.width / 2, 920);
+
+  return canvas.toDataURL("image/png");
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
+function roundRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  context.beginPath();
+  context.moveTo(x + radius, y);
+  context.lineTo(x + width - radius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + radius);
+  context.lineTo(x + width, y + height - radius);
+  context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  context.lineTo(x + radius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - radius);
+  context.lineTo(x, y + radius);
+  context.quadraticCurveTo(x, y, x + radius, y);
+  context.closePath();
 }

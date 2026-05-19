@@ -3,6 +3,7 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import { Camera, CircleCheckBig, OctagonAlert, ScanLine, Sheet } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { BrandBadge } from "../components/brand/brand-badge";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -179,6 +180,10 @@ export function ScannerPage() {
             {scannerError}
           </p>
         ) : null}
+
+        <div className="mt-6 rounded-[24px] border border-[var(--color-border)] bg-white px-4 py-4">
+          <BrandBadge compact />
+        </div>
       </Card>
 
       <div className="space-y-6">

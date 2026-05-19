@@ -5,7 +5,6 @@ import {
   LogOut,
   Settings2,
   PlusCircle,
-  QrCode,
   Radio,
   Sheet,
   Users,
@@ -16,6 +15,7 @@ import { useAuth } from "../../lib/auth";
 import { api, unwrapResponse } from "../../lib/api";
 import { cn } from "../../lib/utils";
 import type { AuthResponse } from "../../types/api";
+import { BrandBadge } from "../brand/brand-badge";
 import { Seo } from "../seo/seo";
 import { Button } from "../ui/button";
 import { Select } from "../ui/select";
@@ -55,12 +55,10 @@ export function AppShell() {
       <div className="mx-auto grid min-h-screen max-w-[1480px] gap-6 px-4 py-4 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-6">
         <aside className="rounded-[32px] border border-[var(--color-border)] bg-[var(--color-panel)] p-6 shadow-[0_18px_60px_rgba(148,163,184,0.12)] backdrop-blur">
           <div className="flex items-center gap-3">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-              <QrCode className="size-6" />
-            </div>
+            <img alt="Magitecx logo" className="h-12 w-auto object-contain" src="/logo.png" />
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-amber-700">Attendance</p>
-              <h1 className="font-display text-2xl font-semibold text-slate-900">EventQR Hub</h1>
+              <h1 className="font-display text-2xl font-semibold text-slate-900">EventQR</h1>
             </div>
           </div>
 
@@ -150,6 +148,10 @@ export function AppShell() {
           >
             Log out
           </Button>
+
+          <div className="mt-6">
+            <BrandBadge compact />
+          </div>
         </aside>
 
         <main className="min-w-0 py-2">
@@ -157,7 +159,7 @@ export function AppShell() {
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Workspace</p>
               <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                <span>EventQR Hub</span>
+                <span>EventQR</span>
                 <ChevronRight className="size-4" />
                 <span className="font-medium text-slate-900">{pathLabel}</span>
               </div>

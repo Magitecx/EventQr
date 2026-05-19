@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getSiteUrl } from "../lib/seo";
+import { BrandBadge } from "../components/brand/brand-badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Seo } from "../components/seo/seo";
@@ -63,7 +64,7 @@ export function LandingPage() {
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
             applicationCategory: "BusinessApplication",
-            name: "EventQR Hub",
+            name: "EventQR",
             operatingSystem: "Web",
             description:
               "QR attendance platform for recurring workshops and event series with secure attendee check-ins and reporting.",
@@ -76,7 +77,7 @@ export function LandingPage() {
           {
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "EventQR Hub",
+            name: "EventQR",
             url: getSiteUrl(),
           },
         ]}
@@ -85,11 +86,9 @@ export function LandingPage() {
       <div className="mx-auto max-w-[1320px]">
         <header className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-panel)] px-5 py-4 shadow-[0_18px_40px_rgba(148,163,184,0.1)] backdrop-blur">
           <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-              <QrCode className="size-5" />
-            </div>
+            <img alt="Magitecx logo" className="h-11 w-auto object-contain" src="/logo.png" />
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-amber-700">EventQR Hub</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-amber-700">EventQR</p>
               <p className="font-display text-xl font-semibold text-slate-900">Attendance</p>
             </div>
           </div>
@@ -371,6 +370,16 @@ export function LandingPage() {
             </Card>
           ))}
         </section>
+
+        <footer className="py-6">
+          <Card className="flex flex-col gap-4 rounded-[28px] p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">EventQR</p>
+              <p className="text-sm text-slate-500">QR attendance for recurring events and workshops.</p>
+            </div>
+            <BrandBadge compact />
+          </Card>
+        </footer>
       </div>
     </div>
   );

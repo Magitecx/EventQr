@@ -47,7 +47,7 @@ export function InvitePage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 text-slate-900">
       <Seo
-        description="Accept an EventQR Hub organization invite and join the workspace for attendee and attendance management."
+        description="Accept an EventQR organization invite and join the workspace for attendee and attendance management."
         noindex
         pathname={`/invite/${token}`}
         title="Organization Invite"

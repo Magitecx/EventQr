@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { LockKeyhole, Mail, UserRound, Users } from "lucide-react";
+import { LockKeyhole, Mail, UserRound } from "lucide-react";
 import { startTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { BrandBadge } from "../components/brand/brand-badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
@@ -51,7 +52,7 @@ export function RegisterPage() {
   return (
     <div className="min-h-screen px-4 py-6">
       <Seo
-        description="Create your EventQR Hub account, then create or join an organization to manage recurring event attendance with QR check-ins."
+        description="Create your EventQR account, then create or join an organization to manage recurring event attendance with QR check-ins."
         noindex
         pathname="/register"
         title="Create Account"
@@ -59,7 +60,7 @@ export function RegisterPage() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
           <Link className="font-display text-2xl font-semibold text-slate-900" to="/">
-            EventQR Hub
+            EventQR
           </Link>
           <Link to="/login">
             <Button variant="ghost">Login</Button>
@@ -69,9 +70,7 @@ export function RegisterPage() {
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <Card className="p-8">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
-                <Users className="size-5" />
-              </div>
+              <img alt="Magitecx logo" className="h-12 w-auto object-contain" src="/logo.png" />
               <div>
                 <p className="text-sm font-semibold text-slate-900">Register</p>
                 <p className="text-sm text-slate-500">Create account first</p>
@@ -124,6 +123,10 @@ export function RegisterPage() {
                 {mutation.isPending ? "Creating..." : "Create account"}
               </Button>
             </form>
+
+            <div className="mt-8 border-t border-[var(--color-border)] pt-5">
+              <BrandBadge compact />
+            </div>
           </Card>
 
           <div className="grid gap-6">
