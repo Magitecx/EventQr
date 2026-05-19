@@ -11,6 +11,7 @@ import {
 import { Link } from "react-router-dom";
 import { getSiteUrl } from "../lib/seo";
 import { BrandBadge } from "../components/brand/brand-badge";
+import { BrandLogo } from "../components/brand/brand-logo";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Seo } from "../components/seo/seo";
@@ -86,7 +87,7 @@ export function LandingPage() {
       <div className="mx-auto max-w-[1320px]">
         <header className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-panel)] px-5 py-4 shadow-[0_18px_40px_rgba(148,163,184,0.1)] backdrop-blur">
           <div className="flex items-center gap-3">
-            <img alt="Magitecx logo" className="h-11 w-auto object-contain" src="/logo.png" />
+            <BrandLogo imageClassName="h-11" />
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-amber-700">EventQR</p>
               <p className="font-display text-xl font-semibold text-slate-900">Attendance</p>
@@ -113,7 +114,7 @@ export function LandingPage() {
 
         <section className="grid gap-8 py-10 lg:grid-cols-[1fr_560px] lg:py-14">
           <div className="max-w-2xl pt-4">
-            <h1 className="font-display text-5xl font-semibold leading-[1.02] text-slate-900 md:text-7xl">
+            <h1 className="break-words font-display text-5xl font-semibold leading-[1.02] text-slate-900 md:text-7xl">
               Simple QR attendance for recurring events.
             </h1>
             <p className="mt-5 max-w-lg text-lg leading-8 text-slate-600">
@@ -155,7 +156,7 @@ export function LandingPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Series</p>
-                      <h2 className="mt-2 text-2xl font-semibold text-slate-900">AI Workshop</h2>
+                      <h2 className="mt-2 break-words text-2xl font-semibold text-slate-900">AI Workshop</h2>
                     </div>
                     <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                       Live
@@ -172,7 +173,7 @@ export function LandingPage() {
                         key={title}
                         className="flex items-center justify-between rounded-[20px] border border-[var(--color-border)] bg-white px-4 py-3"
                       >
-                        <p className="font-medium text-slate-800">{title}</p>
+                        <p className="break-words font-medium text-slate-800">{title}</p>
                         <p className="text-sm font-semibold text-amber-700">{value}</p>
                       </div>
                     ))}
@@ -267,7 +268,7 @@ export function LandingPage() {
                 <div className="w-fit rounded-2xl bg-amber-50 p-3 text-amber-700">
                   <item.icon className="size-5" />
                 </div>
-                <h3 className="mt-4 text-xl font-semibold text-slate-900">{item.title}</h3>
+                <h3 className="mt-4 break-words text-xl font-semibold text-slate-900">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-500">{item.copy}</p>
               </Card>
             ))}
@@ -318,7 +319,7 @@ export function LandingPage() {
                       <item.icon className="size-6" />
                     </div>
                     <p className="mt-4 text-sm font-semibold text-slate-500">{item.title}</p>
-                    <h3 className="mt-1 text-2xl font-semibold text-slate-900">{item.subtitle}</h3>
+                    <h3 className="mt-1 break-words text-2xl font-semibold text-slate-900">{item.subtitle}</h3>
                     <p className="mt-3 text-sm leading-6 text-slate-500">{item.detail}</p>
                   </div>
 

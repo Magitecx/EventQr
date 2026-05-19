@@ -103,7 +103,7 @@ export function OrganizationSettingsPage() {
         <p className="text-sm font-semibold text-slate-900">Organization settings</p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-slate-900">Workspace</h1>
         <div className="mt-5 flex flex-wrap gap-3">
-          <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-700">
+          <span className="max-w-full break-words rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-700">
             Your role: {organization?.currentUserRole ?? activeMembership?.role ?? "MEMBER"}
           </span>
           {!canManageOrganization ? (
@@ -159,7 +159,7 @@ export function OrganizationSettingsPage() {
               </Button>
             </div>
           </div>
-          <div className="mt-4 rounded-2xl border border-amber-200 bg-white px-4 py-3 font-mono text-lg text-amber-700">
+          <div className="mt-4 break-all rounded-2xl border border-amber-200 bg-white px-4 py-3 font-mono text-lg text-amber-700">
             {organization?.joinCode ?? "Loading..."}
           </div>
         </div>
@@ -238,12 +238,12 @@ export function OrganizationSettingsPage() {
             {organization?.members.map((member) => (
               <div key={member.membershipId} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-slate-900">{member.name}</p>
-                    <p className="mt-1 text-sm text-slate-500">{member.email}</p>
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-slate-900">{member.name}</p>
+                    <p className="break-words text-sm text-slate-500">{member.email}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-600">
+                    <span className="max-w-full break-words rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-600">
                       {member.role}
                     </span>
                     {member.userId === auth?.user.id ? (
@@ -297,7 +297,7 @@ export function OrganizationSettingsPage() {
                 <div key={invite.id} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-slate-900">Invite created by {invite.createdByName}</p>
+                      <p className="break-words text-sm font-semibold text-slate-900">Invite created by {invite.createdByName}</p>
                       <p className="mt-2 break-all text-sm text-slate-500">{inviteUrl}</p>
                       <p className="mt-2 text-xs uppercase tracking-[0.16em] text-slate-400">
                         Created {formatDate(invite.createdAt)} - Used {invite.usedCount} times

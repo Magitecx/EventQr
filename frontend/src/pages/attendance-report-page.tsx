@@ -40,7 +40,7 @@ export function AttendanceReportPage() {
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
           <p className="text-sm font-semibold text-slate-900">Attendance report</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold text-slate-900">{report.series.name}</h1>
+          <h1 className="mt-2 break-words font-display text-4xl font-semibold text-slate-900">{report.series.name}</h1>
           <div className="mt-5 flex flex-wrap gap-3">
             <Badge>{report.sessions.length} sessions</Badge>
             <Badge>{report.items.length} attendees</Badge>
@@ -148,7 +148,7 @@ export function AttendanceReportPage() {
                 {report.sessions.map((session) => (
                   <th key={session.id} className="min-w-[180px] px-4 py-4">
                     <div className="space-y-1">
-                      <p className="whitespace-normal text-slate-700">{session.title}</p>
+                        <p className="whitespace-normal break-words text-slate-700">{session.title}</p>
                       <p className="normal-case tracking-normal text-slate-400">
                         {formatDate(session.sessionDate)}
                       </p>

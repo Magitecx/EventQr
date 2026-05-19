@@ -153,8 +153,8 @@ export function AttendeeDetailPage() {
             />
             <div className="flex-1">
               <p className="text-sm font-semibold text-slate-900">Attendee</p>
-              <h1 className="mt-2 font-display text-3xl font-semibold text-slate-900">{attendee.name}</h1>
-              <p className="mt-2 text-sm text-slate-500">{attendee.email}</p>
+              <h1 className="mt-2 break-words font-display text-3xl font-semibold text-slate-900">{attendee.name}</h1>
+              <p className="mt-2 break-words text-sm text-slate-500">{attendee.email}</p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <Badge>{attendee.phone ?? "No phone"}</Badge>
                 <Badge>Created {formatDate(attendee.createdAt)}</Badge>
@@ -280,8 +280,8 @@ export function AttendeeDetailPage() {
               <div key={record.id} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-medium text-slate-900">{record.eventSession.title}</p>
-                    <p className="mt-1 text-sm text-slate-500">{record.eventSession.eventSeries.name}</p>
+                    <p className="break-words font-medium text-slate-900">{record.eventSession.title}</p>
+                    <p className="mt-1 break-words text-sm text-slate-500">{record.eventSession.eventSeries.name}</p>
                   </div>
                   <p className="text-sm text-slate-600">{formatDate(record.checkedInAt)}</p>
                 </div>

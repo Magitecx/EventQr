@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { BrandBadge } from "../components/brand/brand-badge";
+import { BrandLogo } from "../components/brand/brand-logo";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
@@ -70,7 +71,7 @@ export function LoginPage() {
         <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <Card className="self-center p-8">
             <div className="flex items-center gap-3">
-              <img alt="Magitecx logo" className="h-12 w-auto object-contain" src="/logo.png" />
+              <BrandLogo imageClassName="h-12" />
               <div>
                 <p className="text-sm font-semibold text-slate-900">Login</p>
                 <p className="text-sm text-slate-500">Account access</p>

@@ -16,6 +16,7 @@ import { api, unwrapResponse } from "../../lib/api";
 import { cn } from "../../lib/utils";
 import type { AuthResponse } from "../../types/api";
 import { BrandBadge } from "../brand/brand-badge";
+import { BrandLogo } from "../brand/brand-logo";
 import { Seo } from "../seo/seo";
 import { Button } from "../ui/button";
 import { Select } from "../ui/select";
@@ -55,7 +56,7 @@ export function AppShell() {
       <div className="mx-auto grid min-h-screen max-w-[1480px] gap-6 px-4 py-4 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-6">
         <aside className="rounded-[32px] border border-[var(--color-border)] bg-[var(--color-panel)] p-6 shadow-[0_18px_60px_rgba(148,163,184,0.12)] backdrop-blur">
           <div className="flex items-center gap-3">
-            <img alt="Magitecx logo" className="h-12 w-auto object-contain" src="/logo.png" />
+            <BrandLogo imageClassName="h-12" />
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-amber-700">Attendance</p>
               <h1 className="font-display text-2xl font-semibold text-slate-900">EventQR</h1>
@@ -100,7 +101,7 @@ export function AppShell() {
 
           <div className="mt-8 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Workspace</p>
-            <p className="mt-2 text-lg font-semibold text-slate-900">
+            <p className="mt-2 break-words text-lg font-semibold text-slate-900">
               {activeMembership?.organizationName ?? "No active organization"}
             </p>
             <div className="mt-3">
@@ -115,9 +116,9 @@ export function AppShell() {
               >
                 <option value="">Select organization</option>
                 {auth?.memberships.map((membership) => (
-                  <option key={membership.membershipId} value={membership.organizationId}>
-                    {membership.organizationName}
-                  </option>
+                <option key={membership.membershipId} value={membership.organizationId}>
+                  {membership.organizationName}
+                </option>
                 ))}
               </Select>
             </div>
@@ -134,7 +135,7 @@ export function AppShell() {
           <div className="mt-8 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Account</p>
             <p className="mt-2 text-lg font-semibold text-slate-900">{auth?.user.name}</p>
-            <p className="text-sm text-slate-500">{auth?.user.email}</p>
+            <p className="break-words text-sm text-slate-500">{auth?.user.email}</p>
           </div>
 
           <Button

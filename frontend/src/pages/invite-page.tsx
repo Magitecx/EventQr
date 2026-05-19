@@ -58,7 +58,7 @@ export function InvitePage() {
         </div>
 
         <p className="mt-5 text-sm font-semibold text-slate-900">Organization invite</p>
-        <h1 className="mt-2 font-display text-4xl font-semibold text-slate-900">
+        <h1 className="mt-2 break-words font-display text-4xl font-semibold text-slate-900">
           {inviteQuery.data?.organizationName ?? "Loading invite..."}
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-500">

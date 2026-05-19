@@ -27,7 +27,7 @@ export function EventSeriesDetailPage() {
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold text-slate-900">Series</p>
-            <h1 className="mt-2 font-display text-4xl font-semibold text-slate-900">{series.name}</h1>
+            <h1 className="mt-2 break-words font-display text-4xl font-semibold text-slate-900">{series.name}</h1>
             <p className="mt-4 text-base leading-7 text-slate-500">
               {series.description ?? "No description set for this program."}
             </p>
@@ -106,7 +106,7 @@ export function EventSeriesDetailPage() {
               <div key={session.id} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-slate-900">{session.title}</h3>
+                    <h3 className="break-words font-semibold text-slate-900">{session.title}</h3>
                     <p className="mt-1 text-sm text-slate-500">
                       {session.description ?? "No description set."}
                     </p>

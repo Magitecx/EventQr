@@ -131,7 +131,7 @@ export function AccountSettingsPage() {
             <h2 className="mt-2 text-3xl font-semibold text-slate-900">{auth?.memberships.length ?? 0}</h2>
           </div>
           {activeMembership ? (
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
+            <span className="max-w-full break-words rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
               Active: {activeMembership.organizationName}
             </span>
           ) : null}
@@ -142,7 +142,7 @@ export function AccountSettingsPage() {
             <div key={membership.membershipId} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-semibold text-slate-900">{membership.organizationName}</p>
+                  <p className="break-words font-semibold text-slate-900">{membership.organizationName}</p>
                   <p className="mt-1 text-sm text-slate-500">{membership.role.toLowerCase()} membership</p>
                 </div>
 
