@@ -95,6 +95,7 @@ model EventSession {
   title         String
   description   String?
   sessionDate   DateTime
+  publicScanToken String?          @unique
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   attendance    AttendanceRecord[]

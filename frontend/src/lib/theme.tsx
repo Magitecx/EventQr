@@ -11,6 +11,8 @@ type ThemeContextValue = {
 };
 
 const STORAGE_KEY = "eventqr-theme";
+const LIGHT_MARK = "/eventqr-mark-light.svg";
+const DARK_MARK = "/eventqr-mark-dark.svg";
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
@@ -61,6 +63,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
     window.localStorage.setItem(STORAGE_KEY, mode);
+
+    const faviconHref = theme === "dark" ? DARK_MARK : LIGHT_MARK;
+    const favicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    const appleTouchIcon = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
+
+    if (favicon) {
+      favicon.href = faviconHref;
+    }
+
+    if (appleTouchIcon) {
+      appleTouchIcon.href = faviconHref;
+    }
   }, [mode, theme]);
 
   const value = useMemo<ThemeContextValue>(

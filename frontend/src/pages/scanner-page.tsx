@@ -1,8 +1,17 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import { Camera, CircleCheckBig, OctagonAlert, ScanLine, Sheet } from "lucide-react";
+import {
+  Camera,
+  CircleCheckBig,
+  Copy,
+  OctagonAlert,
+  ScanLine,
+  Share2,
+  Sheet,
+  Smartphone,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { BrandBadge } from "../components/brand/brand-badge";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -11,7 +20,7 @@ import { Input } from "../components/ui/input";
 import { Select } from "../components/ui/select";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
 import { formatDate, resolveMediaUrl } from "../lib/utils";
-import type { EventSeries, ScanResult } from "../types/api";
+import type { EventSeries, PublicScannerSession, ScanResult, ScannerShareLink } from "../types/api";
 
 type CheckInPayload = {
   qrToken: string;
@@ -19,17 +28,29 @@ type CheckInPayload = {
 };
 
 export function ScannerPage() {
+  const { token } = useParams();
+  const isPublicScanner = Boolean(token);
   const [selectedSessionId, setSelectedSessionId] = useState("");
   const [lastResult, setLastResult] = useState<ScanResult | null>(null);
   const [scannerError, setScannerError] = useState("");
   const [manualToken, setManualToken] = useState("");
+  const [shareFeedback, setShareFeedback] = useState("");
   const recentTokenRef = useRef("");
   const resumeTimeoutRef = useRef<number | null>(null);
+  const shareFeedbackTimeoutRef = useRef<number | null>(null);
   const [paused, setPaused] = useState(false);
 
   const seriesQuery = useQuery({
     queryKey: ["event-series"],
     queryFn: async () => unwrapResponse<EventSeries[]>(await api.get("/event-series")),
+    enabled: !isPublicScanner,
+  });
+
+  const publicSessionQuery = useQuery({
+    queryKey: ["public-scanner-session", token],
+    queryFn: async () =>
+      unwrapResponse<PublicScannerSession>(await api.get(`/public/scan/${token}`)),
+    enabled: isPublicScanner && Boolean(token),
   });
 
   const sessionOptions = useMemo(
@@ -41,22 +62,55 @@ export function ScannerPage() {
           seriesId: series.id,
           seriesName: series.name,
           title: session.title,
+          sessionDate: session.sessionDate,
         })),
       ),
     [seriesQuery.data],
   );
 
   const selectedSession = sessionOptions.find((session) => session.id === selectedSessionId);
+  const publicSession = publicSessionQuery.data?.session;
+  const currentSessionId = isPublicScanner ? publicSession?.id ?? "" : selectedSessionId;
+  const currentSeriesId = isPublicScanner ? publicSession?.eventSeries.id : selectedSession?.seriesId;
+  const currentSeriesName = isPublicScanner ? publicSession?.eventSeries.name : selectedSession?.seriesName;
+  const currentSessionTitle = isPublicScanner ? publicSession?.title : selectedSession?.title;
 
   useEffect(() => {
-    if (!selectedSessionId && sessionOptions[0]) {
+    if (!isPublicScanner && !selectedSessionId && sessionOptions[0]) {
       setSelectedSessionId(sessionOptions[0].id);
     }
-  }, [selectedSessionId, sessionOptions]);
+  }, [isPublicScanner, selectedSessionId, sessionOptions]);
+
+  useEffect(() => {
+    return () => {
+      if (resumeTimeoutRef.current) {
+        window.clearTimeout(resumeTimeoutRef.current);
+      }
+
+      if (shareFeedbackTimeoutRef.current) {
+        window.clearTimeout(shareFeedbackTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const shareLinkQuery = useQuery({
+    queryKey: ["scanner-share-link", selectedSessionId],
+    queryFn: async () =>
+      unwrapResponse<ScannerShareLink>(
+        await api.get(`/scan/sessions/${selectedSessionId}/share-link`),
+      ),
+    enabled: !isPublicScanner && Boolean(selectedSessionId),
+  });
+
+  const shareUrl = shareLinkQuery.data
+    ? new URL(shareLinkQuery.data.path, window.location.origin).toString()
+    : "";
 
   const checkInMutation = useMutation({
-    mutationFn: async (payload: CheckInPayload) =>
-      unwrapResponse<ScanResult>(await api.post("/scan/check-in", payload)),
+    mutationFn: async (payload: CheckInPayload | { qrToken: string }) =>
+      isPublicScanner
+        ? unwrapResponse<ScanResult>(await api.post(`/public/scan/${token}/check-in`, payload))
+        : unwrapResponse<ScanResult>(await api.post("/scan/check-in", payload)),
     onSuccess: (result) => {
       setLastResult(result);
       setPaused(true);
@@ -68,7 +122,7 @@ export function ScannerPage() {
   });
 
   function submitToken(qrToken: string) {
-    if (!selectedSessionId || checkInMutation.isPending || !qrToken) {
+    if (!currentSessionId || checkInMutation.isPending || !qrToken) {
       return;
     }
 
@@ -78,65 +132,126 @@ export function ScannerPage() {
 
     recentTokenRef.current = qrToken;
     setScannerError("");
-    checkInMutation.mutate(
-      {
-        qrToken,
-        eventSessionId: selectedSessionId,
+    checkInMutation.mutate(isPublicScanner ? { qrToken } : { qrToken, eventSessionId: currentSessionId }, {
+      onSettled: () => {
+        window.setTimeout(() => {
+          recentTokenRef.current = "";
+        }, 1800);
       },
-      {
-        onSettled: () => {
-          window.setTimeout(() => {
-            recentTokenRef.current = "";
-          }, 1800);
-        },
-      },
+    });
+  }
+
+  function pushShareFeedback(message: string) {
+    setShareFeedback(message);
+    if (shareFeedbackTimeoutRef.current) {
+      window.clearTimeout(shareFeedbackTimeoutRef.current);
+    }
+    shareFeedbackTimeoutRef.current = window.setTimeout(() => setShareFeedback(""), 2200);
+  }
+
+  async function copyShareUrl() {
+    if (!shareUrl) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(shareUrl);
+    pushShareFeedback("Link copied");
+  }
+
+  async function shareScannerUrl() {
+    if (!shareUrl) {
+      return;
+    }
+
+    if (navigator.share) {
+      await navigator.share({
+        title: `EventQR scanner for ${currentSessionTitle ?? "session"}`,
+        text: `${currentSeriesName ?? "Event session"} scanner`,
+        url: shareUrl,
+      });
+      pushShareFeedback("Share ready");
+      return;
+    }
+
+    await copyShareUrl();
+  }
+
+  if (isPublicScanner && publicSessionQuery.isLoading) {
+    return (
+      <div className="mx-auto max-w-4xl">
+        <Card>
+          <p className="text-sm text-slate-500">Loading scanner...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isPublicScanner && publicSessionQuery.isError) {
+    return (
+      <div className="mx-auto max-w-4xl">
+        <Card>
+          <p className="text-lg font-semibold text-slate-900">Scanner link unavailable</p>
+          <p className="mt-2 text-sm text-slate-500">{getErrorMessage(publicSessionQuery.error)}</p>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+    <div className={isPublicScanner ? "mx-auto max-w-5xl space-y-6" : "grid gap-6 xl:grid-cols-[1.05fr_0.95fr]"}>
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold text-slate-900">Scanner</p>
-            <h1 className="mt-2 font-display text-4xl font-semibold text-slate-900">Live check-in</h1>
+            <p className="text-sm font-semibold text-slate-900">{isPublicScanner ? "Mobile scanner" : "Scanner"}</p>
+            <h1 className="mt-2 break-words font-display text-4xl font-semibold text-slate-900">
+              {isPublicScanner ? "Scan check-in" : "Live check-in"}
+            </h1>
           </div>
-          <Badge>{sessionOptions.length} available sessions</Badge>
+          {!isPublicScanner ? <Badge>{sessionOptions.length} available sessions</Badge> : <Badge>Phone-ready</Badge>}
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-600">Target session</span>
-            <Select onChange={(event) => setSelectedSessionId(event.target.value)} value={selectedSessionId}>
-              <option value="">Select a session</option>
-              {sessionOptions.map((session) => (
-                <option key={session.id} value={session.id}>
-                  {session.label}
-                </option>
-              ))}
-            </Select>
-          </label>
+        {!isPublicScanner ? (
+          <div className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-600">Target session</span>
+              <Select onChange={(event) => setSelectedSessionId(event.target.value)} value={selectedSessionId}>
+                <option value="">Select a session</option>
+                {sessionOptions.map((session) => (
+                  <option key={session.id} value={session.id}>
+                    {session.label}
+                  </option>
+                ))}
+              </Select>
+            </label>
 
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-600">Manual token</span>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Input onChange={(event) => setManualToken(event.target.value)} value={manualToken} />
-              <Button className="shrink-0 sm:w-auto" onClick={() => submitToken(manualToken)} type="button" variant="secondary">
-                Submit
-              </Button>
-            </div>
-          </label>
-        </div>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-600">Manual token</span>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Input onChange={(event) => setManualToken(event.target.value)} value={manualToken} />
+                <Button className="shrink-0 sm:w-auto" onClick={() => submitToken(manualToken)} type="button" variant="secondary">
+                  Submit
+                </Button>
+              </div>
+            </label>
+          </div>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Current target</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">
-              {selectedSession ? `${selectedSession.seriesName} - ${selectedSession.title}` : "No session selected"}
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{isPublicScanner ? "Active session" : "Current target"}</p>
+            <p className="mt-1 break-words text-sm font-semibold text-slate-900">
+              {currentSessionTitle && currentSeriesName
+                ? `${currentSeriesName} - ${currentSessionTitle}`
+                : "No session selected"}
             </p>
+            {(isPublicScanner ? publicSession?.sessionDate : selectedSession?.sessionDate) ? (
+              <p className="mt-1 text-xs text-slate-500">
+                {formatDate(isPublicScanner ? publicSession!.sessionDate : selectedSession!.sessionDate)}
+              </p>
+            ) : null}
           </div>
-          {selectedSession ? (
-            <Link to={`/app/reports/event-series/${selectedSession.seriesId}`}>
+          {!isPublicScanner && currentSeriesId ? (
+            <Link to={`/app/reports/event-series/${currentSeriesId}`}>
               <Button icon={<Sheet className="size-4" />} variant="ghost">
                 Open report
               </Button>
@@ -144,9 +259,40 @@ export function ScannerPage() {
           ) : null}
         </div>
 
+        {!isPublicScanner && selectedSessionId ? (
+          <div className="mt-4 rounded-[24px] border border-[var(--color-border)] bg-white px-4 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-900">Phone scanner</p>
+                <p className="mt-1 break-all text-xs text-slate-500">{shareUrl || "Preparing link..."}</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  disabled={!shareUrl || shareLinkQuery.isLoading}
+                  icon={<Copy className="size-4" />}
+                  onClick={() => void copyShareUrl()}
+                  type="button"
+                  variant="secondary"
+                >
+                  Copy URL
+                </Button>
+                <Button
+                  disabled={!shareUrl || shareLinkQuery.isLoading}
+                  icon={<Share2 className="size-4" />}
+                  onClick={() => void shareScannerUrl()}
+                  type="button"
+                >
+                  Share
+                </Button>
+              </div>
+            </div>
+            {shareFeedback ? <p className="mt-3 text-xs font-medium text-emerald-700">{shareFeedback}</p> : null}
+          </div>
+        ) : null}
+
         <div className="mt-6 overflow-hidden rounded-[32px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-3">
           <div className="aspect-video overflow-hidden rounded-[28px] bg-slate-900">
-            {selectedSessionId ? (
+            {currentSessionId ? (
               <Scanner
                 allowMultiple={false}
                 classNames={{
@@ -168,7 +314,7 @@ export function ScannerPage() {
               <div className="flex h-full items-center justify-center">
                 <div className="text-center text-slate-400">
                   <Camera className="mx-auto size-10" />
-                  <p className="mt-4 text-sm">Choose a session first.</p>
+                  <p className="mt-4 text-sm">{isPublicScanner ? "Scanner unavailable." : "Choose a session first."}</p>
                 </div>
               </div>
             )}
@@ -186,7 +332,7 @@ export function ScannerPage() {
         </div>
       </Card>
 
-      <div className="space-y-6">
+      <div className={isPublicScanner ? "grid gap-6 md:grid-cols-[1.05fr_0.95fr]" : "space-y-6"}>
         <Card>
           <p className="text-sm font-semibold text-slate-900">Latest scan</p>
           <h2 className="mt-2 text-2xl font-semibold text-slate-900">Result</h2>
@@ -207,7 +353,7 @@ export function ScannerPage() {
                     <OctagonAlert className="size-6" />
                   )}
                 </div>
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <p className="text-lg font-semibold capitalize text-slate-900">
                     {lastResult.status.replaceAll("_", " ")}
                   </p>
@@ -227,9 +373,9 @@ export function ScannerPage() {
                       "https://placehold.co/160x160/f7f5f0/334155?text=QR"
                     }
                   />
-                  <div>
-                    <p className="font-semibold text-slate-900">{lastResult.attendee.name}</p>
-                    <p className="text-sm text-slate-500">{lastResult.attendee.email ?? "No email"}</p>
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-slate-900">{lastResult.attendee.name}</p>
+                    <p className="break-words text-sm text-slate-500">{lastResult.attendee.email ?? "No email"}</p>
                   </div>
                 </div>
               ) : null}
@@ -248,25 +394,26 @@ export function ScannerPage() {
         </Card>
 
         <Card>
-          <p className="text-sm font-semibold text-slate-900">Flow</p>
+          <p className="text-sm font-semibold text-slate-900">{isPublicScanner ? "Mode" : "Flow"}</p>
           <div className="mt-5 space-y-3">
-            {[
-              {
-                title: "Pick session",
-              },
-              {
-                title: "Scan or paste",
-              },
-              {
-                title: "Confirm result",
-              },
-            ].map((item) => (
+            {(isPublicScanner
+              ? [
+                  { title: "Open on phone", icon: Smartphone },
+                  { title: "Scan attendee QR", icon: ScanLine },
+                  { title: "See check-in result", icon: CircleCheckBig },
+                ]
+              : [
+                  { title: "Pick session", icon: ScanLine },
+                  { title: "Share to phone", icon: Smartphone },
+                  { title: "Scan or paste", icon: Camera },
+                ]
+            ).map((item) => (
               <div key={item.title} className="flex gap-3 rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
                 <div className="rounded-xl bg-amber-50 p-2 text-amber-700">
-                  <ScanLine className="size-4" />
+                  <item.icon className="size-4" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                <div className="min-w-0">
+                  <p className="break-words text-sm font-semibold text-slate-900">{item.title}</p>
                 </div>
               </div>
             ))}

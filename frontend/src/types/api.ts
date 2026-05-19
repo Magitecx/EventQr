@@ -135,6 +135,34 @@ export type ScanResult = {
   checkedInAt?: string;
 };
 
+export type ScannerShareLink = {
+  token: string;
+  path: string;
+  session: {
+    id: string;
+    title: string;
+    sessionDate: string;
+    eventSeries: {
+      id: string;
+      name: string;
+    };
+  };
+};
+
+export type PublicScannerSession = {
+  token: string;
+  session: {
+    id: string;
+    title: string;
+    description?: string | null;
+    sessionDate: string;
+    eventSeries: {
+      id: string;
+      name: string;
+    };
+  };
+};
+
 export type ReportItem = {
   attendeeId: string;
   profileImageUrl?: string | null;

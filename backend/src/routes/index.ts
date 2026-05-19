@@ -8,7 +8,7 @@ import {
   publicOrganizationsRouter,
 } from "../modules/organizations/organizations.routes";
 import { reportsRouter } from "../modules/reports/reports.routes";
-import { scanRouter } from "../modules/scan/scan.routes";
+import { publicScanRouter, scanRouter } from "../modules/scan/scan.routes";
 
 const router = Router();
 
@@ -23,6 +23,7 @@ router.get("/health", (_request, response) => {
 
 router.use("/auth", authRouter);
 router.use("/organizations", publicOrganizationsRouter);
+router.use("/public/scan", publicScanRouter);
 router.use(requireAuth);
 router.use("/organizations", organizationsRouter);
 router.use(requireActiveOrganization);

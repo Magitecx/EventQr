@@ -23,6 +23,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/invite/:token" element={<InvitePage />} />
+      <Route path="/scan/:token" element={<ScannerPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoute />}>

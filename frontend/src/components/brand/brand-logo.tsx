@@ -9,14 +9,14 @@ type BrandLogoProps = {
 };
 
 export function BrandLogo({
-  alt = "Magitecx logo",
+  alt = "EventQR logo",
   className,
   imageClassName,
   forceVariant,
 }: BrandLogoProps) {
   const { theme } = useTheme();
   const variant = forceVariant ?? theme;
-  const src = variant === "dark" ? "/logo-dark.png" : "/logo.png";
+  const src = variant === "dark" ? "/eventqr-mark-dark.svg" : "/eventqr-mark-light.svg";
 
   return (
     <div
@@ -25,7 +25,7 @@ export function BrandLogo({
         className,
       )}
     >
-      <img alt={alt} className={cn("h-10 w-auto object-contain", imageClassName)} src={src} />
+      <img alt={alt} className={cn("h-10 w-10", imageClassName)} src={src} />
     </div>
   );
 }

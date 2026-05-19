@@ -1,4 +1,4 @@
-import { BrandLogo } from "./brand-logo";
+import { useTheme } from "../../lib/theme";
 import { cn } from "../../lib/utils";
 
 type BrandBadgeProps = {
@@ -8,13 +8,19 @@ type BrandBadgeProps = {
 };
 
 export function BrandBadge({ className, compact = false, forceVariant }: BrandBadgeProps) {
+  const { theme } = useTheme();
+  const variant = forceVariant ?? theme;
+  const src = variant === "dark" ? "/logo-dark.png" : "/logo.png";
+
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <BrandLogo
-        className={compact ? "rounded-[18px] p-1.5" : undefined}
-        imageClassName={compact ? "h-8" : "h-10"}
-        forceVariant={forceVariant}
-      />
+      <div className={cn("inline-flex items-center justify-center", compact ? "rounded-[18px]" : "rounded-[22px]")}>
+        <img
+          alt="Magitecx logo"
+          className={cn("w-auto object-contain", compact ? "h-8" : "h-10")}
+          src={src}
+        />
+      </div>
       <div className="min-w-0">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
           Powered by
