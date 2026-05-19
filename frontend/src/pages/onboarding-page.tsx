@@ -83,22 +83,13 @@ export function OnboardingPage() {
   });
 
   useEffect(() => {
-    if (auth?.activeOrganizationId) {
-      navigate("/app", { replace: true });
-      return;
-    }
-
     if (auth && pendingInviteToken && !acceptInviteMutation.isPending && !acceptInviteMutation.isSuccess) {
       acceptInviteMutation.mutate(pendingInviteToken);
     }
-  }, [acceptInviteMutation, auth, navigate, pendingInviteToken]);
+  }, [acceptInviteMutation, auth, pendingInviteToken]);
 
   if (!auth) {
     return <Navigate replace to="/login" />;
-  }
-
-  if (auth.activeOrganizationId) {
-    return <Navigate replace to="/app" />;
   }
 
   return (
