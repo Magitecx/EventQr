@@ -104,11 +104,6 @@ async function performCheckIn(eventSessionId: string, organizationId: string, qr
       body: successResponse(
         {
           status: "wrong_event_session",
-          attendee: {
-            id: attendee.id,
-            name: attendee.name,
-            profileImageUrl: attendee.profileImageUrl,
-          },
         },
         "Attendee does not belong to this event organization",
       ),
