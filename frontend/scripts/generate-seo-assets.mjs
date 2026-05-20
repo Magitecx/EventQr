@@ -38,14 +38,30 @@ function readEnvValue(key) {
 }
 
 const siteUrl = (readEnvValue("VITE_SITE_URL") ?? "http://localhost:5173").replace(/\/+$/, "");
+const buildDate = new Date().toISOString().slice(0, 10);
+
+const sitemapEntries = [
+  { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/about", changefreq: "monthly", priority: "0.8" },
+  { path: "/contact", changefreq: "monthly", priority: "0.7" },
+  { path: "/docs", changefreq: "weekly", priority: "0.9" },
+  { path: "/help", changefreq: "weekly", priority: "0.8" },
+  { path: "/privacy", changefreq: "yearly", priority: "0.4" },
+  { path: "/terms", changefreq: "yearly", priority: "0.4" },
+];
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${siteUrl}/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+${sitemapEntries
+  .map(
+    (entry) => `  <url>
+    <loc>${siteUrl}${entry.path === "/" ? "/" : entry.path}</loc>
+    <lastmod>${buildDate}</lastmod>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`,
+  )
+  .join("\n")}
 </urlset>
 `;
 
@@ -58,4 +74,3 @@ Sitemap: ${siteUrl}/sitemap.xml
 mkdirSync(publicDir, { recursive: true });
 writeFileSync(resolve(publicDir, "sitemap.xml"), sitemap, "utf8");
 writeFileSync(resolve(publicDir, "robots.txt"), robots, "utf8");
-
