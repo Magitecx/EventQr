@@ -85,7 +85,7 @@ export function LandingPage() {
         title="QR Attendance Platform for Recurring Events"
       />
       <div className="mx-auto max-w-[1320px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-panel)] px-5 py-4 shadow-[0_18px_40px_rgba(148,163,184,0.1)] backdrop-blur">
+        <header className="flex flex-wrap items-center justify-between gap-4 rounded-[10px] bg-[var(--color-panel)] px-5 py-4 shadow-[var(--shadow-panel)] backdrop-blur">
           <div className="flex items-center gap-3">
             <BrandLogo imageClassName="h-11" />
             <div>
@@ -140,11 +140,8 @@ export function LandingPage() {
 
             <div className="mt-10 grid gap-3 sm:grid-cols-2">
               {features.map((item) => (
-                <div
-                  key={item.title}
-                  className="flex items-center gap-3 rounded-[22px] border border-[var(--color-border)] bg-white px-4 py-4 shadow-[0_12px_30px_rgba(148,163,184,0.08)]"
-                >
-                  <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+                <div key={item.title} className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-4 shadow-[var(--shadow-card)]">
+                  <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
                     <item.icon className="size-5" />
                   </div>
                   <p className="font-semibold text-slate-800">{item.title}</p>
@@ -153,10 +150,10 @@ export function LandingPage() {
             </div>
           </div>
 
-          <Card className="rounded-[34px] p-5" id="preview">
+          <Card className="p-5" id="preview">
             <div className="grid gap-4">
               <div className="grid gap-4 md:grid-cols-[1.15fr_0.85fr]">
-                <div className="rounded-[26px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
+                <div className="rounded-[8px] bg-[var(--color-surface-soft)] p-5">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Series</p>
@@ -173,10 +170,7 @@ export function LandingPage() {
                       ["Session 2", "88%"],
                       ["Session 3", "Today"],
                     ].map(([title, value]) => (
-                      <div
-                        key={title}
-                        className="flex items-center justify-between rounded-[20px] border border-[var(--color-border)] bg-white px-4 py-3"
-                      >
+                      <div key={title} className="flex items-center justify-between rounded-[8px] bg-white px-4 py-3 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
                         <p className="break-words font-medium text-slate-800">{title}</p>
                         <p className="text-sm font-semibold text-amber-700">{value}</p>
                       </div>
@@ -184,11 +178,11 @@ export function LandingPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[26px] border border-emerald-100 bg-emerald-50 p-5">
+                <div className="rounded-[8px] bg-emerald-50 p-5">
                   <p className="text-xs uppercase tracking-[0.18em] text-emerald-700">Latest scan</p>
-                  <div className="mt-5 rounded-[22px] border border-emerald-200 bg-white p-4">
+                  <div className="mt-5 rounded-[8px] bg-white p-4">
                     <div className="flex items-center gap-3">
-                      <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
+                      <div className="rounded-[8px] bg-emerald-50 p-3 text-emerald-700">
                         <CheckCircle2 className="size-5" />
                       </div>
                       <div>
@@ -202,7 +196,7 @@ export function LandingPage() {
                     {["Add attendee", "Create session", "Export"].map((item) => (
                       <div
                         key={item}
-                        className="rounded-[18px] border border-emerald-100 bg-white px-4 py-3 text-sm font-semibold text-slate-700"
+                        className="rounded-[8px] bg-white px-4 py-3 text-sm font-semibold text-slate-700"
                       >
                         {item}
                       </div>
@@ -211,7 +205,7 @@ export function LandingPage() {
                 </div>
               </div>
 
-              <div className="overflow-x-auto rounded-[26px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
+              <div className="overflow-x-auto rounded-[8px] bg-[var(--color-surface-soft)] p-5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold text-slate-900">Attendance matrix</h3>
                   <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -230,7 +224,7 @@ export function LandingPage() {
                     { name: "Mia", states: [true, true, true] },
                   ].map((row) => (
                     <div key={row.name} className="contents">
-                      <div className="rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 font-medium text-slate-800">
+                      <div className="rounded-[8px] bg-white px-4 py-3 font-medium text-slate-800">
                         {row.name}
                       </div>
                       {row.states.map((joined, index) => (
@@ -238,8 +232,8 @@ export function LandingPage() {
                           key={`${row.name}-${index}`}
                           className={
                             joined
-                              ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center font-semibold text-emerald-700"
-                              : "rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-center font-semibold text-slate-400"
+                              ? "rounded-[8px] bg-emerald-50 px-4 py-3 text-center font-semibold text-emerald-700"
+                              : "rounded-[8px] bg-white px-4 py-3 text-center font-semibold text-slate-400"
                           }
                         >
                           {joined ? "In" : "Out"}
@@ -268,8 +262,8 @@ export function LandingPage() {
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {featureDetails.map((item) => (
-              <Card key={item.title} className="rounded-[28px] p-5">
-                <div className="w-fit rounded-2xl bg-amber-50 p-3 text-amber-700">
+              <Card key={item.title} className="p-5">
+                <div className="w-fit rounded-[8px] bg-amber-50 p-3 text-amber-700">
                   <item.icon className="size-5" />
                 </div>
                 <h3 className="mt-4 break-words text-xl font-semibold text-slate-900">{item.title}</h3>
@@ -280,7 +274,7 @@ export function LandingPage() {
         </section>
 
         <section className="py-4" id="workflow">
-          <Card className="rounded-[34px] p-6 md:p-8">
+          <Card className="p-6 md:p-8">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold text-slate-900">Workflow</p>
@@ -318,8 +312,8 @@ export function LandingPage() {
                 },
               ].map((item, index) => (
                 <div key={item.title} className="contents">
-                  <div className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
-                    <div className={`w-fit rounded-2xl p-3 ${item.tone}`}>
+                  <div className="rounded-[8px] bg-[var(--color-surface-soft)] p-5">
+                    <div className={`w-fit rounded-[8px] p-3 ${item.tone}`}>
                       <item.icon className="size-6" />
                     </div>
                     <p className="mt-4 text-sm font-semibold text-slate-500">{item.title}</p>
@@ -349,9 +343,9 @@ export function LandingPage() {
               ].map((item) => (
                 <div
                   key={item.title}
-                  className="flex items-center gap-3 rounded-[22px] border border-[var(--color-border)] bg-white px-4 py-4"
+                  className="flex items-center gap-3 rounded-[8px] bg-white px-4 py-4 shadow-[var(--shadow-card)]"
                 >
-                  <div className="rounded-2xl bg-slate-50 p-3 text-slate-700">
+                  <div className="rounded-[8px] bg-slate-50 p-3 text-slate-700">
                     <item.icon className="size-5" />
                   </div>
                   <p className="font-semibold text-slate-800">{item.title}</p>
@@ -368,7 +362,7 @@ export function LandingPage() {
             { icon: ScanLine, title: "Scan session" },
           ].map((item) => (
             <Card key={item.title} className="flex items-center gap-4 p-5">
-              <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+              <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
                 <item.icon className="size-5" />
               </div>
               <h2 className="text-lg font-semibold text-slate-900">{item.title}</h2>
@@ -377,7 +371,7 @@ export function LandingPage() {
         </section>
 
         <footer className="py-6">
-          <Card className="flex flex-col gap-4 rounded-[28px] p-5 sm:flex-row sm:items-center sm:justify-between">
+          <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-slate-900">EventQR</p>
               <p className="text-sm text-slate-500">QR attendance for recurring events and workshops.</p>

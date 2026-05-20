@@ -21,7 +21,7 @@ export function BrandLogo({
   return (
     <div
       className={cn(
-        "inline-flex items-center justify-center rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface)] p-2 shadow-[0_10px_24px_rgba(148,163,184,0.08)]",
+        "inline-flex items-center justify-center rounded-[8px] bg-[var(--color-surface)] p-2 shadow-[0_8px_18px_rgba(15,23,42,0.05)]",
         className,
       )}
     >

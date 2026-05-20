@@ -148,7 +148,7 @@ export function AttendeeDetailPage() {
           <div className="flex flex-wrap items-start gap-4">
             <img
               alt={attendee.name}
-              className="size-24 rounded-[28px] object-cover ring-1 ring-[var(--color-border)]"
+              className="size-24 rounded-[8px] object-cover ring-1 ring-[var(--color-border)]"
               src={currentImageSrc}
             />
             <div className="flex-1">
@@ -172,7 +172,7 @@ export function AttendeeDetailPage() {
 
             {qrCodeDataUrl ? (
               <a
-                className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
+                className="rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
                 download={`${attendee.name.replace(/\s+/g, "-").toLowerCase()}-qr.png`}
                 href={qrCodeDataUrl}
               >
@@ -182,10 +182,10 @@ export function AttendeeDetailPage() {
           </div>
 
           <div className="mt-6 flex flex-col items-start gap-4 md:flex-row">
-            <div className="rounded-[28px] bg-slate-50 p-4">
+            <div className="rounded-[8px] bg-slate-50 p-4">
               {qrCodeDataUrl ? <img alt={`${attendee.name} QR`} className="size-64" src={qrCodeDataUrl} /> : null}
             </div>
-            <div className="flex-1 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+            <div className="flex-1 rounded-[8px] bg-[var(--color-surface-soft)] p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Raw token</p>
               <p className="mt-3 break-all font-mono text-sm leading-7 text-slate-700">{attendee.qrToken}</p>
               <div className="mt-6 border-t border-[var(--color-border)] pt-4">
@@ -239,7 +239,7 @@ export function AttendeeDetailPage() {
             </label>
 
             {attendee.profileImageUrl && !profileImageFile ? (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3">
                 <div>
                   <p className="text-sm font-medium text-slate-900">Current photo</p>
                   <p className="text-xs text-slate-500">
@@ -257,7 +257,7 @@ export function AttendeeDetailPage() {
             ) : null}
 
             {updateMutation.isError ? (
-              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(updateMutation.error)}
               </p>
             ) : null}
@@ -277,7 +277,7 @@ export function AttendeeDetailPage() {
 
           <div className="mt-6 space-y-3">
             {attendee.attendance.map((record) => (
-              <div key={record.id} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+              <div key={record.id} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="break-words font-medium text-slate-900">{record.eventSession.title}</p>
@@ -289,7 +289,7 @@ export function AttendeeDetailPage() {
             ))}
 
             {attendee.attendance.length === 0 ? (
-              <p className="rounded-[24px] border border-dashed border-[var(--color-border)] p-4 text-sm text-slate-500">
+              <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-4 text-sm text-slate-500">
                 No attendance records yet.
               </p>
             ) : null}

@@ -40,13 +40,13 @@ export function EventSeriesDetailPage() {
 
           <div className="grid gap-3">
             <Link
-              className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
+              className="rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
               to={`/app/event-series/${series.id}/sessions`}
             >
               Sessions
             </Link>
             <Link
-              className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
+              className="rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-white"
               to={`/app/reports/event-series/${series.id}`}
             >
               Report
@@ -75,9 +75,9 @@ export function EventSeriesDetailPage() {
                 icon: TableProperties,
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+              <div key={item.title} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+                  <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
                     <item.icon className="size-4" />
                   </div>
                   <div>
@@ -103,7 +103,7 @@ export function EventSeriesDetailPage() {
 
           <div className="mt-6 space-y-3">
             {series.sessions.map((session) => (
-              <div key={session.id} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+              <div key={session.id} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h3 className="break-words font-semibold text-slate-900">{session.title}</h3>
@@ -122,7 +122,7 @@ export function EventSeriesDetailPage() {
             ))}
 
             {series.sessions.length === 0 ? (
-              <p className="rounded-[24px] border border-dashed border-[var(--color-border)] p-4 text-sm text-slate-500">
+              <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-4 text-sm text-slate-500">
                 No sessions created yet.
               </p>
             ) : null}

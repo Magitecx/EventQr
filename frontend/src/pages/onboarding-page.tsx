@@ -96,7 +96,7 @@ export function OnboardingPage() {
     <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
       <Card className="p-8">
         <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+          <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
             <Building2 className="size-5" />
           </div>
           <div>
@@ -106,7 +106,7 @@ export function OnboardingPage() {
         </div>
 
         {pendingInviteToken ? (
-          <div className="mt-6 rounded-[24px] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+          <div className="mt-6 rounded-[8px] bg-emerald-50 p-4 text-sm text-emerald-700">
             Invite detected. Joining...
           </div>
         ) : null}
@@ -119,9 +119,9 @@ export function OnboardingPage() {
           ].map((item) => (
             <div
               key={item.title}
-              className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"
+              className="rounded-[8px] bg-[var(--color-surface-soft)] p-5"
             >
-              <div className="w-fit rounded-2xl bg-white p-3 text-amber-700 ring-1 ring-[var(--color-border)]">
+              <div className="w-fit rounded-[8px] bg-white p-3 text-amber-700">
                 <item.icon className="size-5" />
               </div>
               <p className="mt-4 text-lg font-semibold text-slate-900">{item.title}</p>
@@ -139,7 +139,7 @@ export function OnboardingPage() {
               {auth.memberships.map((membership) => (
                 <button
                   key={membership.membershipId}
-                  className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4 text-left transition hover:bg-white"
+                  className="rounded-[8px] bg-[var(--color-surface-soft)] p-4 text-left transition hover:bg-white"
                   onClick={() => switchMutation.mutate(membership.organizationId)}
                   type="button"
                 >
@@ -162,7 +162,7 @@ export function OnboardingPage() {
       <div className="grid gap-6">
         <Card className="p-8">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+            <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
               <Building2 className="size-5" />
             </div>
             <h2 className="text-2xl font-semibold text-slate-900">Create organization</h2>
@@ -178,7 +178,7 @@ export function OnboardingPage() {
             </label>
 
             {createMutation.isError ? (
-              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(createMutation.error)}
               </p>
             ) : null}
@@ -191,7 +191,7 @@ export function OnboardingPage() {
 
         <Card className="p-8">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
+            <div className="rounded-[8px] bg-emerald-50 p-3 text-emerald-700">
               <Users className="size-5" />
             </div>
             <h2 className="text-2xl font-semibold text-slate-900">Join with code</h2>
@@ -207,7 +207,7 @@ export function OnboardingPage() {
             </label>
 
             {joinMutation.isError ? (
-              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(joinMutation.error)}
               </p>
             ) : null}

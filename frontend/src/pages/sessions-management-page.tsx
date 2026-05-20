@@ -81,7 +81,7 @@ export function SessionsManagementPage() {
           </label>
 
           {mutation.isError ? (
-            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(mutation.error)}
             </p>
           ) : null}
@@ -100,7 +100,7 @@ export function SessionsManagementPage() {
 
         <div className="mt-6 space-y-3">
           {series?.sessions.map((session) => (
-            <div key={session.id} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+            <div key={session.id} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h3 className="font-semibold text-slate-900">{session.title}</h3>
@@ -119,7 +119,7 @@ export function SessionsManagementPage() {
           ))}
 
           {!series?.sessions.length ? (
-            <p className="rounded-[24px] border border-dashed border-[var(--color-border)] p-4 text-sm text-slate-500">
+            <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-4 text-sm text-slate-500">
               This series has no sessions yet.
             </p>
           ) : null}

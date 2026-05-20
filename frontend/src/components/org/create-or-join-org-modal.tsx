@@ -50,9 +50,9 @@ export function CreateOrJoinOrgModal({ open, onClose }: Props) {
   return (
     <Dialog onClose={onClose} open={open} title="Create or join organization">
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-6">
+        <div className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-6">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-amber-50 p-2.5 text-amber-700">
+            <div className="rounded-[12px] bg-amber-50 p-2.5 text-amber-700">
               <Building2 className="size-4" />
             </div>
             <h3 className="font-semibold text-slate-900">Create</h3>
@@ -71,7 +71,7 @@ export function CreateOrJoinOrgModal({ open, onClose }: Props) {
             </label>
 
             {createMutation.isError ? (
-              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p className="rounded-[12px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(createMutation.error)}
               </p>
             ) : null}
@@ -82,9 +82,9 @@ export function CreateOrJoinOrgModal({ open, onClose }: Props) {
           </form>
         </div>
 
-        <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-6">
+        <div className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-6">
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-700">
+            <div className="rounded-[12px] bg-emerald-50 p-2.5 text-emerald-700">
               <Users className="size-4" />
             </div>
             <h3 className="font-semibold text-slate-900">Join with code</h3>
@@ -103,7 +103,7 @@ export function CreateOrJoinOrgModal({ open, onClose }: Props) {
             </label>
 
             {joinMutation.isError ? (
-              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p className="rounded-[12px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(joinMutation.error)}
               </p>
             ) : null}

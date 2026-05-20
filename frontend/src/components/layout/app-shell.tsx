@@ -93,8 +93,8 @@ export function AppShell() {
   return (
     <div className="min-h-screen text-slate-900">
       <Seo noindex pathname={location.pathname} title={pathLabel} />
-      <div className="mx-auto grid min-h-screen max-w-[1480px] gap-6 px-4 py-4 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-6">
-        <aside className="rounded-[32px] border border-[var(--color-border)] bg-[var(--color-panel)] p-6 shadow-[0_18px_60px_rgba(148,163,184,0.12)] backdrop-blur">
+      <div className="mx-auto grid min-h-screen max-w-[1480px] gap-5 px-4 py-4 lg:grid-cols-[248px_minmax(0,1fr)] lg:px-6">
+        <aside className="rounded-[10px] bg-[var(--color-panel)] p-6 shadow-[var(--shadow-panel)] backdrop-blur">
           <div className="flex items-center gap-3">
             <BrandLogo imageClassName="h-12" />
             <div>
@@ -103,15 +103,15 @@ export function AppShell() {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="mt-8 grid gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
             {navigation.map((item) => (
               <NavLink
                 key={item.to}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
+                    "flex items-center gap-3 rounded-[8px] px-4 py-3 text-sm font-medium transition",
                     isActive
-                      ? "bg-amber-100 text-amber-800 shadow-[0_12px_24px_rgba(217,119,6,0.12)]"
+                      ? "bg-[var(--color-surface)] text-slate-900 shadow-[0_4px_14px_rgba(15,23,42,0.05)]"
                       : "text-slate-600 hover:bg-[var(--color-surface-soft)] hover:text-slate-900",
                   )
                 }
@@ -124,22 +124,22 @@ export function AppShell() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-[24px] border border-amber-200 bg-amber-50 p-4">
+          <div className="mt-8 rounded-[8px] bg-amber-50/70 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-amber-700">Quick start</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
-              <Link className="rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100" to="/app/event-series">
+              <Link className="rounded-[8px] bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100/70" to="/app/event-series">
                 Create series
               </Link>
-              <Link className="rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100" to="/app/attendees">
+              <Link className="rounded-[8px] bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100/70" to="/app/attendees">
                 Add attendees
               </Link>
-              <Link className="rounded-2xl border border-amber-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100" to="/app/scanner">
+              <Link className="rounded-[8px] bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100/70" to="/app/scanner">
                 Start scanner
               </Link>
             </div>
           </div>
 
-          <div className="mt-8 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+          <div className="mt-8 border-t border-[var(--color-border)] pt-4">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Workspace</p>
             <p className="mt-2 break-words text-lg font-semibold text-slate-900">
               {activeMembership?.organizationName ?? "No active organization"}
@@ -172,7 +172,7 @@ export function AppShell() {
             </div>
           </div>
 
-          <div className="mt-8 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+          <div className="mt-8 border-t border-[var(--color-border)] pt-4">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Account</p>
             <p className="mt-2 text-lg font-semibold text-slate-900">{auth?.user.name}</p>
             <p className="break-words text-sm text-slate-500">{auth?.user.email}</p>
@@ -203,10 +203,10 @@ export function AppShell() {
 
         <main className="min-w-0 py-2">
           {showInactiveBanner && organizationQuery.data ? (
-            <div className="mb-6 rounded-[28px] border border-rose-200 bg-rose-50 px-5 py-4 shadow-[0_16px_40px_rgba(244,63,94,0.10)]">
+            <div className="mb-6 rounded-[8px] bg-rose-50 px-5 py-4 shadow-[0_10px_28px_rgba(244,63,94,0.08)]">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex min-w-0 items-start gap-3">
-                  <div className="rounded-2xl bg-white p-3 text-rose-700 ring-1 ring-rose-200">
+                  <div className="rounded-[8px] bg-white p-3 text-rose-700">
                     <OctagonAlert className="size-5" />
                   </div>
                   <div className="min-w-0">
@@ -246,7 +246,7 @@ export function AppShell() {
             </div>
           ) : null}
 
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-panel)] px-5 py-4 backdrop-blur">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[10px] bg-[var(--color-panel)] px-5 py-4 shadow-[var(--shadow-card)] backdrop-blur">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Workspace</p>
               <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">

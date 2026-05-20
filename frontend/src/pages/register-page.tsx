@@ -115,7 +115,7 @@ export function RegisterPage() {
               </label>
 
               {mutation.isError ? (
-                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {getErrorMessage(mutation.error)}
                 </p>
               ) : null}
@@ -137,7 +137,7 @@ export function RegisterPage() {
                 {["Create workspace", "Join by code", "Open invite link", "Start scanning"].map((item) => (
                   <div
                     key={item}
-                    className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"
+                    className="rounded-[8px] bg-[var(--color-surface-soft)] p-5"
                   >
                     <p className="text-lg font-semibold text-slate-900">{item}</p>
                   </div>

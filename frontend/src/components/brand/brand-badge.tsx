@@ -14,7 +14,7 @@ export function BrandBadge({ className, compact = false, forceVariant }: BrandBa
 
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div className={cn("inline-flex items-center justify-center", compact ? "rounded-[18px]" : "rounded-[22px]")}>
+      <div className={cn("inline-flex items-center justify-center", compact ? "rounded-[12px]" : "rounded-[14px]")}>
         <img
           alt="Magitecx logo"
           className={cn("w-auto object-contain", compact ? "h-8" : "h-10")}

@@ -236,7 +236,7 @@ export function ScannerPage() {
           </div>
         ) : null}
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3">
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{isPublicScanner ? "Active session" : "Current target"}</p>
             <p className="mt-1 break-words text-sm font-semibold text-slate-900">
@@ -260,7 +260,7 @@ export function ScannerPage() {
         </div>
 
         {!isPublicScanner && selectedSessionId ? (
-          <div className="mt-4 rounded-[24px] border border-[var(--color-border)] bg-white px-4 py-4">
+          <div className="mt-4 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-900">Phone scanner</p>
@@ -290,8 +290,8 @@ export function ScannerPage() {
           </div>
         ) : null}
 
-        <div className="mt-6 overflow-hidden rounded-[32px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-3">
-          <div className="aspect-video overflow-hidden rounded-[28px] bg-slate-900">
+        <div className="mt-6 overflow-hidden rounded-[10px] bg-[var(--color-surface-soft)] p-3">
+          <div className="aspect-video overflow-hidden rounded-[8px] bg-slate-900">
             {currentSessionId ? (
               <Scanner
                 allowMultiple={false}
@@ -322,12 +322,12 @@ export function ScannerPage() {
         </div>
 
         {scannerError ? (
-          <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <p className="mt-4 rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {scannerError}
           </p>
         ) : null}
 
-        <div className="mt-6 rounded-[24px] border border-[var(--color-border)] bg-white px-4 py-4">
+        <div className="mt-6 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-4">
           <BrandBadge compact />
         </div>
       </Card>
@@ -338,13 +338,13 @@ export function ScannerPage() {
           <h2 className="mt-2 text-2xl font-semibold text-slate-900">Result</h2>
 
           {lastResult ? (
-            <div className="mt-6 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
+            <div className="mt-6 rounded-[8px] bg-[var(--color-surface-soft)] p-5">
               <div className="flex items-start gap-4">
                 <div
                   className={
                     lastResult.status === "success"
-                      ? "rounded-2xl bg-emerald-50 p-3 text-emerald-700"
-                      : "rounded-2xl bg-amber-50 p-3 text-amber-700"
+                      ? "rounded-[8px] bg-emerald-50 p-3 text-emerald-700"
+                      : "rounded-[8px] bg-amber-50 p-3 text-amber-700"
                   }
                 >
                   {lastResult.status === "success" ? (
@@ -364,10 +364,10 @@ export function ScannerPage() {
               </div>
 
               {lastResult.attendee ? (
-                <div className="mt-6 flex flex-col items-start gap-4 rounded-[24px] border border-[var(--color-border)] bg-white p-4 sm:flex-row sm:items-center">
+                <div className="mt-6 flex flex-col items-start gap-4 rounded-[8px] bg-white p-4 sm:flex-row sm:items-center">
                   <img
                     alt={lastResult.attendee.name}
-                    className="size-16 rounded-[22px] object-cover ring-1 ring-[var(--color-border)]"
+                    className="size-16 rounded-[8px] object-cover ring-1 ring-[var(--color-border)]"
                     src={
                       resolveMediaUrl(lastResult.attendee.profileImageUrl) ??
                       "https://placehold.co/160x160/f7f5f0/334155?text=QR"
@@ -381,13 +381,13 @@ export function ScannerPage() {
               ) : null}
             </div>
           ) : (
-            <div className="mt-6 rounded-[28px] border border-dashed border-[var(--color-border)] p-5 text-sm text-slate-500">
+            <div className="mt-6 rounded-[8px] bg-[var(--color-surface-soft)] p-5 text-sm text-slate-500">
               Scan a QR code.
             </div>
           )}
 
           {checkInMutation.isError ? (
-            <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <p className="mt-4 rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(checkInMutation.error)}
             </p>
           ) : null}
@@ -408,8 +408,8 @@ export function ScannerPage() {
                   { title: "Scan or paste", icon: Camera },
                 ]
             ).map((item) => (
-              <div key={item.title} className="flex gap-3 rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
-                <div className="rounded-xl bg-amber-50 p-2 text-amber-700">
+              <div key={item.title} className="flex gap-3 rounded-[8px] bg-[var(--color-surface-soft)] p-4">
+                <div className="rounded-[6px] bg-amber-50 p-2 text-amber-700">
                   <item.icon className="size-4" />
                 </div>
                 <div className="min-w-0">

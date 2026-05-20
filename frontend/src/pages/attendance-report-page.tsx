@@ -76,17 +76,17 @@ export function AttendanceReportPage() {
         </div>
       </div>
 
-      <div className="mt-8 rounded-[28px] border border-[var(--color-border)]">
+      <div className="mt-8 overflow-hidden rounded-[10px] bg-[var(--color-surface-soft)]">
         <div className="space-y-4 p-4 md:hidden">
           {report.items.map((item) => (
             <div
               key={item.attendeeId}
-              className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4"
+              className="rounded-[8px] bg-white p-4"
             >
               <div className="flex items-center gap-3">
                 <img
                   alt={item.name}
-                  className="size-12 rounded-2xl object-cover ring-1 ring-[var(--color-border)]"
+                  className="size-12 rounded-[8px] object-cover ring-1 ring-[var(--color-border)]"
                   src={
                     resolveMediaUrl(item.profileImageUrl) ??
                     "https://placehold.co/120x120/f7f5f0/334155?text=QR"
@@ -110,7 +110,7 @@ export function AttendanceReportPage() {
                   return (
                     <div
                       key={session.sessionId}
-                      className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-3 py-3"
+                      className="flex items-center justify-between gap-3 rounded-[8px] bg-[var(--color-surface-soft)] px-3 py-3"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-slate-900">
@@ -165,7 +165,7 @@ export function AttendanceReportPage() {
                     <div className="flex min-w-0 items-center gap-3">
                       <img
                         alt={item.name}
-                        className="size-12 rounded-2xl object-cover ring-1 ring-[var(--color-border)]"
+                        className="size-12 rounded-[8px] object-cover ring-1 ring-[var(--color-border)]"
                         src={
                           resolveMediaUrl(item.profileImageUrl) ??
                           "https://placehold.co/120x120/f7f5f0/334155?text=QR"
@@ -187,8 +187,8 @@ export function AttendanceReportPage() {
                       <div
                         className={
                           session.attended
-                            ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2"
-                            : "rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-3 py-2"
+                            ? "rounded-[8px] bg-emerald-50 px-3 py-2"
+                            : "rounded-[8px] bg-[var(--color-surface-soft)] px-3 py-2"
                         }
                       >
                         <p

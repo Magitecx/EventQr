@@ -84,7 +84,7 @@ export function AccountSettingsPage() {
           </label>
 
           {accountMutation.isError ? (
-            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(accountMutation.error)}
             </p>
           ) : null}
@@ -98,7 +98,7 @@ export function AccountSettingsPage() {
           <Input placeholder="New password" type="password" {...passwordForm.register("newPassword")} />
           <Input placeholder="Confirm new password" type="password" {...passwordForm.register("confirmPassword")} />
           {passwordMutation.isError ? (
-            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(passwordMutation.error)}
             </p>
           ) : null}
@@ -107,7 +107,7 @@ export function AccountSettingsPage() {
           </Button>
         </form>
 
-        <div className="mt-10 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
+        <div className="mt-10 rounded-[8px] bg-[var(--color-surface-soft)] p-5">
           <p className="text-sm font-semibold text-slate-900">Workspace</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link to="/app/onboarding">
@@ -139,7 +139,7 @@ export function AccountSettingsPage() {
 
         <div className="mt-6 space-y-3">
           {auth?.memberships.map((membership) => (
-            <div key={membership.membershipId} className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+            <div key={membership.membershipId} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="break-words font-semibold text-slate-900">{membership.organizationName}</p>

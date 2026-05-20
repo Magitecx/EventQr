@@ -104,7 +104,7 @@ export function OrganizationSettingsPage() {
         <p className="text-sm font-semibold text-slate-900">Organization settings</p>
         <h1 className="mt-2 font-display text-3xl font-semibold text-slate-900">Workspace</h1>
         <div className="mt-5 flex flex-wrap gap-3">
-          <span className="max-w-full break-words rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-700">
+          <span className="max-w-full break-words rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-700">
             Your role: {organization?.currentUserRole ?? activeMembership?.role ?? "MEMBER"}
           </span>
           {isInactive ? (
@@ -120,7 +120,7 @@ export function OrganizationSettingsPage() {
         </div>
 
         {organization ? (
-          <div className={isInactive ? "mt-6 rounded-[24px] border border-rose-200 bg-rose-50 p-5" : "mt-6 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"}>
+          <div className={isInactive ? "mt-6 rounded-[8px] bg-rose-50 p-5" : "mt-6 rounded-[8px] bg-[var(--color-surface-soft)] p-5"}>
             <p className="text-sm font-semibold text-slate-900">Lifecycle</p>
             <div className="mt-3 space-y-2 text-sm text-slate-600">
               <p>Last activity: {formatDate(organization.lifecycle.lastActivityAt)}</p>
@@ -146,7 +146,7 @@ export function OrganizationSettingsPage() {
           </label>
 
           {updateMutation.isError ? (
-            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(updateMutation.error)}
             </p>
           ) : null}
@@ -160,7 +160,7 @@ export function OrganizationSettingsPage() {
           </Button>
         </div>
 
-        <div className="mt-10 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
+        <div className="mt-10 rounded-[8px] bg-[var(--color-surface-soft)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-slate-900">Join code</p>
@@ -181,12 +181,12 @@ export function OrganizationSettingsPage() {
               </Button>
             </div>
           </div>
-          <div className="mt-4 break-all rounded-2xl border border-amber-200 bg-white px-4 py-3 font-mono text-lg text-amber-700">
+          <div className="mt-4 break-all rounded-[8px] bg-white px-4 py-3 font-mono text-lg text-amber-700">
             {organization?.joinCode ?? "Loading..."}
           </div>
         </div>
 
-        <div className="mt-6 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5">
+        <div className="mt-6 rounded-[8px] bg-[var(--color-surface-soft)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-slate-900">Invite links</p>
@@ -214,13 +214,13 @@ export function OrganizationSettingsPage() {
             </div>
           </div>
           {!canCreateInvites ? (
-            <p className="mt-4 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-slate-500">
+            <p className="mt-4 rounded-[8px] bg-white px-4 py-3 text-sm text-slate-500">
               Invite creation is available to organization admins and owners.
             </p>
           ) : null}
         </div>
 
-        <div className="mt-6 rounded-[24px] border border-rose-200 bg-rose-50 p-5">
+        <div className="mt-6 rounded-[8px] bg-rose-50 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold text-slate-900">Leave organization</p>
@@ -239,7 +239,7 @@ export function OrganizationSettingsPage() {
             </Button>
           </div>
           {leaveOrganizationMutation.isError ? (
-            <p className="mt-4 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm text-rose-700">
+            <p className="mt-4 rounded-[8px] bg-white px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(leaveOrganizationMutation.error)}
             </p>
           ) : null}
@@ -251,21 +251,21 @@ export function OrganizationSettingsPage() {
           <p className="text-sm font-semibold text-slate-900">Members</p>
           <h2 className="mt-2 text-3xl font-semibold text-slate-900">{organization?.members.length ?? 0} team members</h2>
           {!canManageMembers ? (
-            <p className="mt-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm text-slate-500">
+            <p className="mt-4 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3 text-sm text-slate-500">
               Only owners can update roles or remove members.
             </p>
           ) : null}
 
           <div className="mt-6 space-y-3">
             {organization?.members.map((member) => (
-              <div key={member.membershipId} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+              <div key={member.membershipId} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="break-words font-semibold text-slate-900">{member.name}</p>
                     <p className="break-words text-sm text-slate-500">{member.email}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="max-w-full break-words rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-600">
+                    <span className="max-w-full break-words rounded-[6px] bg-white px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-600">
                       {member.role}
                     </span>
                     {member.userId === auth?.user.id ? (
@@ -316,7 +316,7 @@ export function OrganizationSettingsPage() {
               const inviteUrl = `${inviteBaseUrl}/invite/${invite.token}`;
 
               return (
-                <div key={invite.id} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+                <div key={invite.id} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="break-words text-sm font-semibold text-slate-900">Invite created by {invite.createdByName}</p>
@@ -362,7 +362,7 @@ export function OrganizationSettingsPage() {
                 icon: UserCog,
               },
             ].map((item) => (
-              <div key={item.title} className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+              <div key={item.title} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
                 <item.icon className="size-5 text-amber-700" />
                 <p className="mt-4 font-semibold text-slate-900">{item.title}</p>
                 <p className="mt-2 text-sm text-slate-500">

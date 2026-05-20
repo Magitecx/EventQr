@@ -83,7 +83,7 @@ export function AttendeesPage() {
     <div className="grid gap-6 xl:grid-cols-[0.72fr_1.28fr]">
       <Card>
         <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+          <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
             <Users className="size-5" />
           </div>
           <div>
@@ -124,7 +124,7 @@ export function AttendeesPage() {
           </label>
 
           {mutation.isError ? (
-            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(mutation.error)}
             </p>
           ) : null}
@@ -153,8 +153,8 @@ export function AttendeesPage() {
           </div>
         </div>
 
-        <div className="mt-6 hidden overflow-hidden rounded-[24px] border border-[var(--color-border)] md:block">
-          <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_140px] bg-[var(--color-surface-soft)] px-5 py-3 text-xs uppercase tracking-[0.22em] text-slate-500">
+        <div className="mt-6 hidden overflow-hidden rounded-[10px] bg-[var(--color-surface-soft)] md:block">
+          <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_140px] border-b border-[var(--color-border)] px-5 py-3 text-xs uppercase tracking-[0.22em] text-slate-500">
             <span>Attendee</span>
             <span>Contact</span>
             <span className="text-right">Actions</span>
@@ -169,7 +169,7 @@ export function AttendeesPage() {
                 <div className="flex min-w-0 items-center gap-3">
                   <img
                     alt={attendee.name}
-                    className="size-12 rounded-2xl object-cover ring-1 ring-[var(--color-border)]"
+                    className="size-12 rounded-[8px] object-cover ring-1 ring-[var(--color-border)]"
                     src={
                       resolveMediaUrl(attendee.profileImageUrl) ??
                       "https://placehold.co/120x120/f7f5f0/334155?text=QR"
@@ -190,7 +190,7 @@ export function AttendeesPage() {
 
                 <div className="text-right">
                   <Link
-                    className="inline-flex rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-white"
+                    className="inline-flex rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-white"
                     to={`/app/attendees/${attendee.id}`}
                   >
                     Open
@@ -209,12 +209,12 @@ export function AttendeesPage() {
           {filteredAttendees.map((attendee) => (
             <div
               key={attendee.id}
-              className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4"
+              className="rounded-[8px] bg-[var(--color-surface-soft)] p-4"
             >
               <div className="flex items-center gap-3">
                 <img
                   alt={attendee.name}
-                  className="size-12 rounded-2xl object-cover ring-1 ring-[var(--color-border)]"
+                  className="size-12 rounded-[8px] object-cover ring-1 ring-[var(--color-border)]"
                   src={
                     resolveMediaUrl(attendee.profileImageUrl) ??
                     "https://placehold.co/120x120/f7f5f0/334155?text=QR"
@@ -232,7 +232,7 @@ export function AttendeesPage() {
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-400">QR ready</p>
                 </div>
                 <Link
-                  className="inline-flex rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
+                  className="inline-flex rounded-[8px] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
                   to={`/app/attendees/${attendee.id}`}
                 >
                   Open
@@ -242,7 +242,7 @@ export function AttendeesPage() {
           ))}
 
           {filteredAttendees.length === 0 ? (
-            <p className="rounded-[24px] border border-dashed border-[var(--color-border)] p-5 text-sm text-slate-500">
+            <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-5 text-sm text-slate-500">
               No attendees match the current search.
             </p>
           ) : null}

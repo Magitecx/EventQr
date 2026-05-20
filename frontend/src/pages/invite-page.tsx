@@ -53,7 +53,7 @@ export function InvitePage() {
         title="Organization Invite"
       />
       <Card className="w-full max-w-2xl p-8">
-        <div className="w-fit rounded-2xl bg-emerald-50 p-3 text-emerald-700">
+        <div className="w-fit rounded-[8px] bg-emerald-50 p-3 text-emerald-700">
           <Link2 className="size-5" />
         </div>
 
@@ -68,7 +68,7 @@ export function InvitePage() {
         </p>
 
         {acceptMutation.isError ? (
-          <p className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <p className="mt-6 rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {getErrorMessage(acceptMutation.error)}
           </p>
         ) : null}
@@ -83,7 +83,7 @@ export function InvitePage() {
             </Link>
           </div>
         ) : (
-          <div className="mt-8 rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4 text-sm text-slate-600">
+          <div className="mt-8 rounded-[8px] bg-[var(--color-surface-soft)] p-4 text-sm text-slate-600">
             {acceptMutation.isPending ? "Joining organization..." : "Finishing invite acceptance..."}
           </div>
         )}

@@ -60,8 +60,8 @@ export function DashboardPage() {
                 { to: "/app/event-series", label: "Series", icon: CalendarRange },
               ].map((item) => (
                 <Link key={item.label} to={item.to}>
-                  <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-4 transition hover:bg-white">
-                    <div className="w-fit rounded-2xl bg-white p-3 text-amber-700 ring-1 ring-[var(--color-border)]">
+                  <div className="rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-4 transition hover:bg-white">
+                    <div className="w-fit rounded-[8px] bg-white p-3 text-amber-700">
                       <item.icon className="size-5" />
                     </div>
                     <p className="mt-3 font-semibold text-slate-900">{item.label}</p>
@@ -89,7 +89,7 @@ export function DashboardPage() {
                 {seriesList[0].sessions.slice(0, 3).map((session) => (
                   <div
                     key={session.id}
-                    className="flex items-center justify-between rounded-[20px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3"
+                    className="flex items-center justify-between rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3"
                   >
                     <p className="font-medium text-slate-800">{session.title}</p>
                     <p className="text-sm text-slate-500">{formatDate(session.sessionDate)}</p>
@@ -128,7 +128,7 @@ export function DashboardPage() {
                 <p className="text-sm text-slate-500">{item.label}</p>
                 <p className="mt-4 font-display text-4xl font-semibold text-slate-900">{item.value}</p>
               </div>
-              <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+              <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
                 <item.icon className="size-5" />
               </div>
             </div>
@@ -151,11 +151,11 @@ export function DashboardPage() {
             ].map((item) => (
               <Link
                 key={item.title}
-                className="flex items-center justify-between rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-4 transition hover:bg-white"
+                className="flex items-center justify-between rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-4 transition hover:bg-white"
                 to={item.to}
               >
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-white p-3 text-amber-700 ring-1 ring-[var(--color-border)]">
+                  <div className="rounded-[8px] bg-white p-3 text-amber-700">
                     <item.icon className="size-5" />
                   </div>
                   <p className="font-semibold text-slate-900">{item.title}</p>
@@ -184,12 +184,12 @@ export function DashboardPage() {
               .map((item) => (
                 <div
                   key={item.attendeeId}
-                  className="flex items-center justify-between rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-3"
+                  className="flex items-center justify-between rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3"
                 >
                   <div className="flex items-center gap-3">
                     <img
                       alt={item.name}
-                      className="size-11 rounded-2xl object-cover ring-1 ring-[var(--color-border)]"
+                      className="size-11 rounded-[12px] object-cover ring-1 ring-[var(--color-border)]"
                       src={resolveMediaUrl(item.profileImageUrl) ?? "https://placehold.co/120x120/f7f5f0/334155?text=QR"}
                     />
                     <div>

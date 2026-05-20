@@ -81,13 +81,13 @@ export function ResetPasswordPage() {
             </label>
 
             {mutation.isError ? (
-              <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {getErrorMessage(mutation.error)}
               </p>
             ) : null}
 
             {mutation.isSuccess ? (
-              <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              <p className="rounded-[8px] bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                 Password reset successful. You can now log in.
               </p>
             ) : null}

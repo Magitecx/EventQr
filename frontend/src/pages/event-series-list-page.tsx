@@ -57,7 +57,7 @@ export function EventSeriesListPage() {
     <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <Card>
         <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-amber-50 p-3 text-amber-700">
+          <div className="rounded-[8px] bg-amber-50 p-3 text-amber-700">
             <CalendarDays className="size-5" />
           </div>
           <div>
@@ -90,7 +90,7 @@ export function EventSeriesListPage() {
           </div>
 
           {mutation.isError ? (
-            <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
               {getErrorMessage(mutation.error)}
             </p>
           ) : null}
@@ -107,7 +107,7 @@ export function EventSeriesListPage() {
             <p className="text-sm font-semibold text-slate-900">Directory</p>
             <h2 className="mt-2 text-3xl font-semibold text-slate-900">All series</h2>
           </div>
-          <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-600">
+          <span className="rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-600">
             {series.length} total
           </span>
         </div>
@@ -116,7 +116,7 @@ export function EventSeriesListPage() {
           {series.map((item) => (
             <div
               key={item.id}
-              className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5 transition hover:bg-white"
+              className="rounded-[8px] bg-[var(--color-surface-soft)] p-5 transition hover:bg-white"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
@@ -125,7 +125,7 @@ export function EventSeriesListPage() {
                     {item.description ?? "No description set."}
                   </p>
                 </div>
-                <div className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm text-slate-600">
+                <div className="rounded-[8px] bg-white px-4 py-2 text-sm text-slate-600">
                   {item.sessions.length} sessions
                 </div>
               </div>
@@ -137,20 +137,20 @@ export function EventSeriesListPage() {
 
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
-                  className="inline-flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
+                  className="inline-flex items-center gap-2 rounded-[8px] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
                   to={`/app/event-series/${item.id}`}
                 >
                   Open
                   <ArrowRight className="size-4" />
                 </Link>
                 <Link
-                  className="inline-flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
+                  className="inline-flex items-center gap-2 rounded-[8px] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
                   to={`/app/event-series/${item.id}/sessions`}
                 >
                   Sessions
                 </Link>
                 <Link
-                  className="inline-flex items-center gap-2 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
+                  className="inline-flex items-center gap-2 rounded-[8px] bg-white px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)]"
                   to={`/app/reports/event-series/${item.id}`}
                 >
                   Report
@@ -160,7 +160,7 @@ export function EventSeriesListPage() {
           ))}
 
           {series.length === 0 ? (
-            <p className="rounded-[24px] border border-dashed border-[var(--color-border)] p-4 text-sm text-slate-500">
+            <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-4 text-sm text-slate-500">
               No event series yet.
             </p>
           ) : null}

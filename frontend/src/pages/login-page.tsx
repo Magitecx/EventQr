@@ -107,7 +107,7 @@ export function LoginPage() {
               </label>
 
               {mutation.isError ? (
-                <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                <p className="rounded-[12px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {getErrorMessage(mutation.error)}
                 </p>
               ) : null}
@@ -136,11 +136,8 @@ export function LoginPage() {
                   { title: "Check-in", icon: ScanLine },
                   { title: "Excel", icon: Sheet },
                 ].map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"
-                  >
-                    <div className="w-fit rounded-2xl bg-amber-50 p-3 text-amber-700">
+                  <div key={item.title} className="rounded-[8px] bg-[var(--color-surface-soft)] p-5">
+                    <div className="w-fit rounded-[8px] bg-amber-50 p-3 text-amber-700">
                       <item.icon className="size-5" />
                     </div>
                     <p className="mt-4 text-lg font-semibold text-slate-900">{item.title}</p>
