@@ -16,7 +16,7 @@ import {
 import { buildAuthPayload, requireMembership } from "./auth.utils";
 import { touchOrganizationActivity } from "../organizations/organizations.activity";
 import { env } from "../../config/env";
-import { sendPasswordResetEmail } from "../../lib/email";
+import { sendPasswordChangedSuccessEmail, sendPasswordResetEmail } from "../../lib/email";
 
 export const login = asyncHandler(async (request, response) => {
   const credentials = loginSchema.parse(request.body);
@@ -145,6 +145,11 @@ export const changePassword = asyncHandler(async (request, response) => {
     },
   });
 
+  await sendPasswordChangedSuccessEmail({
+    to: user.email,
+    changedAt: new Date(),
+  });
+
   response.json(successResponse(null, "Password updated"));
 });
 
@@ -209,6 +214,19 @@ export const resetPassword = asyncHandler(async (request, response) => {
 
   const newPasswordHash = await bcrypt.hash(body.newPassword, 10);
 
+  const user = await prisma.user.findUnique({
+    where: {
+      id: passwordResetToken.userId,
+    },
+    select: {
+      email: true,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
   await prisma.$transaction([
     prisma.user.update({
       where: {
@@ -227,6 +245,11 @@ export const resetPassword = asyncHandler(async (request, response) => {
       },
     }),
   ]);
+
+  await sendPasswordChangedSuccessEmail({
+    to: user.email,
+    changedAt: new Date(),
+  });
 
   response.json(successResponse(null, "Password reset successful"));
 });

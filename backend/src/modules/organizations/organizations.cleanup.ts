@@ -1,7 +1,8 @@
-import { OrganizationStatus } from "@prisma/client";
+import { OrganizationRole, OrganizationStatus } from "@prisma/client";
 import { env } from "../../config/env";
 import { prisma } from "../../lib/prisma";
 import { removeStoredAttendeeImage } from "../attendees/attendees.upload";
+import { sendOrganizationInactiveWarningEmail } from "../../lib/email";
 
 function subtractDays(days: number, from = new Date()) {
   return new Date(from.getTime() - days * 24 * 60 * 60 * 1000);
@@ -89,11 +90,28 @@ export async function runOrganizationCleanup(now = new Date()) {
     },
     select: {
       id: true,
+      name: true,
       lastActivityAt: true,
+      memberships: {
+        where: {
+          role: {
+            in: [OrganizationRole.OWNER, OrganizationRole.ADMIN],
+          },
+        },
+        select: {
+          user: {
+            select: {
+              email: true,
+            },
+          },
+        },
+      },
     },
   });
 
   for (const organization of organizationsToMarkInactive) {
+    const scheduledDeletionAt = addDays(env.ORGANIZATION_HARD_DELETE_DAYS, organization.lastActivityAt);
+
     await prisma.organization.update({
       where: {
         id: organization.id,
@@ -101,9 +119,27 @@ export async function runOrganizationCleanup(now = new Date()) {
       data: {
         status: OrganizationStatus.INACTIVE,
         inactiveSinceAt: now,
-        scheduledDeletionAt: addDays(env.ORGANIZATION_HARD_DELETE_DAYS, organization.lastActivityAt),
+        scheduledDeletionAt,
       },
     });
+
+    const notificationRecipients = Array.from(
+      new Set(organization.memberships.map((membership) => membership.user.email)),
+    );
+
+    try {
+      await sendOrganizationInactiveWarningEmail({
+        to: notificationRecipients,
+        organizationName: organization.name,
+        lastActivityAt: organization.lastActivityAt,
+        scheduledDeletionAt,
+      });
+    } catch (error) {
+      console.error("Failed to send organization inactivity warning email", {
+        organizationId: organization.id,
+        error,
+      });
+    }
   }
 
   const purgeCandidates = await prisma.organization.findMany({
