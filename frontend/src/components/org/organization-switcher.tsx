@@ -1,6 +1,6 @@
 import { ChevronDown, ArrowRightLeft, PlusCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { api, unwrapResponse } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
@@ -17,6 +17,8 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
   const { auth, activeMembership, setAuthState } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const switchMutation = useMutation({
     mutationFn: async (organizationId: string) =>
@@ -24,6 +26,15 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
     onSuccess: (result) => {
       setAuthState(result);
       setOpen(false);
+      const sectionRoots = [
+        "/app/event-series",
+        "/app/attendees",
+        "/app/scanner",
+        "/app/settings",
+        "/app/reports",
+      ];
+      const matchedRoot = sectionRoots.find((p) => location.pathname.startsWith(p)) ?? "/app";
+      navigate(matchedRoot);
     },
   });
 
