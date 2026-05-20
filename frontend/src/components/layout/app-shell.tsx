@@ -2,19 +2,22 @@ import {
   BarChart3,
   CalendarDays,
   ChevronRight,
+  OctagonAlert,
   LogOut,
   Settings2,
   PlusCircle,
   Radio,
   Sheet,
   Users,
+  X,
 } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { api, unwrapResponse } from "../../lib/api";
-import { cn } from "../../lib/utils";
-import type { AuthResponse } from "../../types/api";
+import { cn, formatDate } from "../../lib/utils";
+import type { AuthResponse, OrganizationDetail } from "../../types/api";
 import { BrandBadge } from "../brand/brand-badge";
 import { BrandLogo } from "../brand/brand-logo";
 import { Seo } from "../seo/seo";
@@ -30,14 +33,51 @@ const navigation = [
   { to: "/app/settings/account", label: "Settings", icon: Settings2 },
 ];
 
+const INACTIVE_BANNER_DISMISS_KEY = "eventqr-inactive-banner-dismissed";
+
 export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const { activeMembership, auth, logout, setAuthState } = useAuth();
+  const [dismissedBannerKey, setDismissedBannerKey] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : window.localStorage.getItem(INACTIVE_BANNER_DISMISS_KEY),
+  );
 
   const pathLabel =
     navigation.find((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`))
       ?.label ?? "Workspace";
+
+  const organizationQuery = useQuery({
+    queryKey: ["organization-current-banner", auth?.activeOrganizationId],
+    enabled: Boolean(auth?.activeOrganizationId),
+    queryFn: async () => unwrapResponse<OrganizationDetail>(await api.get("/organizations/current")),
+  });
+
+  const inactiveBannerKey = useMemo(() => {
+    const organization = organizationQuery.data;
+
+    if (!organization || organization.lifecycle.status !== "INACTIVE") {
+      return null;
+    }
+
+    return `${organization.id}:${organization.lifecycle.scheduledDeletionAt ?? "inactive"}`;
+  }, [organizationQuery.data]);
+
+  const showInactiveBanner = Boolean(
+    organizationQuery.data &&
+      organizationQuery.data.lifecycle.status === "INACTIVE" &&
+      inactiveBannerKey &&
+      inactiveBannerKey !== dismissedBannerKey,
+  );
+
+  useEffect(() => {
+    if (!inactiveBannerKey || inactiveBannerKey === dismissedBannerKey) {
+      return;
+    }
+
+    window.localStorage.removeItem(INACTIVE_BANNER_DISMISS_KEY);
+    setDismissedBannerKey(null);
+  }, [dismissedBannerKey, inactiveBannerKey]);
 
   const switchMutation = useMutation({
     mutationFn: async (organizationId: string) =>
@@ -156,6 +196,50 @@ export function AppShell() {
         </aside>
 
         <main className="min-w-0 py-2">
+          {showInactiveBanner && organizationQuery.data ? (
+            <div className="mb-6 rounded-[28px] border border-rose-200 bg-rose-50 px-5 py-4 shadow-[0_16px_40px_rgba(244,63,94,0.10)]">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className="rounded-2xl bg-white p-3 text-rose-700 ring-1 ring-rose-200">
+                    <OctagonAlert className="size-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-900">Workspace inactivity warning</p>
+                    <p className="mt-1 break-words text-sm text-slate-600">
+                      {organizationQuery.data.name} is inactive. If no new activity happens, it will be permanently deleted on{" "}
+                      <span className="font-semibold text-rose-700">
+                        {organizationQuery.data.lifecycle.scheduledDeletionAt
+                          ? formatDate(organizationQuery.data.lifecycle.scheduledDeletionAt)
+                          : "the scheduled purge date"}
+                      </span>.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Link to="/app/settings/organization">
+                        <Button type="button" variant="secondary">View details</Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  aria-label="Dismiss inactivity warning"
+                  icon={<X className="size-4" />}
+                  onClick={() => {
+                    if (!inactiveBannerKey) {
+                      return;
+                    }
+
+                    window.localStorage.setItem(INACTIVE_BANNER_DISMISS_KEY, inactiveBannerKey);
+                    setDismissedBannerKey(inactiveBannerKey);
+                  }}
+                  type="button"
+                  variant="ghost"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-panel)] px-5 py-4 backdrop-blur">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Workspace</p>

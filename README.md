@@ -39,6 +39,10 @@ Reusable QR attendance platform for recurring workshops and event series.
 3. A user can belong to multiple organizations and switch the active workspace from the app shell or account settings.
 4. Event series, sessions, attendees, scanning, and reports are scoped to the active organization.
 
+## Additional documentation
+
+- [Deletion lifecycle](</D:/mattc/Documents/Projects/EventQrAttendance/docs/deletion-lifecycle.md>)
+
 ## Project structure
 
 ```text
@@ -73,6 +77,9 @@ Update values if needed:
   - `JWT_SECRET`
   - `PORT`
   - `CORS_ORIGIN`
+  - `ORGANIZATION_INACTIVE_WARNING_DAYS`
+  - `ORGANIZATION_HARD_DELETE_DAYS`
+  - `ORGANIZATION_CLEANUP_INTERVAL_MINUTES`
   - optional `SEED_USER_NAME`, `SEED_USER_EMAIL`, `SEED_USER_PASSWORD`
 - `frontend/.env`
   - `VITE_API_BASE_URL`
@@ -284,5 +291,6 @@ Verified in this workspace:
   - switch active organization
   - owner role update for a member
   - member leave organization
-  - public scanner link generation
+- public scanner link generation
+- organization inactivity lifecycle with warning and hard-purge thresholds
 - browser render checks were performed for the landing page and register page

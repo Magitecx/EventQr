@@ -13,6 +13,11 @@ enum OrganizationRole {
   MEMBER
 }
 
+enum OrganizationStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   id             String                   @id @default(uuid()) @db.Uuid
   name           String
@@ -27,15 +32,19 @@ model User {
 }
 
 model Organization {
-  id          String                   @id @default(uuid()) @db.Uuid
-  name        String
-  joinCode    String                   @unique
-  createdAt   DateTime                 @default(now())
-  updatedAt   DateTime                 @updatedAt
-  memberships OrganizationMembership[]
-  invites     OrganizationInvite[]
-  attendees   Attendee[]
-  eventSeries EventSeries[]
+  id                  String                   @id @default(uuid()) @db.Uuid
+  name                String
+  joinCode            String                   @unique
+  status              OrganizationStatus       @default(ACTIVE)
+  lastActivityAt      DateTime                 @default(now())
+  inactiveSinceAt     DateTime?
+  scheduledDeletionAt DateTime?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  memberships         OrganizationMembership[]
+  invites             OrganizationInvite[]
+  attendees           Attendee[]
+  eventSeries         EventSeries[]
 
   @@map("organizations")
 }

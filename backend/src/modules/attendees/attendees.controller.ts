@@ -5,6 +5,7 @@ import { asyncHandler } from "../../utils/async-handler";
 import { generateQrToken } from "../../utils/qr-token";
 import { createAttendeeSchema, updateAttendeeSchema } from "./attendees.schemas";
 import { removeStoredAttendeeImage, saveAttendeeImage } from "./attendees.upload";
+import { touchOrganizationActivity } from "../organizations/organizations.activity";
 
 function getRequestBody(request: { body?: Record<string, unknown> }) {
   const body = request.body ?? {};
@@ -66,6 +67,8 @@ export const createAttendee = asyncHandler(async (request, response) => {
       profileImageUrl: image?.publicUrl,
     },
   });
+
+  await touchOrganizationActivity(organizationId);
 
   response.status(201).json(successResponse(attendee, "Attendee created"));
 });
@@ -157,6 +160,8 @@ export const updateAttendee = asyncHandler(async (request, response) => {
     },
   });
 
+  await touchOrganizationActivity(organizationId);
+
   response.json(successResponse(attendee, "Attendee updated"));
 });
 
@@ -186,6 +191,8 @@ export const deleteAttendee = asyncHandler(async (request, response) => {
   });
 
   await removeStoredAttendeeImage(existing.profileImageUrl);
+
+  await touchOrganizationActivity(organizationId);
 
   response.json(successResponse(null, "Attendee deleted"));
 });

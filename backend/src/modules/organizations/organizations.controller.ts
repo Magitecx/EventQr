@@ -1,5 +1,6 @@
 import { OrganizationRole } from "@prisma/client";
 import { randomBytes } from "node:crypto";
+import { env } from "../../config/env";
 import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
 import { successResponse } from "../../utils/api-response";
@@ -12,6 +13,7 @@ import {
   updateMembershipRoleSchema,
   updateOrganizationSchema,
 } from "./organizations.schemas";
+import { touchOrganizationActivity } from "./organizations.activity";
 
 async function generateUniqueJoinCode() {
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -124,6 +126,8 @@ export const joinOrganization = asyncHandler(async (request, response) => {
     },
   });
 
+  await touchOrganizationActivity(organization.id);
+
   response.json(
     successResponse(await buildAuthPayload(request.auth!.userId, organization.id), "Organization joined"),
   );
@@ -208,6 +212,8 @@ export const acceptInvite = asyncHandler(async (request, response) => {
     ]);
   }
 
+  await touchOrganizationActivity(invite.organizationId);
+
   response.json(
     successResponse(
       await buildAuthPayload(request.auth!.userId, invite.organizationId),
@@ -253,6 +259,14 @@ export const getCurrentOrganization = asyncHandler(async (request, response) => 
       id: organization.id,
       name: organization.name,
       joinCode: organization.joinCode,
+      lifecycle: {
+        status: organization.status,
+        lastActivityAt: organization.lastActivityAt,
+        inactiveSinceAt: organization.inactiveSinceAt,
+        scheduledDeletionAt: organization.scheduledDeletionAt,
+        warningThresholdDays: env.ORGANIZATION_INACTIVE_WARNING_DAYS,
+        hardDeleteThresholdDays: env.ORGANIZATION_HARD_DELETE_DAYS,
+      },
       currentUserRole: request.auth!.role,
       permissions: {
         canManageOrganization: request.auth!.role === OrganizationRole.OWNER || request.auth!.role === OrganizationRole.ADMIN,
@@ -293,6 +307,8 @@ export const updateCurrentOrganization = asyncHandler(async (request, response) 
     },
   });
 
+  await touchOrganizationActivity(organizationId);
+
   response.json(successResponse(organization, "Organization updated"));
 });
 
@@ -309,6 +325,8 @@ export const regenerateJoinCode = asyncHandler(async (request, response) => {
       joinCode,
     },
   });
+
+  await touchOrganizationActivity(organizationId);
 
   response.json(successResponse({ joinCode: organization.joinCode }, "Join code regenerated"));
 });
@@ -332,6 +350,8 @@ export const createInvite = asyncHandler(async (request, response) => {
       createdBy: true,
     },
   });
+
+  await touchOrganizationActivity(organizationId);
 
   response.status(201).json(
     successResponse(
@@ -387,6 +407,8 @@ export const updateMembershipRole = asyncHandler(async (request, response) => {
     },
   });
 
+  await touchOrganizationActivity(organizationId);
+
   response.json(
     successResponse(
       {
@@ -430,6 +452,8 @@ export const removeMembership = asyncHandler(async (request, response) => {
       id: membership.id,
     },
   });
+
+  await touchOrganizationActivity(organizationId);
 
   response.json(successResponse(null, "Member removed"));
 });

@@ -3,6 +3,7 @@ import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
 import { successResponse } from "../../utils/api-response";
 import { asyncHandler } from "../../utils/async-handler";
+import { touchOrganizationActivity } from "../organizations/organizations.activity";
 import { checkInSchema, publicCheckInSchema } from "./scan.schemas";
 
 async function generateUniquePublicScanToken() {
@@ -124,6 +125,8 @@ async function performCheckIn(eventSessionId: string, organizationId: string, qr
   });
 
   if (existingRecord) {
+    await touchOrganizationActivity(organizationId);
+
     return {
       statusCode: 200,
       body: successResponse(
@@ -148,6 +151,8 @@ async function performCheckIn(eventSessionId: string, organizationId: string, qr
       eventSessionId: session.id,
     },
   });
+
+  await touchOrganizationActivity(organizationId);
 
   return {
     statusCode: 201,
@@ -193,6 +198,7 @@ export const getSessionShareLink = asyncHandler(async (request, response) => {
   }
 
   const token = await ensurePublicScanToken(session.id);
+  await touchOrganizationActivity(organizationId);
 
   response.json(
     successResponse({

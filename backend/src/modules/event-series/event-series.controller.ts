@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
 import { successResponse } from "../../utils/api-response";
 import { asyncHandler } from "../../utils/async-handler";
+import { touchOrganizationActivity } from "../organizations/organizations.activity";
 import { createEventSeriesSchema, createEventSessionSchema } from "./event-series.schemas";
 
 export const listEventSeries = asyncHandler(async (request, response) => {
@@ -44,6 +45,8 @@ export const createEventSeries = asyncHandler(async (request, response) => {
       organizationId,
     },
   });
+
+  await touchOrganizationActivity(organizationId);
 
   response.status(201).json(successResponse(eventSeries, "Event series created"));
 });
@@ -104,6 +107,8 @@ export const createEventSession = asyncHandler(async (request, response) => {
       sessionDate: new Date(body.sessionDate),
     },
   });
+
+  await touchOrganizationActivity(organizationId);
 
   response.status(201).json(successResponse(session, "Session created"));
 });

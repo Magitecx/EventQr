@@ -30,6 +30,7 @@ export function OrganizationSettingsPage() {
   const canManageOrganization = organization?.permissions.canManageOrganization ?? false;
   const canManageMembers = organization?.permissions.canManageMembers ?? false;
   const canCreateInvites = organization?.permissions.canCreateInvites ?? false;
+  const isInactive = organization?.lifecycle.status === "INACTIVE";
 
   useEffect(() => {
     if (organization?.name) {
@@ -106,12 +107,33 @@ export function OrganizationSettingsPage() {
           <span className="max-w-full break-words rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-4 py-2 text-sm text-slate-700">
             Your role: {organization?.currentUserRole ?? activeMembership?.role ?? "MEMBER"}
           </span>
+          {isInactive ? (
+            <span className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-700">
+              Inactive workspace
+            </span>
+          ) : null}
           {!canManageOrganization ? (
             <span className="rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
               View-only access
             </span>
           ) : null}
         </div>
+
+        {organization ? (
+          <div className={isInactive ? "mt-6 rounded-[24px] border border-rose-200 bg-rose-50 p-5" : "mt-6 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5"}>
+            <p className="text-sm font-semibold text-slate-900">Lifecycle</p>
+            <div className="mt-3 space-y-2 text-sm text-slate-600">
+              <p>Last activity: {formatDate(organization.lifecycle.lastActivityAt)}</p>
+              <p>Inactive warning after: {organization.lifecycle.warningThresholdDays} days</p>
+              <p>Hard delete after: {organization.lifecycle.hardDeleteThresholdDays} days</p>
+              {organization.lifecycle.scheduledDeletionAt ? (
+                <p className={isInactive ? "font-semibold text-rose-700" : ""}>
+                  Scheduled deletion: {formatDate(organization.lifecycle.scheduledDeletionAt)}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-8 space-y-4">
           <label className="block">

@@ -40,6 +40,14 @@ export type OrganizationDetail = {
   id: string;
   name: string;
   joinCode: string;
+  lifecycle: {
+    status: "ACTIVE" | "INACTIVE";
+    lastActivityAt: string;
+    inactiveSinceAt?: string | null;
+    scheduledDeletionAt?: string | null;
+    warningThresholdDays: number;
+    hardDeleteThresholdDays: number;
+  };
   currentUserRole: "OWNER" | "ADMIN" | "MEMBER";
   permissions: {
     canManageOrganization: boolean;

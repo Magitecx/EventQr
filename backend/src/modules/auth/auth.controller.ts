@@ -11,6 +11,7 @@ import {
   updateAccountSchema,
 } from "./auth.schemas";
 import { buildAuthPayload, requireMembership } from "./auth.utils";
+import { touchOrganizationActivity } from "../organizations/organizations.activity";
 
 export const login = asyncHandler(async (request, response) => {
   const credentials = loginSchema.parse(request.body);
@@ -31,7 +32,13 @@ export const login = asyncHandler(async (request, response) => {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  response.json(successResponse(await buildAuthPayload(user.id)));
+  const payload = await buildAuthPayload(user.id);
+
+  if (payload.activeOrganizationId) {
+    await touchOrganizationActivity(payload.activeOrganizationId);
+  }
+
+  response.json(successResponse(payload));
 });
 
 export const register = asyncHandler(async (request, response) => {
@@ -63,12 +70,17 @@ export const register = asyncHandler(async (request, response) => {
 });
 
 export const getMe = asyncHandler(async (request, response) => {
+  if (request.auth!.organizationId) {
+    await touchOrganizationActivity(request.auth!.organizationId);
+  }
+
   response.json(successResponse(await buildAuthPayload(request.auth!.userId, request.auth!.organizationId)));
 });
 
 export const switchOrganization = asyncHandler(async (request, response) => {
   const body = switchOrganizationSchema.parse(request.body);
   await requireMembership(request.auth!.userId, body.organizationId);
+  await touchOrganizationActivity(body.organizationId);
 
   response.json(
     successResponse(
