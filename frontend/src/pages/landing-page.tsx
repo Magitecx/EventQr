@@ -95,6 +95,7 @@ export function LandingPage() {
           </div>
 
           <nav className="hidden items-center gap-6 text-sm font-medium text-slate-500 md:flex">
+            <Link to="/docs">Docs</Link>
             <a href="#features">Features</a>
             <a href="#preview">Preview</a>
             <a href="#workflow">Workflow</a>
@@ -103,6 +104,9 @@ export function LandingPage() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <Link to="/docs">
+              <Button variant="ghost">Docs</Button>
+            </Link>
             <Link to="/login">
               <Button variant="ghost">Login</Button>
             </Link>

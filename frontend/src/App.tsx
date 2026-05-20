@@ -7,6 +7,7 @@ import { AttendanceReportPage } from "./pages/attendance-report-page";
 import { AttendeeDetailPage } from "./pages/attendee-detail-page";
 import { AttendeesPage } from "./pages/attendees-page";
 import { DashboardPage } from "./pages/dashboard-page";
+import { DocsPage } from "./pages/docs-page";
 import { EventSeriesDetailPage } from "./pages/event-series-detail-page";
 import { EventSeriesListPage } from "./pages/event-series-list-page";
 import { InvitePage } from "./pages/invite-page";
@@ -24,6 +25,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/docs" element={<DocsPage />} />
       <Route path="/invite/:token" element={<InvitePage />} />
       <Route path="/scan/:token" element={<ScannerPage />} />
       <Route path="/login" element={<LoginPage />} />
