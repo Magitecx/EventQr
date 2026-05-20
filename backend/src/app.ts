@@ -18,7 +18,18 @@ app.use(
 app.use(helmet());
 app.use(express.json());
 app.use(morgan("dev"));
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"), {
+    fallthrough: false,
+    index: false,
+    setHeaders: (response) => {
+      response.setHeader("X-Content-Type-Options", "nosniff");
+      response.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      response.setHeader("Content-Security-Policy", "default-src 'none'; img-src 'self'; style-src 'none'; sandbox");
+    },
+  }),
+);
 
 app.use("/api", router);
 app.use(notFoundHandler);

@@ -1,4 +1,4 @@
-# Event QR Attendance
+# EventQR
 
 Reusable QR attendance platform for recurring workshops and event series.
 
@@ -23,8 +23,10 @@ Reusable QR attendance platform for recurring workshops and event series.
 - Attendee CRUD with secure random `qrToken`
 - QR code rendering and download on attendee profile
 - Browser camera QR scanner with duplicate protection
+- Shareable scan-only session links for phone-based scanning
 - Attendance matrix with per-session joined/missed state
 - CSV and Excel export for event-series attendance
+- Local profile image uploads with server-side validation and image rewriting
 - Prisma migrations and seed data
 
 ## Product flow
@@ -57,51 +59,77 @@ Example files are included:
 - [backend/.env.example](backend/.env.example)
 - [frontend/.env.example](frontend/.env.example)
 
+Create local env files before starting:
+
+```bash
+copy backend\.env.example backend\.env
+copy frontend\.env.example frontend\.env
+```
+
+Update values if needed:
+
+- `backend/.env`
+  - `DATABASE_URL`
+  - `JWT_SECRET`
+  - `PORT`
+  - `CORS_ORIGIN`
+  - optional `SEED_USER_NAME`, `SEED_USER_EMAIL`, `SEED_USER_PASSWORD`
+- `frontend/.env`
+  - `VITE_API_BASE_URL`
+  - `VITE_SITE_URL`
+
 Set `VITE_SITE_URL` in `frontend/.env` to your real production domain before building for production so canonical URLs, sitemap, and robots output use the correct host.
 
 For local verification in this workspace, `.env` files were also created and are gitignored.
 
 ## Quick start
 
-1. Install dependencies:
+1. Create env files:
+
+```bash
+copy backend\.env.example backend\.env
+copy frontend\.env.example frontend\.env
+```
+
+2. Install dependencies:
 
 ```bash
 npm run install:all
 ```
 
-2. Start PostgreSQL:
+3. Start PostgreSQL:
 
 ```bash
 docker compose up -d
 ```
 
-3. Apply migrations:
+4. Apply migrations:
 
 ```bash
 cd backend
 npx prisma migrate deploy
 ```
 
-4. Seed the database:
+5. Seed the database:
 
 ```bash
 npm run prisma:seed
 ```
 
-5. Start the backend:
+6. Start the backend:
 
 ```bash
 cd ..
 npm run dev:backend
 ```
 
-6. Start the frontend in another terminal:
+7. Start the frontend in another terminal:
 
 ```bash
 npm run dev:frontend
 ```
 
-7. Open:
+8. Open:
 
 - Frontend: `http://localhost:5173`
 - Backend health: `http://localhost:4000/api/health`
@@ -113,7 +141,17 @@ npm run dev:frontend
 - `/register` account creation
 - `/invite/:token` invite acceptance
 - `/app/onboarding` create or join an organization
+- `/scan/:token` public scan-only page for a specific session
 - `/app/*` authenticated workspace
+
+## Workspace flow
+
+- Users create an account at `/register`
+- After login, users create a workspace or join one
+- The left sidebar `Create or join` button opens a prompt with:
+  - `Create workspace`
+  - `Join workspace` with code entry
+- Invite links still auto-join through `/invite/:token`
 
 ## Seeded accounts and data
 
@@ -174,9 +212,41 @@ Attendance product:
 - `PATCH /api/attendees/:id`
 - `DELETE /api/attendees/:id`
 - `POST /api/scan/check-in`
+- `GET /api/scan/sessions/:eventSessionId/share-link`
+- `GET /api/public/scan/:token`
+- `POST /api/public/scan/:token/check-in`
 - `GET /api/reports/event-series/:id`
 - `GET /api/reports/event-series/:id/export.csv`
 - `GET /api/reports/event-series/:id/export.xlsx`
+
+## Profile image uploads
+
+Attendee photos are stored locally on the backend server under `backend/uploads`.
+
+Current behavior:
+
+- uploads are sent from the attendee create/edit forms as `multipart/form-data`
+- only `JPEG`, `PNG`, and `WebP` images are allowed
+- max upload size is `5 MB`
+- files are validated by decoding the image server-side
+- files are re-encoded with `sharp` before saving
+- saved files are organized by workspace and attendee name
+- existing attendee photos can be replaced or removed from the attendee detail page
+
+The upload path is designed for local or single-server deployments. If you later run multiple backend instances or ephemeral containers, you should mount a persistent volume for `backend/uploads` or move to object storage.
+
+## Upload security
+
+The current local upload pipeline includes these checks:
+
+- browser mime allowlist
+- server-side image decode validation
+- dimension and pixel limits
+- server-side image rewriting to clean the final stored image
+- filename and path sanitization
+- static file serving with `nosniff`
+
+This is hardened for image-only uploads, but it is not full antivirus scanning.
 
 ## Attendance percentage
 
@@ -202,7 +272,9 @@ Verified in this workspace:
 - backend TypeScript build passed
 - frontend production build passed
 - Prisma client regenerated successfully
-- migrations applied successfully, including the multi-organization migration
+- migrations applied successfully, including:
+  - multi-organization accounts
+  - public scanner links
 - seed script ran successfully
 - API smoke tests passed for:
   - account-only registration
@@ -212,4 +284,5 @@ Verified in this workspace:
   - switch active organization
   - owner role update for a member
   - member leave organization
+  - public scanner link generation
 - browser render checks were performed for the landing page and register page

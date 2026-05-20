@@ -39,7 +39,24 @@ export const listAttendees = asyncHandler(async (request, response) => {
 export const createAttendee = asyncHandler(async (request, response) => {
   const body = createAttendeeSchema.parse(getRequestBody(request));
   const organizationId = request.auth!.organizationId as string;
-  const image = await saveAttendeeImage(request.file);
+  const organization = await prisma.organization.findUnique({
+    where: {
+      id: organizationId,
+    },
+    select: {
+      name: true,
+    },
+  });
+
+  if (!organization) {
+    throw new ApiError(404, "Organization not found");
+  }
+
+  const image = await saveAttendeeImage({
+    attendeeName: body.name,
+    organizationName: organization.name,
+    file: request.file,
+  });
 
   const attendee = await prisma.attendee.create({
     data: {
@@ -102,7 +119,24 @@ export const updateAttendee = asyncHandler(async (request, response) => {
     throw new ApiError(404, "Attendee not found");
   }
 
-  const image = await saveAttendeeImage(request.file);
+  const organization = await prisma.organization.findUnique({
+    where: {
+      id: organizationId,
+    },
+    select: {
+      name: true,
+    },
+  });
+
+  if (!organization) {
+    throw new ApiError(404, "Organization not found");
+  }
+
+  const image = await saveAttendeeImage({
+    attendeeName: body.name ?? existing.name,
+    organizationName: organization.name,
+    file: request.file,
+  });
   const shouldRemoveProfileImage = removeProfileImage && !image?.publicUrl;
 
   if (image?.publicUrl) {
