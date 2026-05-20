@@ -197,60 +197,158 @@ export function ScannerPage() {
     );
   }
 
-  return (
-    <div className={isPublicScanner ? "mx-auto max-w-5xl space-y-6" : "grid gap-6 xl:grid-cols-[1.05fr_0.95fr]"}>
-      <Card className="overflow-hidden">
-        <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold text-slate-900">{isPublicScanner ? "Mobile scanner" : "Scanner"}</p>
-            <h1 className="mt-2 break-words font-display text-4xl font-semibold text-slate-900">
-              {isPublicScanner ? "Scan check-in" : "Live check-in"}
-            </h1>
+  if (isPublicScanner) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black">
+        {currentSessionId ? (
+          <Scanner
+            allowMultiple={false}
+            classNames={{
+              container: "h-full w-full",
+              video: "h-full w-full object-cover",
+            }}
+            constraints={{ facingMode: "environment" }}
+            onError={(error) => setScannerError(error.message)}
+            onScan={(detectedCodes) => {
+              const code = detectedCodes[0]?.rawValue;
+              if (code) submitToken(code);
+            }}
+            paused={paused}
+            sound={false}
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center text-white/60">
+              <Camera className="mx-auto size-12" />
+              <p className="mt-3 text-sm">Scanner unavailable.</p>
+            </div>
           </div>
-          {!isPublicScanner ? <Badge>{sessionOptions.length} available sessions</Badge> : <Badge>Phone-ready</Badge>}
+        )}
+
+        {/* Top session info bar */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-5 pb-10 pt-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-white/60">Active session</p>
+          <p className="mt-1 text-sm font-semibold text-white">
+            {currentSessionTitle && currentSeriesName
+              ? `${currentSeriesName} — ${currentSessionTitle}`
+              : "No session selected"}
+          </p>
         </div>
 
-        {!isPublicScanner ? (
-          <div className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-600">Target session</span>
-              <Select onChange={(event) => setSelectedSessionId(event.target.value)} value={selectedSessionId}>
-                <option value="">Select a session</option>
-                {sessionOptions.map((session) => (
-                  <option key={session.id} value={session.id}>
-                    {session.label}
-                  </option>
-                ))}
-              </Select>
-            </label>
+        {/* Scan frame */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="size-64 rounded-2xl border-2 border-white/70 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+        </div>
 
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-600">Manual token</span>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Input onChange={(event) => setManualToken(event.target.value)} value={manualToken} />
-                <Button className="shrink-0 sm:w-auto" onClick={() => submitToken(manualToken)} type="button" variant="secondary">
-                  Submit
-                </Button>
+        {/* Result bottom sheet */}
+        {lastResult ? (
+          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white px-6 pb-10 pt-5 shadow-2xl">
+            <div className="mb-4 flex items-center gap-3">
+              <div
+                className={
+                  lastResult.status === "success"
+                    ? "rounded-lg bg-emerald-50 p-2 text-emerald-700"
+                    : "rounded-lg bg-amber-50 p-2 text-amber-700"
+                }
+              >
+                {lastResult.status === "success" ? (
+                  <CircleCheckBig className="size-5" />
+                ) : (
+                  <OctagonAlert className="size-5" />
+                )}
               </div>
-            </label>
+              <p className="text-base font-semibold capitalize text-slate-900">
+                {lastResult.status.replaceAll("_", " ")}
+              </p>
+            </div>
+
+            {lastResult.attendee ? (
+              lastResult.attendee.profileImageUrl ? (
+                <div className="flex flex-col gap-3">
+                  <img
+                    alt={lastResult.attendee.name}
+                    className="h-52 w-full rounded-xl object-cover object-top ring-1 ring-slate-200"
+                    src={resolveMediaUrl(lastResult.attendee.profileImageUrl)!}
+                  />
+                  <div className="min-w-0">
+                    <p className="break-words text-xl font-semibold text-slate-900">{lastResult.attendee.name}</p>
+                    <p className="mt-1 break-words text-sm text-slate-500">{lastResult.attendee.email ?? "No email"}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-2xl font-semibold text-slate-600">
+                    {lastResult.attendee.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="break-words text-xl font-semibold text-slate-900">{lastResult.attendee.name}</p>
+                    <p className="mt-1 break-words text-sm text-slate-500">{lastResult.attendee.email ?? "No email"}</p>
+                  </div>
+                </div>
+              )
+            ) : null}
           </div>
         ) : null}
 
+        {scannerError ? (
+          <div className="absolute inset-x-4 bottom-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {scannerError}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+      <Card className="overflow-hidden">
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold text-slate-900">Scanner</p>
+            <h1 className="mt-2 break-words font-display text-4xl font-semibold text-slate-900">
+              Live check-in
+            </h1>
+          </div>
+          <Badge>{sessionOptions.length} available sessions</Badge>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-600">Target session</span>
+            <Select onChange={(event) => setSelectedSessionId(event.target.value)} value={selectedSessionId}>
+              <option value="">Select a session</option>
+              {sessionOptions.map((session) => (
+                <option key={session.id} value={session.id}>
+                  {session.label}
+                </option>
+              ))}
+            </Select>
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-600">Manual token</span>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Input onChange={(event) => setManualToken(event.target.value)} value={manualToken} />
+              <Button className="shrink-0 sm:w-auto" onClick={() => submitToken(manualToken)} type="button" variant="secondary">
+                Submit
+              </Button>
+            </div>
+          </label>
+        </div>
+
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3">
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{isPublicScanner ? "Active session" : "Current target"}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Current target</p>
             <p className="mt-1 break-words text-sm font-semibold text-slate-900">
               {currentSessionTitle && currentSeriesName
                 ? `${currentSeriesName} - ${currentSessionTitle}`
                 : "No session selected"}
             </p>
-            {(isPublicScanner ? publicSession?.sessionDate : selectedSession?.sessionDate) ? (
-              <p className="mt-1 text-xs text-slate-500">
-                {formatDate(isPublicScanner ? publicSession!.sessionDate : selectedSession!.sessionDate)}
-              </p>
+            {selectedSession?.sessionDate ? (
+              <p className="mt-1 text-xs text-slate-500">{formatDate(selectedSession.sessionDate)}</p>
             ) : null}
           </div>
-          {!isPublicScanner && currentSeriesId ? (
+          {currentSeriesId ? (
             <Link to={`/app/reports/event-series/${currentSeriesId}`}>
               <Button icon={<Sheet className="size-4" />} variant="ghost">
                 Open report
@@ -259,7 +357,7 @@ export function ScannerPage() {
           ) : null}
         </div>
 
-        {!isPublicScanner && selectedSessionId ? (
+        {selectedSessionId ? (
           <div className="mt-4 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="min-w-0">
@@ -290,8 +388,8 @@ export function ScannerPage() {
           </div>
         ) : null}
 
-        <div className={`mt-6 overflow-hidden rounded-[10px] bg-[var(--color-surface-soft)]${isPublicScanner ? "" : " p-3"}`}>
-          <div className={`overflow-hidden rounded-[8px] bg-slate-900${isPublicScanner ? " h-[calc(100svh-260px)] min-h-[340px]" : " aspect-video"}`}>
+        <div className="mt-6 overflow-hidden rounded-[10px] bg-[var(--color-surface-soft)] p-3">
+          <div className="aspect-video overflow-hidden rounded-[8px] bg-slate-900">
             {currentSessionId ? (
               <Scanner
                 allowMultiple={false}
@@ -303,9 +401,7 @@ export function ScannerPage() {
                 onError={(error) => setScannerError(error.message)}
                 onScan={(detectedCodes) => {
                   const code = detectedCodes[0]?.rawValue;
-                  if (code) {
-                    submitToken(code);
-                  }
+                  if (code) submitToken(code);
                 }}
                 paused={paused}
                 sound={false}
@@ -314,7 +410,7 @@ export function ScannerPage() {
               <div className="flex h-full items-center justify-center">
                 <div className="text-center text-slate-400">
                   <Camera className="mx-auto size-10" />
-                  <p className="mt-4 text-sm">{isPublicScanner ? "Scanner unavailable." : "Choose a session first."}</p>
+                  <p className="mt-4 text-sm">Choose a session first.</p>
                 </div>
               </div>
             )}
@@ -332,7 +428,7 @@ export function ScannerPage() {
         </div>
       </Card>
 
-      <div className={isPublicScanner ? "grid gap-6 md:grid-cols-[1.05fr_0.95fr]" : "space-y-6"}>
+      <div className="space-y-6">
         <Card>
           <p className="text-sm font-semibold text-slate-900">Latest scan</p>
           <h2 className="mt-2 text-2xl font-semibold text-slate-900">Result</h2>
@@ -397,20 +493,13 @@ export function ScannerPage() {
         </Card>
 
         <Card>
-          <p className="text-sm font-semibold text-slate-900">{isPublicScanner ? "Mode" : "Flow"}</p>
+          <p className="text-sm font-semibold text-slate-900">Flow</p>
           <div className="mt-5 space-y-3">
-            {(isPublicScanner
-              ? [
-                  { title: "Open on phone", icon: Smartphone },
-                  { title: "Scan attendee QR", icon: ScanLine },
-                  { title: "See check-in result", icon: CircleCheckBig },
-                ]
-              : [
-                  { title: "Pick session", icon: ScanLine },
-                  { title: "Share to phone", icon: Smartphone },
-                  { title: "Scan or paste", icon: Camera },
-                ]
-            ).map((item) => (
+            {[
+              { title: "Pick session", icon: ScanLine },
+              { title: "Share to phone", icon: Smartphone },
+              { title: "Scan or paste", icon: Camera },
+            ].map((item) => (
               <div key={item.title} className="flex gap-3 rounded-[8px] bg-[var(--color-surface-soft)] p-4">
                 <div className="rounded-[6px] bg-amber-50 p-2 text-amber-700">
                   <item.icon className="size-4" />
