@@ -48,7 +48,7 @@ const featureDetails = [
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen px-4 py-5 text-[var(--color-text)] lg:px-6">
+    <div className="min-h-screen px-4 py-20 text-[var(--color-text)] lg:px-6 lg:py-5">
       <Seo
         description="Run recurring workshops and event series with secure attendee QR codes, live browser scanning, attendance percentages, and export-ready reports."
         keywords={[
@@ -88,7 +88,7 @@ export function LandingPage() {
 
         <section className="grid gap-8 py-10 lg:grid-cols-[1fr_560px] lg:py-14">
           <div className="max-w-2xl pt-4">
-            <h1 className="break-words font-display text-5xl font-semibold leading-[1.02] text-slate-900 md:text-7xl">
+            <h1 className="break-words font-display text-4xl font-semibold leading-[1.02] text-slate-900 sm:text-5xl md:text-7xl">
               Simple QR attendance for recurring events.
             </h1>
             <p className="mt-5 max-w-lg text-lg leading-8 text-slate-600">

@@ -27,7 +27,7 @@ const toc = [
 
 export function DocsPage() {
   return (
-    <div className="min-h-screen px-4 py-5 text-[var(--color-text)] lg:px-6">
+    <div className="min-h-screen px-4 py-20 text-[var(--color-text)] lg:px-6 lg:py-5">
       <Seo
         description="Detailed EventQR product documentation: setup, workspace model, scanning flow, reports, security, and operations."
         pathname="/docs"

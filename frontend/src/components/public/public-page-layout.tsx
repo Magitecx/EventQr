@@ -21,7 +21,7 @@ export function PublicPageLayout({
   children,
 }: PublicPageLayoutProps) {
   return (
-    <div className="min-h-screen px-4 py-5 text-[var(--color-text)] lg:px-6">
+    <div className="min-h-screen px-4 py-20 text-[var(--color-text)] lg:px-6 lg:py-5">
       <Seo description={description} pathname={pathname} title={title} />
       <div className="mx-auto max-w-[1320px]">
         <SiteHeader eyebrow={eyebrow} />

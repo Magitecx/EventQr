@@ -256,7 +256,7 @@ export function RegisterPage() {
                       <X className="size-5" />
                     </button>
                   </div>
-                  <div className="mt-6 h-[420px] overflow-y-auto rounded-[8px] bg-[var(--color-surface-soft)] px-5 py-4">
+                  <div className="mt-6 h-[320px] overflow-y-auto rounded-[8px] bg-[var(--color-surface-soft)] px-5 py-4 sm:h-[420px]">
                     <p className="whitespace-pre-line text-sm leading-7 text-slate-600">{sideDocument.body}</p>
                   </div>
                 </>

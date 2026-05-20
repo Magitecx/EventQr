@@ -93,8 +93,8 @@ export function AppShell() {
   return (
     <div className="min-h-screen text-slate-900">
       <Seo noindex pathname={location.pathname} title={pathLabel} />
-      <ThemeToggle className="fixed right-4 top-4 z-50 lg:right-6 lg:top-6" />
-      <div className="mx-auto grid min-h-screen max-w-[1480px] gap-5 px-4 py-4 lg:grid-cols-[248px_minmax(0,1fr)] lg:px-6">
+      <ThemeToggle className="fixed right-3 top-3 z-50 lg:right-6 lg:top-6" />
+      <div className="mx-auto grid min-h-screen max-w-[1480px] gap-5 px-4 py-20 lg:grid-cols-[248px_minmax(0,1fr)] lg:px-6 lg:py-4">
         <aside className="rounded-[10px] bg-[var(--color-panel)] p-6 shadow-[var(--shadow-panel)] backdrop-blur">
           <div className="flex items-center gap-3">
             <BrandLogo imageClassName="h-12" />
@@ -127,7 +127,7 @@ export function AppShell() {
 
           <div className="mt-8 rounded-[8px] bg-amber-50/70 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-amber-700">Quick start</p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="mt-3 grid gap-2 md:grid-cols-3 lg:grid-cols-1">
               <Link className="rounded-[8px] bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100/70" to="/app/event-series">
                 Create series
               </Link>
