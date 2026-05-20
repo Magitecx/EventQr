@@ -1,5 +1,6 @@
 import { ChevronDown, ArrowRightLeft, PlusCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { api, unwrapResponse } from "../../lib/api";
@@ -13,10 +14,20 @@ type OrganizationSwitcherProps = {
   compact?: boolean;
 };
 
+function calcPanelStyle(trigger: HTMLElement): CSSProperties {
+  const rect = trigger.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const w = Math.min(vw - 32, 352);
+  const left = Math.max(16, Math.min(rect.right - w, vw - w - 16));
+  return { position: "fixed", top: rect.bottom + 8, left, width: w, zIndex: 50 };
+}
+
 export function OrganizationSwitcher({ className, compact = false }: OrganizationSwitcherProps) {
   const { auth, activeMembership, setAuthState } = useAuth();
   const [open, setOpen] = useState(false);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,57 +54,60 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
       if (!menuRef.current || menuRef.current.contains(event.target as Node)) {
         return;
       }
-
       setOpen(false);
     }
 
     function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
+      if (event.key === "Escape") setOpen(false);
     }
 
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleEscape);
-
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
 
+  function handleToggle() {
+    if (!open && triggerRef.current) {
+      setPanelStyle(calcPanelStyle(triggerRef.current));
+    }
+    setOpen((o) => !o);
+  }
+
   const memberships = auth?.memberships ?? [];
   const currentName = activeMembership?.organizationName ?? "No active organization";
   const currentRole = activeMembership?.role?.toLowerCase() ?? "";
 
   const containerClassName = useMemo(
-    () =>
-      cn(
-        "relative",
-        className,
-        compact ? "w-full" : "w-full sm:w-auto",
-      ),
+    () => cn("relative", className, compact ? "w-full" : "w-full sm:w-auto"),
     [className, compact],
   );
 
   return (
     <div className={containerClassName} ref={menuRef}>
-      <Button
-        aria-expanded={open}
-        aria-haspopup="menu"
-        className="w-full justify-between"
-        icon={<ChevronDown className={cn("size-4 transition", open && "rotate-180")} />}
-        onClick={() => setOpen((state) => !state)}
-        type="button"
-        variant="secondary"
-      >
-        <span className="min-w-0 truncate">
-          {compact ? currentName : `Workspace: ${currentName}`}
-        </span>
-      </Button>
+      <div ref={triggerRef}>
+        <Button
+          aria-expanded={open}
+          aria-haspopup="menu"
+          className="w-full justify-between"
+          icon={<ChevronDown className={cn("size-4 transition", open && "rotate-180")} />}
+          onClick={handleToggle}
+          type="button"
+          variant="secondary"
+        >
+          <span className="min-w-0 truncate">
+            {compact ? currentName : `Workspace: ${currentName}`}
+          </span>
+        </Button>
+      </div>
 
       {open ? (
-        <div className="absolute left-0 top-[calc(100%+0.5rem)] z-30 w-[min(92vw,22rem)] overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)] sm:left-auto sm:right-0">
+        <div
+          className="overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)]"
+          style={panelStyle}
+        >
           <div className="border-b border-[var(--color-border)] px-4 py-3">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Current workspace</p>
             <p className="mt-2 break-words text-sm font-semibold text-slate-900">{currentName}</p>
@@ -103,7 +117,6 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
           <div className="max-h-72 overflow-y-auto p-2">
             {memberships.map((membership) => {
               const active = membership.organizationId === auth?.activeOrganizationId;
-
               return (
                 <button
                   key={membership.membershipId}

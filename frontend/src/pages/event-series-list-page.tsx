@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, ChevronDown, Plus, Radio, Sheet, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,12 +29,22 @@ const sessionSchema = z.object({
 type CreateSeriesValues = z.infer<typeof createSeriesSchema>;
 type SessionFormValues = z.infer<typeof sessionSchema>;
 
+function calcPanelStyle(trigger: HTMLElement): CSSProperties {
+  const rect = trigger.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const w = Math.min(vw - 32, 352);
+  const left = Math.max(16, Math.min(rect.right - w, vw - w - 16));
+  return { position: "fixed", top: rect.bottom + 8, left, width: w, zIndex: 50 };
+}
+
 export function EventSeriesListPage() {
   const queryClient = useQueryClient();
   const [selectedSeriesId, setSelectedSeriesId] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
   const [showNewEventForm, setShowNewEventForm] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   const seriesQuery = useQuery({
     queryKey: ["event-series"],
@@ -58,6 +69,13 @@ export function EventSeriesListPage() {
     document.addEventListener("pointerdown", handlePointerDown);
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, []);
+
+  function handleToggle() {
+    if (!dropdownOpen && triggerRef.current) {
+      setPanelStyle(calcPanelStyle(triggerRef.current));
+    }
+    setDropdownOpen((o) => !o);
+  }
 
   const seriesForm = useForm<CreateSeriesValues>({ resolver: zodResolver(createSeriesSchema) });
   const createSeriesMutation = useMutation({
@@ -112,72 +130,78 @@ export function EventSeriesListPage() {
                 </Button>
               </Link>
             ) : null}
-          <div className="relative" ref={dropdownRef}>
-            <Button
-              icon={<ChevronDown className={cn("size-4 transition", dropdownOpen && "rotate-180")} />}
-              onClick={() => setDropdownOpen((o) => !o)}
-              type="button"
-              variant="secondary"
-            >
-              <span className="max-w-[200px] truncate">
-                {selectedSeries ? selectedSeries.name : seriesQuery.isLoading ? "Loading..." : "Select event"}
-              </span>
-            </Button>
 
-            {dropdownOpen ? (
-              <div className="absolute left-0 top-[calc(100%+0.5rem)] z-30 w-[min(92vw,22rem)] overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)] sm:left-auto sm:right-0">
-                <div className="border-b border-[var(--color-border)] px-4 py-3">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Switch event</p>
-                </div>
+            <div ref={dropdownRef}>
+              <div ref={triggerRef}>
+                <Button
+                  icon={<ChevronDown className={cn("size-4 transition", dropdownOpen && "rotate-180")} />}
+                  onClick={handleToggle}
+                  type="button"
+                  variant="secondary"
+                >
+                  <span className="max-w-[200px] truncate">
+                    {selectedSeries ? selectedSeries.name : seriesQuery.isLoading ? "Loading..." : "Select event"}
+                  </span>
+                </Button>
+              </div>
 
-                <div className="max-h-64 overflow-y-auto p-2">
-                  {series.map((s) => (
-                    <button
-                      key={s.id}
-                      className={cn(
-                        "flex w-full items-center justify-between gap-3 rounded-[8px] px-3 py-3 text-left text-sm transition",
-                        s.id === selectedSeriesId
-                          ? "bg-[var(--color-surface-soft)] text-slate-900"
-                          : "text-slate-600 hover:bg-[var(--color-surface-soft)] hover:text-slate-900",
-                      )}
+              {dropdownOpen ? (
+                <div
+                  className="overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)]"
+                  style={panelStyle}
+                >
+                  <div className="border-b border-[var(--color-border)] px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Switch event</p>
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto p-2">
+                    {series.map((s) => (
+                      <button
+                        key={s.id}
+                        className={cn(
+                          "flex w-full items-center justify-between gap-3 rounded-[8px] px-3 py-3 text-left text-sm transition",
+                          s.id === selectedSeriesId
+                            ? "bg-[var(--color-surface-soft)] text-slate-900"
+                            : "text-slate-600 hover:bg-[var(--color-surface-soft)] hover:text-slate-900",
+                        )}
+                        onClick={() => {
+                          setSelectedSeriesId(s.id);
+                          setDropdownOpen(false);
+                        }}
+                        type="button"
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate font-medium">{s.name}</span>
+                          <span className="block text-xs text-slate-500">{s.sessions.length} sessions</span>
+                        </span>
+                        {s.id === selectedSeriesId ? (
+                          <span className="shrink-0 text-xs font-semibold text-emerald-700">Active</span>
+                        ) : null}
+                      </button>
+                    ))}
+
+                    {series.length === 0 ? (
+                      <div className="px-3 py-6 text-center text-sm text-slate-500">No events yet.</div>
+                    ) : null}
+                  </div>
+
+                  <div className="border-t border-[var(--color-border)] p-3">
+                    <Button
+                      className="w-full justify-start"
+                      icon={<Plus className="size-4" />}
                       onClick={() => {
-                        setSelectedSeriesId(s.id);
                         setDropdownOpen(false);
+                        setShowNewEventForm(true);
                       }}
                       type="button"
+                      variant="secondary"
                     >
-                      <span className="min-w-0">
-                        <span className="block truncate font-medium">{s.name}</span>
-                        <span className="block text-xs text-slate-500">{s.sessions.length} sessions</span>
-                      </span>
-                      {s.id === selectedSeriesId ? (
-                        <span className="shrink-0 text-xs font-semibold text-emerald-700">Active</span>
-                      ) : null}
-                    </button>
-                  ))}
-
-                  {series.length === 0 ? (
-                    <div className="px-3 py-6 text-center text-sm text-slate-500">No events yet.</div>
-                  ) : null}
+                      Create new event
+                    </Button>
+                  </div>
                 </div>
-
-                <div className="border-t border-[var(--color-border)] p-3">
-                  <Button
-                    className="w-full justify-start"
-                    icon={<Plus className="size-4" />}
-                    onClick={() => {
-                      setDropdownOpen(false);
-                      setShowNewEventForm(true);
-                    }}
-                    type="button"
-                    variant="secondary"
-                  >
-                    Create new event
-                  </Button>
-                </div>
-              </div>
-            ) : null}
-          </div>
+              ) : null}
+            </div>
           </div>
         </div>
 
