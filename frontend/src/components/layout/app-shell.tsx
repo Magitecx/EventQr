@@ -93,6 +93,7 @@ export function AppShell() {
   return (
     <div className="min-h-screen text-slate-900">
       <Seo noindex pathname={location.pathname} title={pathLabel} />
+      <ThemeToggle className="fixed right-4 top-4 z-50 lg:right-6 lg:top-6" />
       <div className="mx-auto grid min-h-screen max-w-[1480px] gap-5 px-4 py-4 lg:grid-cols-[248px_minmax(0,1fr)] lg:px-6">
         <aside className="rounded-[10px] bg-[var(--color-panel)] p-6 shadow-[var(--shadow-panel)] backdrop-blur">
           <div className="flex items-center gap-3">
@@ -265,7 +266,6 @@ export function AppShell() {
             </div>
 
             <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2 xl:flex">
-              <ThemeToggle />
               <Link to="/app/event-series">
                 <Button className="w-full" icon={<PlusCircle className="size-4" />} variant="secondary">
                   New series

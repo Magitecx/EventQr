@@ -6,10 +6,13 @@ import { AccountSettingsPage } from "./pages/account-settings-page";
 import { AttendanceReportPage } from "./pages/attendance-report-page";
 import { AttendeeDetailPage } from "./pages/attendee-detail-page";
 import { AttendeesPage } from "./pages/attendees-page";
+import { AboutPage } from "./pages/about-page";
+import { ContactPage } from "./pages/contact-page";
 import { DashboardPage } from "./pages/dashboard-page";
 import { DocsPage } from "./pages/docs-page";
 import { EventSeriesDetailPage } from "./pages/event-series-detail-page";
 import { EventSeriesListPage } from "./pages/event-series-list-page";
+import { HelpPage } from "./pages/help-page";
 import { InvitePage } from "./pages/invite-page";
 import { LandingPage } from "./pages/landing-page";
 import { LoginPage } from "./pages/login-page";
@@ -27,7 +30,10 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/docs" element={<DocsPage />} />
+      <Route path="/help" element={<HelpPage />} />
       <Route path="/privacy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsOfServicePage />} />
       <Route path="/invite/:token" element={<InvitePage />} />

@@ -11,11 +11,10 @@ import {
 import { Link } from "react-router-dom";
 import { getSiteUrl } from "../lib/seo";
 import { BrandBadge } from "../components/brand/brand-badge";
-import { BrandLogo } from "../components/brand/brand-logo";
+import { SiteHeader } from "../components/public/site-header";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Seo } from "../components/seo/seo";
-import { ThemeToggle } from "../components/ui/theme-toggle";
 
 const features = [
   { title: "Series", icon: CalendarDays },
@@ -85,36 +84,7 @@ export function LandingPage() {
         title="QR Attendance Platform for Recurring Events"
       />
       <div className="mx-auto max-w-[1320px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 rounded-[10px] bg-[var(--color-panel)] px-5 py-4 shadow-[var(--shadow-panel)] backdrop-blur">
-          <div className="flex items-center gap-3">
-            <BrandLogo imageClassName="h-11" />
-            <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-amber-700">EventQR</p>
-              <p className="font-display text-xl font-semibold text-slate-900">Attendance</p>
-            </div>
-          </div>
-
-          <nav className="hidden items-center gap-6 text-sm font-medium text-slate-500 md:flex">
-            <Link to="/docs">Docs</Link>
-            <a href="#features">Features</a>
-            <a href="#preview">Preview</a>
-            <a href="#workflow">Workflow</a>
-            <a href="#start">Start</a>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Link to="/docs">
-              <Button variant="ghost">Docs</Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="ghost">Login</Button>
-            </Link>
-            <Link to="/register">
-              <Button>Create account</Button>
-            </Link>
-          </div>
-        </header>
+        <SiteHeader eyebrow="Attendance" />
 
         <section className="grid gap-8 py-10 lg:grid-cols-[1fr_560px] lg:py-14">
           <div className="max-w-2xl pt-4">
@@ -383,6 +353,15 @@ export function LandingPage() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+              <Link className="hover:text-slate-900" to="/about">
+                About
+              </Link>
+              <Link className="hover:text-slate-900" to="/contact">
+                Contact
+              </Link>
+              <Link className="hover:text-slate-900" to="/help">
+                Help / FAQ
+              </Link>
               <Link className="hover:text-slate-900" to="/privacy">
                 Privacy Policy
               </Link>
