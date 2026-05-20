@@ -290,8 +290,8 @@ export function ScannerPage() {
           </div>
         ) : null}
 
-        <div className="mt-6 overflow-hidden rounded-[10px] bg-[var(--color-surface-soft)] p-3">
-          <div className="aspect-video overflow-hidden rounded-[8px] bg-slate-900">
+        <div className={`mt-6 overflow-hidden rounded-[10px] bg-[var(--color-surface-soft)]${isPublicScanner ? "" : " p-3"}`}>
+          <div className={`overflow-hidden rounded-[8px] bg-slate-900${isPublicScanner ? " h-[calc(100svh-260px)] min-h-[340px]" : " aspect-video"}`}>
             {currentSessionId ? (
               <Scanner
                 allowMultiple={false}
