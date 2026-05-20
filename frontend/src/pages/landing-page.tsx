@@ -9,7 +9,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getSiteUrl } from "../lib/seo";
+import { buildOrganizationStructuredData, buildWebsiteStructuredData } from "../lib/seo";
 import { BrandBadge } from "../components/brand/brand-badge";
 import { SiteHeader } from "../components/public/site-header";
 import { Button } from "../components/ui/button";
@@ -50,9 +50,12 @@ export function LandingPage() {
   return (
     <div className="min-h-screen px-4 py-20 text-[var(--color-text)] lg:px-6 lg:py-5">
       <Seo
-        description="Run recurring workshops and event series with secure attendee QR codes, live browser scanning, attendance percentages, and export-ready reports."
+        description="Create QR attendance systems for schools, businesses, and events."
         keywords={[
           "QR attendance platform",
+          "QR attendance system",
+          "school attendance system",
+          "business attendance tracker",
           "event attendance software",
           "workshop attendance tracker",
           "QR check in system",
@@ -60,28 +63,23 @@ export function LandingPage() {
         ]}
         pathname="/"
         structuredData={[
+          buildWebsiteStructuredData(),
+          buildOrganizationStructuredData(),
           {
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
             applicationCategory: "BusinessApplication",
             name: "EventQR",
             operatingSystem: "Web",
-            description:
-              "QR attendance platform for recurring workshops and event series with secure attendee check-ins and reporting.",
+            description: "QR attendance system",
             offers: {
               "@type": "Offer",
               price: "0",
               priceCurrency: "USD",
             },
           },
-          {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "EventQR",
-            url: getSiteUrl(),
-          },
         ]}
-        title="QR Attendance Platform for Recurring Events"
+        title="Event QR Attendance System"
       />
       <div className="mx-auto max-w-[1320px]">
         <SiteHeader eyebrow="Attendance" />

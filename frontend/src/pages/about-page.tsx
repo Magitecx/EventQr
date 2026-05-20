@@ -1,6 +1,7 @@
 import { Building2, QrCode, ScanLine, Users } from "lucide-react";
 import { PublicPageLayout } from "../components/public/public-page-layout";
 import { Card } from "../components/ui/card";
+import { buildBreadcrumbStructuredData, buildOrganizationStructuredData } from "../lib/seo";
 
 export function AboutPage() {
   return (
@@ -8,7 +9,21 @@ export function AboutPage() {
       description="Learn what EventQR is, who it is built for, and how it helps teams run recurring attendance workflows."
       eyebrow="About"
       pathname="/about"
-      title="About EventQR"
+      structuredData={[
+        buildOrganizationStructuredData(),
+        buildBreadcrumbStructuredData([
+          { name: "Home", path: "/" },
+          { name: "About", path: "/about" },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          name: "About EventQR",
+          description:
+            "Learn what EventQR is, who it is built for, and how it helps teams run recurring attendance workflows.",
+        },
+      ]}
+      title="About"
     >
       <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <Card className="p-8">

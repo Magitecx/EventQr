@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BrandBadge } from "../brand/brand-badge";
 import { SiteHeader } from "./site-header";
 import { Seo } from "../seo/seo";
+import type { SeoProps } from "../seo/seo";
 import { Card } from "../ui/card";
 
 interface PublicPageLayoutProps {
@@ -10,6 +11,7 @@ interface PublicPageLayoutProps {
   description: string;
   pathname: string;
   eyebrow: string;
+  structuredData?: SeoProps["structuredData"];
   children: ReactNode;
 }
 
@@ -18,11 +20,12 @@ export function PublicPageLayout({
   description,
   pathname,
   eyebrow,
+  structuredData,
   children,
 }: PublicPageLayoutProps) {
   return (
     <div className="min-h-screen px-4 py-20 text-[var(--color-text)] lg:px-6 lg:py-5">
-      <Seo description={description} pathname={pathname} title={title} />
+      <Seo description={description} pathname={pathname} structuredData={structuredData} title={title} />
       <div className="mx-auto max-w-[1320px]">
         <SiteHeader eyebrow={eyebrow} />
 

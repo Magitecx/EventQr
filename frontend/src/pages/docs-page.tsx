@@ -13,6 +13,7 @@ import { BrandBadge } from "../components/brand/brand-badge";
 import { SiteHeader } from "../components/public/site-header";
 import { Seo } from "../components/seo/seo";
 import { Card } from "../components/ui/card";
+import { buildBreadcrumbStructuredData, buildOrganizationStructuredData } from "../lib/seo";
 
 const toc = [
   { id: "overview", label: "Overview" },
@@ -31,7 +32,21 @@ export function DocsPage() {
       <Seo
         description="Detailed EventQR product documentation: setup, workspace model, scanning flow, reports, security, and operations."
         pathname="/docs"
-        title="Product Documentation"
+        structuredData={[
+          buildOrganizationStructuredData(),
+          buildBreadcrumbStructuredData([
+            { name: "Home", path: "/" },
+            { name: "Docs", path: "/docs" },
+          ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "TechArticle",
+            headline: "EventQR product docs",
+            description:
+              "Detailed EventQR product documentation: setup, workspace model, scanning flow, reports, security, and operations.",
+          },
+        ]}
+        title="Docs"
       />
       <div className="mx-auto max-w-[1320px]">
         <SiteHeader eyebrow="Documentation" />

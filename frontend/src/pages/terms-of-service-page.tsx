@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { LegalPageLayout } from "../components/legal/legal-page-layout";
+import { buildBreadcrumbStructuredData, buildOrganizationStructuredData } from "../lib/seo";
 
 const toc = [
   { id: "acceptance", label: "Acceptance" },
@@ -27,6 +28,18 @@ export function TermsOfServicePage() {
       description="Read the EventQR Terms of Service covering accounts, organization data, deletion rules, acceptable use, and liability limits."
       eyebrow="Terms of Service"
       pathname="/terms"
+      structuredData={[
+        buildOrganizationStructuredData(),
+        buildBreadcrumbStructuredData([
+          { name: "Home", path: "/" },
+          { name: "Terms of Service", path: "/terms" },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: "Terms of Service",
+        },
+      ]}
       title="Terms of Service"
       toc={toc}
       updatedAt="May 20, 2026"

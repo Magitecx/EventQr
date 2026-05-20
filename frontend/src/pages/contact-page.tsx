@@ -1,6 +1,7 @@
 import { Clock3, Mail, MessagesSquare, ShieldCheck } from "lucide-react";
 import { PublicPageLayout } from "../components/public/public-page-layout";
 import { Card } from "../components/ui/card";
+import { buildBreadcrumbStructuredData, buildOrganizationStructuredData, SUPPORT_EMAIL } from "../lib/seo";
 
 export function ContactPage() {
   return (
@@ -8,7 +9,26 @@ export function ContactPage() {
       description="Contact the EventQR support team for help with accounts, workspaces, scanning issues, and product questions."
       eyebrow="Contact"
       pathname="/contact"
-      title="Contact EventQR"
+      structuredData={[
+        buildOrganizationStructuredData(),
+        buildBreadcrumbStructuredData([
+          { name: "Home", path: "/" },
+          { name: "Contact", path: "/contact" },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          name: "Contact EventQR",
+          description:
+            "Contact the EventQR support team for help with accounts, workspaces, scanning issues, and product questions.",
+          mainEntity: {
+            "@type": "Organization",
+            name: "EventQR",
+            email: SUPPORT_EMAIL,
+          },
+        },
+      ]}
+      title="Contact"
     >
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <Card className="p-8">

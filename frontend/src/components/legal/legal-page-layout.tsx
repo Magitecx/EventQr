@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BrandBadge } from "../brand/brand-badge";
 import { SiteHeader } from "../public/site-header";
 import { Seo } from "../seo/seo";
+import type { SeoProps } from "../seo/seo";
 import { Card } from "../ui/card";
 
 type TocItem = {
@@ -17,6 +18,7 @@ interface LegalPageLayoutProps {
   eyebrow: string;
   updatedAt: string;
   toc: TocItem[];
+  structuredData?: SeoProps["structuredData"];
   children: ReactNode;
 }
 
@@ -27,11 +29,12 @@ export function LegalPageLayout({
   eyebrow,
   updatedAt,
   toc,
+  structuredData,
   children,
 }: LegalPageLayoutProps) {
   return (
     <div className="min-h-screen px-4 py-20 text-[var(--color-text)] lg:px-6 lg:py-5">
-      <Seo description={description} pathname={pathname} title={title} />
+      <Seo description={description} pathname={pathname} structuredData={structuredData} title={title} />
       <div className="mx-auto max-w-[1320px]">
         <SiteHeader eyebrow={eyebrow} />
 

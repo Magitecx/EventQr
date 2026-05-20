@@ -1,6 +1,7 @@
 import { FileLock, Mail, ScanSearch, ShieldCheck, UserRound } from "lucide-react";
 import { Card } from "../components/ui/card";
 import { LegalPageLayout } from "../components/legal/legal-page-layout";
+import { buildBreadcrumbStructuredData, buildOrganizationStructuredData } from "../lib/seo";
 
 const toc = [
   { id: "overview", label: "Overview" },
@@ -19,6 +20,18 @@ export function PrivacyPolicyPage() {
       description="Read how EventQR collects, uses, stores, and deletes account, workspace, attendee, and attendance data."
       eyebrow="Privacy Policy"
       pathname="/privacy"
+      structuredData={[
+        buildOrganizationStructuredData(),
+        buildBreadcrumbStructuredData([
+          { name: "Home", path: "/" },
+          { name: "Privacy Policy", path: "/privacy" },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          name: "Privacy Policy",
+        },
+      ]}
       title="Privacy Policy"
       toc={toc}
       updatedAt="May 20, 2026"

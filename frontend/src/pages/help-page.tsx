@@ -1,6 +1,7 @@
 import { HelpCircle, Link2, QrCode, ScanLine, ShieldAlert, Users } from "lucide-react";
 import { PublicPageLayout } from "../components/public/public-page-layout";
 import { Card } from "../components/ui/card";
+import { buildBreadcrumbStructuredData, buildOrganizationStructuredData } from "../lib/seo";
 
 const faqs = [
   {
@@ -36,7 +37,26 @@ export function HelpPage() {
       description="Find answers to common EventQR questions about accounts, organizations, QR codes, scanner links, and workspace lifecycle behavior."
       eyebrow="Help / FAQ"
       pathname="/help"
-      title="Help and FAQ"
+      structuredData={[
+        buildOrganizationStructuredData(),
+        buildBreadcrumbStructuredData([
+          { name: "Home", path: "/" },
+          { name: "Help / FAQ", path: "/help" },
+        ]),
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: item.answer,
+            },
+          })),
+        },
+      ]}
+      title="Help / FAQ"
     >
       <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <Card className="p-8">

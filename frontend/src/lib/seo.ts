@@ -1,7 +1,9 @@
 export const SITE_NAME = "EventQR";
-export const DEFAULT_TITLE = "QR Attendance Platform for Recurring Events";
+export const DEFAULT_TITLE = "Event QR Attendance System";
 export const DEFAULT_DESCRIPTION =
-  "EventQR helps organizations run recurring workshops and event series with secure QR attendee check-ins, live scanning, and attendance reports.";
+  "Create QR attendance systems for schools, businesses, and events.";
+export const SUPPORT_EMAIL = "support@magitecx.com";
+export const BRAND_LOGO_PATH = "/logo.png";
 
 export function getSiteUrl() {
   const configuredSiteUrl = import.meta.env.VITE_SITE_URL;
@@ -23,5 +25,47 @@ export function getCanonicalUrl(pathname = "/") {
 }
 
 export function buildTitle(title?: string) {
-  return title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | ${DEFAULT_TITLE}`;
+  return title ? `${SITE_NAME} - ${title}` : `${SITE_NAME} - ${DEFAULT_TITLE}`;
+}
+
+export function getAbsoluteUrl(path: string) {
+  return path.startsWith("http") ? path : `${getSiteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+export function buildOrganizationStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: getSiteUrl(),
+    logo: getAbsoluteUrl(BRAND_LOGO_PATH),
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: SUPPORT_EMAIL,
+      url: `${getSiteUrl()}/contact`,
+    },
+  };
+}
+
+export function buildWebsiteStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: getSiteUrl(),
+  };
+}
+
+export function buildBreadcrumbStructuredData(items: Array<{ name: string; path: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: getCanonicalUrl(item.path),
+    })),
+  };
 }
