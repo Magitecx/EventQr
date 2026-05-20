@@ -243,6 +243,13 @@ export function ScannerPage() {
         {/* Result bottom sheet */}
         {lastResult ? (
           <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white px-6 pb-10 pt-5 shadow-2xl">
+            <button
+              className="absolute right-4 top-4 flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+              onClick={() => setLastResult(null)}
+              type="button"
+            >
+              ✕
+            </button>
             <div className="mb-4 flex items-center gap-3">
               <div
                 className={
