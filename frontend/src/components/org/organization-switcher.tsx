@@ -93,7 +93,7 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
       </Button>
 
       {open ? (
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[min(92vw,22rem)] overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)]">
+        <div className="absolute left-0 top-[calc(100%+0.5rem)] z-30 w-[min(92vw,22rem)] overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)] sm:left-auto sm:right-0">
           <div className="border-b border-[var(--color-border)] px-4 py-3">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Current workspace</p>
             <p className="mt-2 break-words text-sm font-semibold text-slate-900">{currentName}</p>
