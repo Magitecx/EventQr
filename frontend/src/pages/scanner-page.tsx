@@ -364,15 +364,18 @@ export function ScannerPage() {
               </div>
 
               {lastResult.attendee ? (
-                <div className="mt-6 flex flex-col items-start gap-4 rounded-[8px] bg-white p-4 sm:flex-row sm:items-center">
-                  <img
-                    alt={lastResult.attendee.name}
-                    className="size-16 rounded-[8px] object-cover ring-1 ring-[var(--color-border)]"
-                    src={
-                      resolveMediaUrl(lastResult.attendee.profileImageUrl) ??
-                      "https://placehold.co/160x160/f7f5f0/334155?text=QR"
-                    }
-                  />
+                <div className="mt-6 flex flex-col gap-3 rounded-[8px] bg-white p-4">
+                  {lastResult.attendee.profileImageUrl ? (
+                    <img
+                      alt={lastResult.attendee.name}
+                      className="h-56 w-full rounded-[8px] object-cover object-top ring-1 ring-[var(--color-border)]"
+                      src={resolveMediaUrl(lastResult.attendee.profileImageUrl)!}
+                    />
+                  ) : (
+                    <div className="flex size-12 items-center justify-center rounded-[8px] bg-slate-100 text-lg font-semibold text-slate-600">
+                      {lastResult.attendee.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="min-w-0">
                     <p className="break-words font-semibold text-slate-900">{lastResult.attendee.name}</p>
                     <p className="break-words text-sm text-slate-500">{lastResult.attendee.email ?? "No email"}</p>
