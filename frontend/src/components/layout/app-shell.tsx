@@ -12,17 +12,17 @@ import {
   X,
 } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../lib/auth";
 import { api, unwrapResponse } from "../../lib/api";
 import { cn, formatDate } from "../../lib/utils";
-import type { AuthResponse, OrganizationDetail } from "../../types/api";
+import type { OrganizationDetail } from "../../types/api";
 import { BrandBadge } from "../brand/brand-badge";
 import { BrandLogo } from "../brand/brand-logo";
+import { OrganizationSwitcher } from "../org/organization-switcher";
 import { Seo } from "../seo/seo";
 import { Button } from "../ui/button";
-import { Select } from "../ui/select";
 import { ThemeToggle } from "../ui/theme-toggle";
 
 const navigation = [
@@ -38,7 +38,7 @@ const INACTIVE_BANNER_DISMISS_KEY = "eventqr-inactive-banner-dismissed";
 export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { activeMembership, auth, logout, setAuthState } = useAuth();
+  const { activeMembership, auth, logout } = useAuth();
   const [dismissedBannerKey, setDismissedBannerKey] = useState<string | null>(() =>
     typeof window === "undefined" ? null : window.localStorage.getItem(INACTIVE_BANNER_DISMISS_KEY),
   );
@@ -46,6 +46,7 @@ export function AppShell() {
   const pathLabel =
     navigation.find((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`))
       ?.label ?? "Workspace";
+  const workspaceTitle = activeMembership?.organizationName ? `${pathLabel} · ${activeMembership.organizationName}` : pathLabel;
 
   const organizationQuery = useQuery({
     queryKey: ["organization-current-banner", auth?.activeOrganizationId],
@@ -79,20 +80,9 @@ export function AppShell() {
     setDismissedBannerKey(null);
   }, [dismissedBannerKey, inactiveBannerKey]);
 
-  const switchMutation = useMutation({
-    mutationFn: async (organizationId: string) =>
-      unwrapResponse<AuthResponse>(await api.post("/auth/switch-organization", { organizationId })),
-    onSuccess: (result) => {
-      setAuthState(result);
-      if (location.pathname === "/app/onboarding") {
-        navigate("/app");
-      }
-    },
-  });
-
   return (
     <div className="min-h-screen text-slate-900">
-      <Seo noindex pathname={location.pathname} title={pathLabel} />
+      <Seo noindex pathname={location.pathname} title={workspaceTitle} />
       <ThemeToggle className="fixed right-3 top-3 z-50 lg:right-6 lg:top-6" />
       <div className="mx-auto grid min-h-screen max-w-[1480px] gap-5 px-4 py-20 lg:grid-cols-[248px_minmax(0,1fr)] lg:px-6 lg:py-4">
         <aside className="rounded-[10px] bg-[var(--color-panel)] p-6 shadow-[var(--shadow-panel)] backdrop-blur">
@@ -125,16 +115,25 @@ export function AppShell() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-[8px] bg-amber-50/70 p-4">
-            <p className="text-xs uppercase tracking-[0.18em] text-amber-700">Quick start</p>
+          <div className="mt-8 rounded-[8px] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Quick start</p>
             <div className="mt-3 grid gap-2 md:grid-cols-3 lg:grid-cols-1">
-              <Link className="rounded-[8px] bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100/70" to="/app/event-series">
+              <Link
+                className="rounded-[8px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)] hover:text-slate-900"
+                to="/app/event-series"
+              >
                 Create series
               </Link>
-              <Link className="rounded-[8px] bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100/70" to="/app/attendees">
+              <Link
+                className="rounded-[8px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)] hover:text-slate-900"
+                to="/app/attendees"
+              >
                 Add attendees
               </Link>
-              <Link className="rounded-[8px] bg-white px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-amber-100/70" to="/app/scanner">
+              <Link
+                className="rounded-[8px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-[var(--color-surface-soft)] hover:text-slate-900"
+                to="/app/scanner"
+              >
                 Start scanner
               </Link>
             </div>
@@ -145,30 +144,22 @@ export function AppShell() {
             <p className="mt-2 break-words text-lg font-semibold text-slate-900">
               {activeMembership?.organizationName ?? "No active organization"}
             </p>
+            <p className="mt-2 text-sm text-slate-500">
+              Switch workspaces from the menu below.
+            </p>
             <div className="mt-3">
-              <Select
-                disabled={switchMutation.isPending || (auth?.memberships.length ?? 0) === 0}
-                onChange={(event) => {
-                  if (event.target.value) {
-                    switchMutation.mutate(event.target.value);
-                  }
-                }}
-                value={auth?.activeOrganizationId ?? ""}
-              >
-                <option value="">Select organization</option>
-                {auth?.memberships.map((membership) => (
-                <option key={membership.membershipId} value={membership.organizationId}>
-                  {membership.organizationName}
-                </option>
-                ))}
-              </Select>
+              <OrganizationSwitcher compact />
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               <Link to="/app/onboarding">
-                <Button className="w-full" variant="ghost">Create or join</Button>
+                <Button className="w-full" variant="ghost">
+                  Create or join
+                </Button>
               </Link>
               <Link to="/app/settings/organization">
-                <Button className="w-full" variant="ghost">Org settings</Button>
+                <Button className="w-full" variant="ghost">
+                  Org settings
+                </Button>
               </Link>
             </div>
           </div>
@@ -255,17 +246,19 @@ export function AppShell() {
             </div>
           ) : null}
 
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-[10px] bg-[var(--color-panel)] px-5 py-4 shadow-[var(--shadow-card)] backdrop-blur">
+          <div className="mb-6 flex flex-col gap-4 rounded-[10px] bg-[var(--color-panel)] px-5 py-4 shadow-[var(--shadow-card)] backdrop-blur xl:flex-row xl:items-center xl:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Workspace</p>
-              <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-                <span>EventQR</span>
+              <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2 text-sm text-slate-500">
+                <span className="font-semibold text-slate-900">
+                  {activeMembership?.organizationName ?? "No active organization"}
+                </span>
                 <ChevronRight className="size-4" />
                 <span className="font-medium text-slate-900">{pathLabel}</span>
               </div>
             </div>
 
-            <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-2 xl:flex">
+            <div className="grid w-full gap-3 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-wrap">
               <Link to="/app/event-series">
                 <Button className="w-full" icon={<PlusCircle className="size-4" />} variant="secondary">
                   New series

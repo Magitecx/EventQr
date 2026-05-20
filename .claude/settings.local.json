@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pm2 list *)",
+      "Read(//etc/nginx/**)",
+      "Bash(npm --version)"
+    ]
+  }
+}
