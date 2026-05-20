@@ -77,6 +77,10 @@ Update values if needed:
   - `JWT_SECRET`
   - `PORT`
   - `CORS_ORIGIN`
+  - `RESEND_API_KEY`
+  - `RESEND_FROM_EMAIL`
+  - `APP_URL`
+  - `PASSWORD_RESET_TOKEN_TTL_MINUTES`
   - `ORGANIZATION_INACTIVE_WARNING_DAYS`
   - `ORGANIZATION_HARD_DELETE_DAYS`
   - `ORGANIZATION_CLEANUP_INTERVAL_MINUTES`
@@ -145,6 +149,8 @@ npm run dev:frontend
 
 - `/` public landing page
 - `/login` sign-in
+- `/forgot-password` request reset email
+- `/reset-password?token=...` set a new password
 - `/register` account creation
 - `/invite/:token` invite acceptance
 - `/app/onboarding` create or join an organization
@@ -187,6 +193,8 @@ Auth:
 
 - `POST /api/auth/login`
 - `POST /api/auth/register`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
 - `GET /api/auth/me`
 - `POST /api/auth/switch-organization`
 - `PATCH /api/auth/account`

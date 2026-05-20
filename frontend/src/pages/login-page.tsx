@@ -115,6 +115,11 @@ export function LoginPage() {
               <Button className="w-full" disabled={mutation.isPending} type="submit">
                 {mutation.isPending ? "Signing in..." : "Log in"}
               </Button>
+              <div className="text-center">
+                <Link className="text-sm font-medium text-amber-700 hover:text-amber-800" to="/forgot-password">
+                  Forgot password?
+                </Link>
+              </div>
             </form>
 
             <div className="mt-8 border-t border-[var(--color-border)] pt-5">

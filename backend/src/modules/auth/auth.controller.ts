@@ -1,17 +1,22 @@
 import bcrypt from "bcryptjs";
+import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
 import { successResponse } from "../../utils/api-response";
 import { asyncHandler } from "../../utils/async-handler";
 import {
   changePasswordSchema,
+  forgotPasswordSchema,
   loginSchema,
   registerSchema,
+  resetPasswordSchema,
   switchOrganizationSchema,
   updateAccountSchema,
 } from "./auth.schemas";
 import { buildAuthPayload, requireMembership } from "./auth.utils";
 import { touchOrganizationActivity } from "../organizations/organizations.activity";
+import { env } from "../../config/env";
+import { sendPasswordResetEmail } from "../../lib/email";
 
 export const login = asyncHandler(async (request, response) => {
   const credentials = loginSchema.parse(request.body);
@@ -141,4 +146,87 @@ export const changePassword = asyncHandler(async (request, response) => {
   });
 
   response.json(successResponse(null, "Password updated"));
+});
+
+function hashResetToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+export const forgotPassword = asyncHandler(async (request, response) => {
+  const body = forgotPasswordSchema.parse(request.body);
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: body.email,
+    },
+  });
+
+  if (!user) {
+    response.json(successResponse(null, "If that email exists, a reset link has been sent"));
+    return;
+  }
+
+  const rawToken = randomBytes(32).toString("hex");
+  const tokenHash = hashResetToken(rawToken);
+  const expiresAt = new Date(Date.now() + env.PASSWORD_RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+
+  await prisma.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    },
+  });
+
+  const resetUrl = new URL(`/reset-password?token=${rawToken}`, env.APP_URL).toString();
+
+  await sendPasswordResetEmail({
+    to: user.email,
+    resetUrl,
+    expiresInMinutes: env.PASSWORD_RESET_TOKEN_TTL_MINUTES,
+  });
+
+  response.json(successResponse(null, "If that email exists, a reset link has been sent"));
+});
+
+export const resetPassword = asyncHandler(async (request, response) => {
+  const body = resetPasswordSchema.parse(request.body);
+  const tokenHash = hashResetToken(body.token);
+
+  const passwordResetToken = await prisma.passwordResetToken.findUnique({
+    where: {
+      tokenHash,
+    },
+  });
+
+  if (
+    !passwordResetToken ||
+    passwordResetToken.usedAt ||
+    passwordResetToken.expiresAt < new Date()
+  ) {
+    throw new ApiError(400, "Reset link is invalid or expired");
+  }
+
+  const newPasswordHash = await bcrypt.hash(body.newPassword, 10);
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: {
+        id: passwordResetToken.userId,
+      },
+      data: {
+        passwordHash: newPasswordHash,
+      },
+    }),
+    prisma.passwordResetToken.update({
+      where: {
+        id: passwordResetToken.id,
+      },
+      data: {
+        usedAt: new Date(),
+      },
+    }),
+  ]);
+
+  response.json(successResponse(null, "Password reset successful"));
 });

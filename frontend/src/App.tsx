@@ -12,9 +12,11 @@ import { EventSeriesListPage } from "./pages/event-series-list-page";
 import { InvitePage } from "./pages/invite-page";
 import { LandingPage } from "./pages/landing-page";
 import { LoginPage } from "./pages/login-page";
+import { ForgotPasswordPage } from "./pages/forgot-password-page";
 import { OnboardingPage } from "./pages/onboarding-page";
 import { OrganizationSettingsPage } from "./pages/organization-settings-page";
 import { RegisterPage } from "./pages/register-page";
+import { ResetPasswordPage } from "./pages/reset-password-page";
 import { ScannerPage } from "./pages/scanner-page";
 import { SessionsManagementPage } from "./pages/sessions-management-page";
 
@@ -25,6 +27,8 @@ function App() {
       <Route path="/invite/:token" element={<InvitePage />} />
       <Route path="/scan/:token" element={<ScannerPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/app" element={<AppShell />}>
