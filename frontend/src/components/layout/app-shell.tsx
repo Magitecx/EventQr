@@ -192,6 +192,12 @@ export function AppShell() {
 
           <div className="mt-6">
             <BrandBadge compact />
+            <p className="mt-2 text-xs text-slate-500">
+              Support:{" "}
+              <a className="font-medium text-amber-700 hover:text-amber-800" href="mailto:support@magitecx.com">
+                support@magitecx.com
+              </a>
+            </p>
           </div>
         </aside>
 

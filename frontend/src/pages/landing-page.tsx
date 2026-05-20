@@ -377,6 +377,12 @@ export function LandingPage() {
             <div>
               <p className="text-sm font-semibold text-slate-900">EventQR</p>
               <p className="text-sm text-slate-500">QR attendance for recurring events and workshops.</p>
+              <p className="mt-1 text-sm text-slate-500">
+                Support:{" "}
+                <a className="font-medium text-amber-700 hover:text-amber-800" href="mailto:support@magitecx.com">
+                  support@magitecx.com
+                </a>
+              </p>
             </div>
             <BrandBadge compact />
           </Card>
