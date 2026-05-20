@@ -198,6 +198,14 @@ export function AppShell() {
                 support@magitecx.com
               </a>
             </p>
+            <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+              <Link className="hover:text-slate-900" to="/privacy">
+                Privacy
+              </Link>
+              <Link className="hover:text-slate-900" to="/terms">
+                Terms
+              </Link>
+            </div>
           </div>
         </aside>
 

@@ -16,16 +16,20 @@ import { LoginPage } from "./pages/login-page";
 import { ForgotPasswordPage } from "./pages/forgot-password-page";
 import { OnboardingPage } from "./pages/onboarding-page";
 import { OrganizationSettingsPage } from "./pages/organization-settings-page";
+import { PrivacyPolicyPage } from "./pages/privacy-policy-page";
 import { RegisterPage } from "./pages/register-page";
 import { ResetPasswordPage } from "./pages/reset-password-page";
 import { ScannerPage } from "./pages/scanner-page";
 import { SessionsManagementPage } from "./pages/sessions-management-page";
+import { TermsOfServicePage } from "./pages/terms-of-service-page";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/docs" element={<DocsPage />} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsOfServicePage />} />
       <Route path="/invite/:token" element={<InvitePage />} />
       <Route path="/scan/:token" element={<ScannerPage />} />
       <Route path="/login" element={<LoginPage />} />

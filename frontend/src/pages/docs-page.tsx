@@ -259,7 +259,15 @@ export function DocsPage() {
                 </a>
               </p>
             </div>
-            <BrandBadge compact />
+            <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+              <Link className="hover:text-slate-900" to="/privacy">
+                Privacy Policy
+              </Link>
+              <Link className="hover:text-slate-900" to="/terms">
+                Terms of Service
+              </Link>
+              <BrandBadge compact />
+            </div>
           </Card>
         </footer>
       </div>

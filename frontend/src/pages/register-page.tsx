@@ -19,6 +19,9 @@ const registerSchema = z.object({
   name: z.string().trim().min(2),
   email: z.email(),
   password: z.string().min(6),
+  acceptedTerms: z.boolean().refine((value) => value === true, {
+    message: "You must agree before creating an account",
+  }),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -114,6 +117,28 @@ export function RegisterPage() {
                 {errors.password ? <p className="mt-2 text-xs text-rose-500">{errors.password.message}</p> : null}
               </label>
 
+              <label className="flex items-start gap-3 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3">
+                <input
+                  className="mt-1 size-4 rounded-[4px] border border-[var(--color-border)] text-amber-600 focus:ring-amber-300"
+                  type="checkbox"
+                  {...register("acceptedTerms")}
+                />
+                <span className="text-sm leading-6 text-slate-600">
+                  I agree to the{" "}
+                  <Link className="font-medium text-amber-700 hover:text-amber-800" to="/terms">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link className="font-medium text-amber-700 hover:text-amber-800" to="/privacy">
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
+              {errors.acceptedTerms ? (
+                <p className="-mt-2 text-xs text-rose-500">{errors.acceptedTerms.message}</p>
+              ) : null}
+
               {mutation.isError ? (
                 <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
                   {getErrorMessage(mutation.error)}
@@ -127,6 +152,14 @@ export function RegisterPage() {
 
             <div className="mt-8 border-t border-[var(--color-border)] pt-5">
               <BrandBadge compact />
+              <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+                <Link className="hover:text-slate-900" to="/privacy">
+                  Privacy Policy
+                </Link>
+                <Link className="hover:text-slate-900" to="/terms">
+                  Terms of Service
+                </Link>
+              </div>
             </div>
           </Card>
 

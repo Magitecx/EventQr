@@ -99,6 +99,14 @@ export function ResetPasswordPage() {
 
           <div className="mt-8 border-t border-[var(--color-border)] pt-5">
             <BrandBadge compact />
+            <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+              <Link className="hover:text-slate-900" to="/privacy">
+                Privacy Policy
+              </Link>
+              <Link className="hover:text-slate-900" to="/terms">
+                Terms of Service
+              </Link>
+            </div>
           </div>
         </Card>
       </div>

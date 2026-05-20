@@ -29,6 +29,7 @@ export type RegisterPayload = {
   name: string;
   email: string;
   password: string;
+  acceptedTerms: boolean;
 };
 
 export type OrganizationSummaryResponse = {
