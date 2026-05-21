@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, DoorOpen, RotateCw, Shield, Trash2, UserCog } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
@@ -19,6 +19,15 @@ export function OrganizationSettingsPage() {
   const [inviteExpiryDays, setInviteExpiryDays] = useState("30");
   const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
   const [joinCodeCopied, setJoinCodeCopied] = useState(false);
+  const joinCodeTimeoutRef = useRef<number | null>(null);
+  const inviteLinkTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (joinCodeTimeoutRef.current) window.clearTimeout(joinCodeTimeoutRef.current);
+      if (inviteLinkTimeoutRef.current) window.clearTimeout(inviteLinkTimeoutRef.current);
+    };
+  }, []);
 
   const organizationQuery = useQuery({
     queryKey: ["organization-current"],
@@ -87,13 +96,15 @@ export function OrganizationSettingsPage() {
 
     await navigator.clipboard.writeText(organization.joinCode);
     setJoinCodeCopied(true);
-    window.setTimeout(() => setJoinCodeCopied(false), 1800);
+    if (joinCodeTimeoutRef.current) window.clearTimeout(joinCodeTimeoutRef.current);
+    joinCodeTimeoutRef.current = window.setTimeout(() => setJoinCodeCopied(false), 1800);
   }
 
   async function copyInviteLink(inviteId: string, inviteUrl: string) {
     await navigator.clipboard.writeText(inviteUrl);
     setCopiedInviteId(inviteId);
-    window.setTimeout(() => {
+    if (inviteLinkTimeoutRef.current) window.clearTimeout(inviteLinkTimeoutRef.current);
+    inviteLinkTimeoutRef.current = window.setTimeout(() => {
       setCopiedInviteId((current) => (current === inviteId ? null : current));
     }, 1800);
   }

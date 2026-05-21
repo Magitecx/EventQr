@@ -1,7 +1,7 @@
 export const SITE_NAME = "EventQR";
-export const DEFAULT_TITLE = "Event QR Attendance System";
+export const DEFAULT_TITLE = "QR Event Management Platform by Magitecx";
 export const DEFAULT_DESCRIPTION =
-  "Create QR attendance systems for schools, businesses, and events.";
+  "EventQR by Magitecx helps organizers manage events with QR attendance tracking, check-ins, and event management tools.";
 export const SUPPORT_EMAIL = "support@magitecx.com";
 export const BRAND_LOGO_PATH = "/logo.png";
 
@@ -25,7 +25,7 @@ export function getCanonicalUrl(pathname = "/") {
 }
 
 export function buildTitle(title?: string) {
-  return title ? `${SITE_NAME} - ${title}` : `${SITE_NAME} - ${DEFAULT_TITLE}`;
+  return title ? `${SITE_NAME} | ${title}` : `${SITE_NAME} | ${DEFAULT_TITLE}`;
 }
 
 export function getAbsoluteUrl(path: string) {

@@ -38,6 +38,7 @@ export function ScannerPage() {
   const recentTokenRef = useRef("");
   const resumeTimeoutRef = useRef<number | null>(null);
   const shareFeedbackTimeoutRef = useRef<number | null>(null);
+  const recentTokenTimeoutRef = useRef<number | null>(null);
   const [paused, setPaused] = useState(false);
 
   const seriesQuery = useQuery({
@@ -90,6 +91,9 @@ export function ScannerPage() {
       if (shareFeedbackTimeoutRef.current) {
         window.clearTimeout(shareFeedbackTimeoutRef.current);
       }
+      if (recentTokenTimeoutRef.current) {
+        window.clearTimeout(recentTokenTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -134,7 +138,8 @@ export function ScannerPage() {
     setScannerError("");
     checkInMutation.mutate(isPublicScanner ? { qrToken } : { qrToken, eventSessionId: currentSessionId }, {
       onSettled: () => {
-        window.setTimeout(() => {
+        if (recentTokenTimeoutRef.current) window.clearTimeout(recentTokenTimeoutRef.current);
+        recentTokenTimeoutRef.current = window.setTimeout(() => {
           recentTokenRef.current = "";
         }, 1800);
       },

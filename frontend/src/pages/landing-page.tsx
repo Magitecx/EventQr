@@ -50,7 +50,8 @@ export function LandingPage() {
   return (
     <div className="min-h-screen px-4 py-20 text-[var(--color-text)] lg:px-6 lg:py-5">
       <Seo
-        description="Create QR attendance systems for schools, businesses, and events."
+        title="QR Event Management Platform by Magitecx"
+        description="EventQR by Magitecx helps organizers manage events with QR attendance tracking, check-ins, and event management tools."
         keywords={[
           "QR attendance platform",
           "QR attendance system",
@@ -79,7 +80,6 @@ export function LandingPage() {
             },
           },
         ]}
-        title="Event QR Attendance System"
       />
       <div className="mx-auto max-w-[1320px]">
         <SiteHeader eyebrow="Attendance" />

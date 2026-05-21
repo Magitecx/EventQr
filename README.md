@@ -269,6 +269,29 @@ This is hardened for image-only uploads, but it is not full antivirus scanning.
 attendancePercentage = attendedSessions / totalSessions * 100
 ```
 
+## Redeploy (production)
+
+After a `git pull`, redeploy with the relevant commands below.
+
+**Frontend only:**
+
+```bash
+cd frontend && npm install && npm run build && pm2 restart eventqr-frontend
+```
+
+**Backend only:**
+
+```bash
+cd backend && npm install && npm run build && pm2 restart eventqr-backend --update-env
+```
+
+**Both + migrations:**
+
+```bash
+cd backend && npm install && npx prisma migrate deploy && npm run build && pm2 restart eventqr-backend --update-env
+cd ../frontend && npm install && npm run build && pm2 restart eventqr-frontend
+```
+
 ## Useful commands
 
 ```bash

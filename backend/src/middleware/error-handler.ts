@@ -22,6 +22,13 @@ export function errorHandler(
     return response.status(400).json(errorResponse("Database request failed", error.message));
   }
 
+  if (typeof error === "object" && error !== null && "statusCode" in error) {
+    const httpErr = error as { statusCode: number; message: string };
+    if (httpErr.statusCode >= 400 && httpErr.statusCode < 500) {
+      return response.status(httpErr.statusCode).json(errorResponse(httpErr.message));
+    }
+  }
+
   console.error(error);
   return response.status(500).json(errorResponse("Internal server error"));
 }
