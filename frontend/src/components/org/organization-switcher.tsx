@@ -1,7 +1,7 @@
 import { ChevronDown, ArrowRightLeft, PlusCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, unwrapResponse } from "../../lib/api";
 import { useAuth } from "../../lib/auth";
 import type { AuthResponse } from "../../types/api";
@@ -15,6 +15,7 @@ type OrganizationSwitcherProps = {
 
 export function OrganizationSwitcher({ className, compact = false }: OrganizationSwitcherProps) {
   const { auth, activeMembership, setAuthState } = useAuth();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
@@ -24,6 +25,13 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
     mutationFn: async (organizationId: string) =>
       unwrapResponse<AuthResponse>(await api.post("/auth/switch-organization", { organizationId })),
     onSuccess: (result) => {
+      queryClient.removeQueries({ queryKey: ["attendees"] });
+      queryClient.removeQueries({ queryKey: ["attendees-summary"] });
+      queryClient.removeQueries({ queryKey: ["event-series"] });
+      queryClient.removeQueries({ queryKey: ["series-report"] });
+      queryClient.removeQueries({ queryKey: ["scanner-share-link"] });
+      queryClient.removeQueries({ queryKey: ["organization-current"] });
+      queryClient.removeQueries({ queryKey: ["organization-current-banner"] });
       setAuthState(result);
       setOpen(false);
       const sectionRoots = [

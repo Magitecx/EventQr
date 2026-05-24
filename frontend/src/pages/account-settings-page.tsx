@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightLeft, Building2, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,7 @@ type PasswordValues = z.infer<typeof passwordSchema>;
 
 export function AccountSettingsPage() {
   const { auth, activeMembership, setAuthState } = useAuth();
+  const queryClient = useQueryClient();
 
   const accountForm = useForm<AccountValues>({
     resolver: zodResolver(accountSchema),
@@ -57,7 +58,16 @@ export function AccountSettingsPage() {
   const switchMutation = useMutation({
     mutationFn: async (organizationId: string) =>
       unwrapResponse<AuthResponse>(await api.post("/auth/switch-organization", { organizationId })),
-    onSuccess: (result) => setAuthState(result),
+    onSuccess: (result) => {
+      queryClient.removeQueries({ queryKey: ["attendees"] });
+      queryClient.removeQueries({ queryKey: ["attendees-summary"] });
+      queryClient.removeQueries({ queryKey: ["event-series"] });
+      queryClient.removeQueries({ queryKey: ["series-report"] });
+      queryClient.removeQueries({ queryKey: ["scanner-share-link"] });
+      queryClient.removeQueries({ queryKey: ["organization-current"] });
+      queryClient.removeQueries({ queryKey: ["organization-current-banner"] });
+      setAuthState(result);
+    },
   });
 
   const passwordMutation = useMutation({

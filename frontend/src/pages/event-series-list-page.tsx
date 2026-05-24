@@ -10,6 +10,7 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { cn, formatDate } from "../lib/utils";
 import type { EventSeries, EventSession } from "../types/api";
 
@@ -39,6 +40,7 @@ function calcPanelStyle(trigger: HTMLElement): CSSProperties {
 
 export function EventSeriesListPage() {
   const queryClient = useQueryClient();
+  const { auth } = useAuth();
   const [selectedSeriesId, setSelectedSeriesId] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
@@ -47,7 +49,7 @@ export function EventSeriesListPage() {
   const triggerRef = useRef<HTMLDivElement>(null);
 
   const seriesQuery = useQuery({
-    queryKey: ["event-series"],
+    queryKey: ["event-series", auth?.activeOrganizationId],
     queryFn: async () => unwrapResponse<EventSeries[]>(await api.get("/event-series")),
   });
 
@@ -90,7 +92,7 @@ export function EventSeriesListPage() {
     onSuccess: (created) => {
       seriesForm.reset();
       setShowNewEventForm(false);
-      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId] });
       setSelectedSeriesId(created.id);
     },
   });
@@ -106,7 +108,7 @@ export function EventSeriesListPage() {
       ),
     onSuccess: () => {
       sessionForm.reset();
-      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId] });
     },
   });
 

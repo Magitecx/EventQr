@@ -9,6 +9,7 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { resolveMediaUrl } from "../lib/utils";
 import type { Attendee, PaginatedResult } from "../types/api";
 
@@ -22,6 +23,7 @@ type AttendeeFormValues = z.infer<typeof attendeeSchema>;
 
 export function AttendeesPage() {
   const queryClient = useQueryClient();
+  const { auth } = useAuth();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
@@ -37,7 +39,7 @@ export function AttendeesPage() {
   });
 
   const attendeesQuery = useQuery({
-    queryKey: ["attendees", deferredSearch, page],
+    queryKey: ["attendees", auth?.activeOrganizationId, deferredSearch, page],
     queryFn: async () =>
       unwrapResponse<PaginatedResult<Attendee>>(
         await api.get("/attendees", {

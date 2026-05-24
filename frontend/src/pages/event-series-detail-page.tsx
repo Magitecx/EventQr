@@ -10,6 +10,7 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { formatDate } from "../lib/utils";
 import type { EventSeries } from "../types/api";
 
@@ -26,9 +27,10 @@ export function EventSeriesDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { auth } = useAuth();
 
   const seriesQuery = useQuery({
-    queryKey: ["event-series", id],
+    queryKey: ["event-series", auth?.activeOrganizationId, id],
     queryFn: async () => unwrapResponse<EventSeries>(await api.get(`/event-series/${id}`)),
   });
 
@@ -66,15 +68,15 @@ export function EventSeriesDetailPage() {
         }),
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-series"] });
-      queryClient.invalidateQueries({ queryKey: ["event-series", id] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId, id] });
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async () => unwrapResponse(await api.delete(`/event-series/${id}`)),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId] });
       navigate("/app/event-series");
     },
   });

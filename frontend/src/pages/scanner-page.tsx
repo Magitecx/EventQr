@@ -19,6 +19,7 @@ import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Select } from "../components/ui/select";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { formatDate, resolveMediaUrl } from "../lib/utils";
 import type { EventSeries, PublicScannerSession, ScanResult, ScannerShareLink } from "../types/api";
 
@@ -29,6 +30,7 @@ type CheckInPayload = {
 
 export function ScannerPage() {
   const { token } = useParams();
+  const { auth } = useAuth();
   const isPublicScanner = Boolean(token);
   const [selectedSessionId, setSelectedSessionId] = useState("");
   const [lastResult, setLastResult] = useState<ScanResult | null>(null);
@@ -42,7 +44,7 @@ export function ScannerPage() {
   const [paused, setPaused] = useState(false);
 
   const seriesQuery = useQuery({
-    queryKey: ["event-series"],
+    queryKey: ["event-series", auth?.activeOrganizationId],
     queryFn: async () => unwrapResponse<EventSeries[]>(await api.get("/event-series")),
     enabled: !isPublicScanner,
   });
@@ -98,7 +100,7 @@ export function ScannerPage() {
   }, []);
 
   const shareLinkQuery = useQuery({
-    queryKey: ["scanner-share-link", selectedSessionId],
+    queryKey: ["scanner-share-link", auth?.activeOrganizationId, selectedSessionId],
     queryFn: async () =>
       unwrapResponse<ScannerShareLink>(
         await api.get(`/scan/sessions/${selectedSessionId}/share-link`),

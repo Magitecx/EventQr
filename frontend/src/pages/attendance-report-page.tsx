@@ -5,14 +5,16 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { api, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { formatDate, formatPercentage, resolveMediaUrl } from "../lib/utils";
 import type { SeriesReport } from "../types/api";
 
 export function AttendanceReportPage() {
   const { id = "" } = useParams();
+  const { auth } = useAuth();
 
   const reportQuery = useQuery({
-    queryKey: ["series-report", id],
+    queryKey: ["series-report", auth?.activeOrganizationId, id],
     queryFn: async () => unwrapResponse<SeriesReport>(await api.get(`/reports/event-series/${id}`)),
   });
 

@@ -12,12 +12,14 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { api, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { formatDate, formatPercentage, resolveMediaUrl } from "../lib/utils";
 import type { EventSeries, PaginatedResult, SeriesReport } from "../types/api";
 
 export function DashboardPage() {
+  const { auth } = useAuth();
   const attendeesQuery = useQuery({
-    queryKey: ["attendees-summary"],
+    queryKey: ["attendees-summary", auth?.activeOrganizationId],
     queryFn: async () =>
       unwrapResponse<PaginatedResult<unknown>>(
         await api.get("/attendees", {
@@ -30,14 +32,14 @@ export function DashboardPage() {
   });
 
   const seriesQuery = useQuery({
-    queryKey: ["event-series"],
+    queryKey: ["event-series", auth?.activeOrganizationId],
     queryFn: async () => unwrapResponse<EventSeries[]>(await api.get("/event-series")),
   });
 
   const primarySeriesId = seriesQuery.data?.[0]?.id;
 
   const reportQuery = useQuery({
-    queryKey: ["series-report", primarySeriesId],
+    queryKey: ["series-report", auth?.activeOrganizationId, primarySeriesId],
     enabled: Boolean(primarySeriesId),
     queryFn: async () =>
       unwrapResponse<SeriesReport>(await api.get(`/reports/event-series/${primarySeriesId}`)),

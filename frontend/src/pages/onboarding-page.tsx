@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowRightLeft, Building2, Link2, Users } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,7 @@ type JoinOrganizationValues = z.infer<typeof joinOrganizationSchema>;
 export function OnboardingPage() {
   const navigate = useNavigate();
   const { auth, setAuthState } = useAuth();
+  const queryClient = useQueryClient();
   const pendingInviteToken = getPendingInviteToken();
 
   const createForm = useForm<CreateOrganizationValues>({
@@ -67,6 +68,13 @@ export function OnboardingPage() {
       unwrapResponse<AuthResponse>(await api.post("/auth/switch-organization", { organizationId })),
     onSuccess: (result) => {
       clearPendingInviteToken();
+      queryClient.removeQueries({ queryKey: ["attendees"] });
+      queryClient.removeQueries({ queryKey: ["attendees-summary"] });
+      queryClient.removeQueries({ queryKey: ["event-series"] });
+      queryClient.removeQueries({ queryKey: ["series-report"] });
+      queryClient.removeQueries({ queryKey: ["scanner-share-link"] });
+      queryClient.removeQueries({ queryKey: ["organization-current"] });
+      queryClient.removeQueries({ queryKey: ["organization-current-banner"] });
       setAuthState(result);
       navigate("/app");
     },

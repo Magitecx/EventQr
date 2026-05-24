@@ -31,7 +31,7 @@ export function OrganizationSettingsPage() {
   }, []);
 
   const organizationQuery = useQuery({
-    queryKey: ["organization-current"],
+    queryKey: ["organization-current", auth?.activeOrganizationId],
     enabled: Boolean(activeMembership),
     queryFn: async () => unwrapResponse<OrganizationDetail>(await api.get("/organizations/current")),
   });
@@ -50,13 +50,13 @@ export function OrganizationSettingsPage() {
 
   const updateMutation = useMutation({
     mutationFn: async (name: string) => unwrapResponse(await api.patch("/organizations/current", { name })),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current", auth?.activeOrganizationId] }),
   });
 
   const regenerateMutation = useMutation({
     mutationFn: async () =>
       unwrapResponse<{ joinCode: string }>(await api.post("/organizations/current/regenerate-join-code")),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current", auth?.activeOrganizationId] }),
   });
 
   const inviteMutation = useMutation({
@@ -64,19 +64,19 @@ export function OrganizationSettingsPage() {
       unwrapResponse(
         await api.post("/organizations/current/invites", { expiresInDays: Number(inviteExpiryDays) }),
       ),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current", auth?.activeOrganizationId] }),
   });
 
   const updateMemberRoleMutation = useMutation({
     mutationFn: async ({ membershipId, role }: { membershipId: string; role: "ADMIN" | "MEMBER" }) =>
       unwrapResponse(await api.patch(`/organizations/current/members/${membershipId}`, { role })),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current", auth?.activeOrganizationId] }),
   });
 
   const removeMemberMutation = useMutation({
     mutationFn: async (membershipId: string) =>
       unwrapResponse(await api.delete(`/organizations/current/members/${membershipId}`)),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["organization-current", auth?.activeOrganizationId] }),
   });
 
   const leaveOrganizationMutation = useMutation({

@@ -9,6 +9,7 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { formatDate } from "../lib/utils";
 import type { EventSeries, EventSession } from "../types/api";
 
@@ -23,6 +24,7 @@ type SessionFormValues = z.infer<typeof sessionSchema>;
 export function SessionsManagementPage() {
   const { id = "" } = useParams();
   const queryClient = useQueryClient();
+  const { auth } = useAuth();
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const {
     register,
@@ -37,7 +39,7 @@ export function SessionsManagementPage() {
   });
 
   const seriesQuery = useQuery({
-    queryKey: ["event-series", id],
+    queryKey: ["event-series", auth?.activeOrganizationId, id],
     queryFn: async () => unwrapResponse<EventSeries>(await api.get(`/event-series/${id}`)),
   });
 
@@ -51,8 +53,8 @@ export function SessionsManagementPage() {
       ),
     onSuccess: () => {
       reset();
-      queryClient.invalidateQueries({ queryKey: ["event-series", id] });
-      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId, id] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId] });
     },
   });
 
@@ -66,8 +68,8 @@ export function SessionsManagementPage() {
       ),
     onSuccess: () => {
       setEditingSessionId(null);
-      queryClient.invalidateQueries({ queryKey: ["event-series", id] });
-      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId, id] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId] });
     },
   });
 
@@ -78,8 +80,8 @@ export function SessionsManagementPage() {
       if (editingSessionId) {
         setEditingSessionId(null);
       }
-      queryClient.invalidateQueries({ queryKey: ["event-series", id] });
-      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId, id] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", auth?.activeOrganizationId] });
     },
   });
 
