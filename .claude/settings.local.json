@@ -3,7 +3,29 @@
     "allow": [
       "Bash(pm2 list *)",
       "Read(//etc/nginx/**)",
-      "Bash(npm --version)"
+      "Bash(npm --version)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://eventqr.magitecx.com/)",
+      "Bash(systemctl list-units *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:4173/google48473239bd83b7e9.html)",
+      "Bash(curl -s -L http://127.0.0.1:4173/google48473239bd83b7e9.html)",
+      "Bash(curl -s -I http://127.0.0.1:4173/google48473239bd83b7e9.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://eventqr.magitecx.com/google48473239bd83b7e9.html)",
+      "Bash(ls -la /root/ | head -5 && ls -la /root/EventQrAttendance/frontend/dist/google48473239bd83b7e9.html)",
+      "Read(//root/**)",
+      "Bash(mkdir -p /var/www/eventqr-static)",
+      "Bash(cp /root/EventQrAttendance/frontend/dist/google48473239bd83b7e9.html /var/www/eventqr-static/)",
+      "Bash(chown -R www-data:www-data /var/www/eventqr-static)",
+      "Bash(curl -sI https://eventqr.magitecx.com/google48473239bd83b7e9.html)",
+      "Bash(curl -sL -o /dev/null -w \"%{url_effective}\\\\n%{http_code}\\\\n\" https://eventqr.magitecx.com/google48473239bd83b7e9.html)",
+      "Bash(pm2 restart *)",
+      "Bash(git -C /root/EventQrAttendance ls-files backend/uploads/)",
+      "Bash(git -C /root/EventQrAttendance rm --cached backend/uploads/creativex/test-world/test-world-f2be8ef6-e502-43e1-bb4d-ea0488fc8c8e.png)",
+      "Bash(git -C /root/EventQrAttendance rm --cached -r backend/uploads/)",
+      "Bash(git -C /root/EventQrAttendance status --short)",
+      "Bash(git -C /root/EventQrAttendance check-ignore -v .env backend/.env frontend/.env)"
+    ],
+    "additionalDirectories": [
+      "/var/www/eventqr-static"
     ]
   }
 }

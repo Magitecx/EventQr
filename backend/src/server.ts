@@ -7,11 +7,20 @@ async function start() {
   await prisma.$connect();
   await runOrganizationCleanup();
 
-  setInterval(() => {
+  const cleanupInterval = setInterval(() => {
     void runOrganizationCleanup().catch((error) => {
       console.error("Organization cleanup failed", error);
     });
   }, env.ORGANIZATION_CLEANUP_INTERVAL_MINUTES * 60 * 1000);
+
+  async function shutdown() {
+    clearInterval(cleanupInterval);
+    await prisma.$disconnect();
+    process.exit(0);
+  }
+
+  process.once("SIGTERM", shutdown);
+  process.once("SIGINT", shutdown);
 
   app.listen(env.PORT, () => {
     console.log(`Backend listening on http://localhost:${env.PORT}`);
