@@ -17,7 +17,7 @@ import type { EventSeries, PaginatedResult, SeriesReport } from "../types/api";
 
 export function DashboardPage() {
   const attendeesQuery = useQuery({
-    queryKey: ["attendees"],
+    queryKey: ["attendees-summary"],
     queryFn: async () =>
       unwrapResponse<PaginatedResult<unknown>>(
         await api.get("/attendees", {
@@ -44,7 +44,9 @@ export function DashboardPage() {
   });
 
   const seriesList = seriesQuery.data ?? [];
-  const attendeeCount = attendeesQuery.data?.pagination.total ?? 0;
+  const attendeeCount = Array.isArray(attendeesQuery.data)
+    ? attendeesQuery.data.length
+    : attendeesQuery.data?.pagination?.total ?? 0;
   const reportItems = reportQuery.data?.items ?? [];
   const averageAttendance =
     reportItems.length === 0

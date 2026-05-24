@@ -95,6 +95,7 @@ export function OrganizationSettingsPage() {
       queryClient.removeQueries({ queryKey: ["organization-current"] });
       queryClient.removeQueries({ queryKey: ["organization-current-banner"] });
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
+      queryClient.invalidateQueries({ queryKey: ["attendees-summary"] });
       setDeleteConfirmationName("");
       navigate(result.activeOrganizationId ? "/app" : "/app/onboarding");
     },

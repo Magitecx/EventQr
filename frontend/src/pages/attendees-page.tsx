@@ -74,6 +74,7 @@ export function AttendeesPage() {
       setProfileImageFile(null);
       setImageInputKey((value) => value + 1);
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
+      queryClient.invalidateQueries({ queryKey: ["attendees-summary"] });
     },
   });
 

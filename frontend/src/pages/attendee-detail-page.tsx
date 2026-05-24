@@ -118,6 +118,7 @@ export function AttendeeDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attendee", id] });
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
+      queryClient.invalidateQueries({ queryKey: ["attendees-summary"] });
       setProfileImageFile(null);
       setImageInputKey((value) => value + 1);
       setRemoveProfileImage(false);
@@ -128,6 +129,7 @@ export function AttendeeDetailPage() {
     mutationFn: async () => api.delete(`/attendees/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
+      queryClient.invalidateQueries({ queryKey: ["attendees-summary"] });
       navigate("/app/attendees");
     },
   });
