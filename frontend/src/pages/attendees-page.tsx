@@ -21,6 +21,22 @@ const attendeeSchema = z.object({
 
 type AttendeeFormValues = z.infer<typeof attendeeSchema>;
 
+function normalizeAttendeeResult(data: PaginatedResult<Attendee> | Attendee[] | undefined) {
+  if (Array.isArray(data)) {
+    return {
+      items: data,
+      pagination: {
+        page: 1,
+        pageSize: data.length,
+        total: data.length,
+        totalPages: 1,
+      },
+    };
+  }
+
+  return data ?? null;
+}
+
 export function AttendeesPage() {
   const queryClient = useQueryClient();
   const { auth } = useAuth();
@@ -82,8 +98,9 @@ export function AttendeesPage() {
     },
   });
 
-  const attendees = attendeesQuery.data?.items ?? [];
-  const pagination = attendeesQuery.data?.pagination;
+  const attendeeResult = normalizeAttendeeResult(attendeesQuery.data as PaginatedResult<Attendee> | Attendee[] | undefined);
+  const attendees = attendeeResult?.items ?? [];
+  const pagination = attendeeResult?.pagination;
 
   useEffect(() => {
     if (page > 1 && pagination && page > pagination.totalPages) {
@@ -176,6 +193,10 @@ export function AttendeesPage() {
           </div>
 
           <div className="divide-y divide-[var(--color-border)] [content-visibility:auto]">
+            {attendeesQuery.isError ? (
+              <p className="p-5 text-sm text-rose-700">{getErrorMessage(attendeesQuery.error)}</p>
+            ) : null}
+
             {attendees.map((attendee) => (
               <div
                 key={attendee.id}
@@ -214,13 +235,19 @@ export function AttendeesPage() {
               </div>
             ))}
 
-            {attendees.length === 0 ? (
+            {!attendeesQuery.isError && attendees.length === 0 ? (
               <p className="p-5 text-sm text-slate-500">No attendees match the current search.</p>
             ) : null}
           </div>
         </div>
 
         <div className="mt-6 space-y-3 md:hidden">
+          {attendeesQuery.isError ? (
+            <p className="rounded-[8px] bg-rose-50 p-5 text-sm text-rose-700">
+              {getErrorMessage(attendeesQuery.error)}
+            </p>
+          ) : null}
+
           {attendees.map((attendee) => (
             <div
               key={attendee.id}
@@ -256,7 +283,7 @@ export function AttendeesPage() {
             </div>
           ))}
 
-          {attendees.length === 0 ? (
+          {!attendeesQuery.isError && attendees.length === 0 ? (
             <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-5 text-sm text-slate-500">
               No attendees match the current search.
             </p>
