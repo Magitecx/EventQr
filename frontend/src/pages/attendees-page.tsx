@@ -71,6 +71,8 @@ export function AttendeesPage() {
       ),
     onSuccess: () => {
       reset();
+      setSearch("");
+      setPage(1);
       setProfileImageFile(null);
       setImageInputKey((value) => value + 1);
       queryClient.invalidateQueries({ queryKey: ["attendees"] });
