@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import type { Request, Response } from "express";
 import { createHash, randomBytes } from "node:crypto";
 import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
@@ -8,6 +9,7 @@ import {
   changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
+  refreshAuthSchema,
   registerSchema,
   resetPasswordSchema,
   switchOrganizationSchema,
@@ -17,6 +19,36 @@ import { buildAuthPayload, requireMembership } from "./auth.utils";
 import { touchOrganizationActivity } from "../organizations/organizations.activity";
 import { env } from "../../config/env";
 import { sendPasswordChangedSuccessEmail, sendPasswordResetEmail } from "../../lib/email";
+import {
+  clearRefreshCookie,
+  createRefreshSession,
+  createRefreshToken,
+  getRefreshCookie,
+  getSessionMetadata,
+  hashRefreshToken,
+  revokeAllUserRefreshSessions,
+  revokeRefreshSessionByToken,
+  setRefreshCookie,
+} from "./auth.session";
+
+async function startUserSession(options: {
+  userId: string;
+  activeOrganizationId?: string | null;
+  request: Request;
+  response: Response;
+}) {
+  const refreshToken = createRefreshToken();
+
+  await createRefreshSession({
+    userId: options.userId,
+    token: refreshToken,
+    ...getSessionMetadata(options.request),
+  });
+
+  setRefreshCookie(options.response, refreshToken);
+
+  return buildAuthPayload(options.userId, options.activeOrganizationId);
+}
 
 export const login = asyncHandler(async (request, response) => {
   const credentials = loginSchema.parse(request.body);
@@ -37,7 +69,11 @@ export const login = asyncHandler(async (request, response) => {
     throw new ApiError(401, "Invalid email or password");
   }
 
-  const payload = await buildAuthPayload(user.id);
+  const payload = await startUserSession({
+    userId: user.id,
+    request,
+    response,
+  });
 
   if (payload.activeOrganizationId) {
     await touchOrganizationActivity(payload.activeOrganizationId);
@@ -71,7 +107,75 @@ export const register = asyncHandler(async (request, response) => {
 
   response
     .status(201)
-    .json(successResponse(await buildAuthPayload(createdUser.id, null), "Account created"));
+    .json(successResponse(null, "Account created"));
+});
+
+export const refreshAuth = asyncHandler(async (request, response) => {
+  const body = refreshAuthSchema.parse(request.body ?? {});
+  const refreshToken = getRefreshCookie(request);
+
+  if (!refreshToken) {
+    clearRefreshCookie(response);
+    throw new ApiError(401, "Refresh session missing");
+  }
+
+  const existingSession = await prisma.refreshSession.findUnique({
+    where: {
+      tokenHash: hashRefreshToken(refreshToken),
+    },
+  });
+
+  if (!existingSession || existingSession.revokedAt || existingSession.expiresAt <= new Date()) {
+    await revokeRefreshSessionByToken(refreshToken);
+    clearRefreshCookie(response);
+    throw new ApiError(401, "Refresh session expired");
+  }
+
+  const nextRefreshToken = createRefreshToken();
+  const now = new Date();
+  const sessionMetadata = getSessionMetadata(request);
+
+  await prisma.$transaction([
+    prisma.refreshSession.update({
+      where: {
+        id: existingSession.id,
+      },
+      data: {
+        revokedAt: now,
+        lastUsedAt: now,
+      },
+    }),
+    prisma.refreshSession.create({
+      data: {
+        userId: existingSession.userId,
+        tokenHash: hashRefreshToken(nextRefreshToken),
+        expiresAt: new Date(now.getTime() + env.REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000),
+        lastUsedAt: now,
+        userAgent: sessionMetadata.userAgent,
+        ipAddress: sessionMetadata.ipAddress,
+      },
+    }),
+  ]);
+
+  setRefreshCookie(response, nextRefreshToken);
+
+  response.json(
+    successResponse(
+      await buildAuthPayload(existingSession.userId, body.activeOrganizationId ?? null),
+      "Session refreshed",
+    ),
+  );
+});
+
+export const logout = asyncHandler(async (request, response) => {
+  const refreshToken = getRefreshCookie(request);
+
+  if (refreshToken) {
+    await revokeRefreshSessionByToken(refreshToken);
+  }
+
+  clearRefreshCookie(response);
+  response.json(successResponse(null, "Logged out"));
 });
 
 export const getMe = asyncHandler(async (request, response) => {
@@ -149,6 +253,8 @@ export const changePassword = asyncHandler(async (request, response) => {
     to: user.email,
     changedAt: new Date(),
   });
+
+  await revokeAllUserRefreshSessions(user.id);
 
   response.json(successResponse(null, "Password updated"));
 });
@@ -242,6 +348,15 @@ export const resetPassword = asyncHandler(async (request, response) => {
       },
       data: {
         usedAt: new Date(),
+      },
+    }),
+    prisma.refreshSession.updateMany({
+      where: {
+        userId: passwordResetToken.userId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
       },
     }),
   ]);

@@ -28,8 +28,27 @@ model User {
   memberships    OrganizationMembership[]
   invitesCreated OrganizationInvite[]
   passwordResetTokens PasswordResetToken[]
+  refreshSessions RefreshSession[]
 
   @@map("users")
+}
+
+model RefreshSession {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+  revokedAt  DateTime?
+  userAgent  String?
+  ipAddress  String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@map("refresh_sessions")
 }
 
 model PasswordResetToken {

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { LockKeyhole, Mail, UserRound, X } from "lucide-react";
-import { startTransition, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -11,9 +11,9 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { Seo } from "../components/seo/seo";
-import { api, getErrorMessage, getPendingInviteToken, unwrapResponse } from "../lib/api";
+import { api, getErrorMessage, unwrapResponse } from "../lib/api";
 import { useAuth } from "../lib/auth";
-import type { AuthResponse, RegisterPayload } from "../types/api";
+import type { RegisterPayload } from "../types/api";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2),
@@ -92,7 +92,7 @@ Questions about this Privacy Policy or privacy-related requests can be sent to s
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const { auth, login } = useAuth();
+  const { auth, isInitializing } = useAuth();
   const [activeDocument, setActiveDocument] = useState<keyof typeof registerSideContent | null>(null);
   const {
     register,
@@ -103,18 +103,16 @@ export function RegisterPage() {
   });
 
   useEffect(() => {
-    if (auth) {
+    if (!isInitializing && auth) {
       navigate("/app", { replace: true });
     }
-  }, [auth, navigate]);
+  }, [auth, isInitializing, navigate]);
 
   const mutation = useMutation({
     mutationFn: async (values: RegisterPayload) =>
-      unwrapResponse<AuthResponse>(await api.post("/auth/register", values)),
-    onSuccess: (result) => {
-      login(result);
-      const pendingInviteToken = getPendingInviteToken();
-      startTransition(() => navigate(pendingInviteToken ? `/invite/${pendingInviteToken}` : "/app/onboarding"));
+      unwrapResponse<null>(await api.post("/auth/register", values)),
+    onSuccess: () => {
+      navigate("/login");
     },
   });
 

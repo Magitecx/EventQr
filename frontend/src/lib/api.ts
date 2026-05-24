@@ -1,8 +1,16 @@
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 import type { ApiResponse, AuthResponse } from "../types/api";
 
 const AUTH_STORAGE_KEY = "event-qr-attendance-auth";
 const PENDING_INVITE_STORAGE_KEY = "event-qr-attendance-pending-invite";
+const AUTH_CHANGED_EVENT = "eventqr:auth-changed";
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api";
+
+type AuthRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
+
+let refreshPromise: Promise<AuthResponse> | null = null;
 
 function normalizeStoredAuth(value: unknown): AuthResponse | null {
   if (!value || typeof value !== "object") {
@@ -72,6 +80,108 @@ export function clearStoredAuth() {
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
 }
 
+function dispatchAuthChange(auth: AuthResponse | null) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent<AuthResponse | null>(AUTH_CHANGED_EVENT, { detail: auth }));
+}
+
+export function syncAuthState(auth: AuthResponse | null) {
+  if (auth) {
+    setStoredAuth(auth);
+  } else {
+    clearStoredAuth();
+  }
+
+  dispatchAuthChange(auth);
+}
+
+export function subscribeToAuthChanges(listener: (auth: AuthResponse | null) => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  const handleChange = (event: Event) => {
+    listener((event as CustomEvent<AuthResponse | null>).detail ?? null);
+  };
+
+  window.addEventListener(AUTH_CHANGED_EVENT, handleChange);
+
+  return () => window.removeEventListener(AUTH_CHANGED_EVENT, handleChange);
+}
+
+function decodeTokenPayload(token: string) {
+  try {
+    const [, payload] = token.split(".");
+
+    if (!payload) {
+      return null;
+    }
+
+    const normalizedPayload = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const paddedPayload = normalizedPayload.padEnd(Math.ceil(normalizedPayload.length / 4) * 4, "=");
+    const decoded = JSON.parse(window.atob(paddedPayload)) as { exp?: unknown };
+
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
+export function isTokenExpired(token: string, bufferMs = 0) {
+  const payload = decodeTokenPayload(token);
+
+  if (!payload || typeof payload.exp !== "number") {
+    return true;
+  }
+
+  return payload.exp * 1000 <= Date.now() + bufferMs;
+}
+
+function isAuthRoute(url?: string) {
+  return Boolean(url?.startsWith("/auth/"));
+}
+
+const refreshClient = axios.create({
+  baseURL: apiBaseURL,
+  withCredentials: true,
+});
+
+export async function refreshSession() {
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      const currentAuth = getStoredAuth();
+
+      try {
+        const auth = unwrapResponse<AuthResponse>(
+          await refreshClient.post("/auth/refresh", {
+            activeOrganizationId: currentAuth?.activeOrganizationId ?? null,
+          }),
+        );
+        syncAuthState(auth);
+        return auth;
+      } catch (error) {
+        syncAuthState(null);
+        throw error;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+  }
+
+  return refreshPromise;
+}
+
+export async function logoutSession() {
+  try {
+    await refreshClient.post("/auth/logout");
+  } finally {
+    syncAuthState(null);
+  }
+}
+
 export function getPendingInviteToken() {
   return window.localStorage.getItem(PENDING_INVITE_STORAGE_KEY);
 }
@@ -85,18 +195,61 @@ export function clearPendingInviteToken() {
 }
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:4000/api",
+  baseURL: apiBaseURL,
+  withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(async (config) => {
+  if (isAuthRoute(config.url)) {
+    return config;
+  }
+
   const auth = getStoredAuth();
 
+  if (auth?.token && isTokenExpired(auth.token, 30_000)) {
+    try {
+      const refreshedAuth = await refreshSession();
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${refreshedAuth.token}`;
+      return config;
+    } catch {
+      return config;
+    }
+  }
+
   if (auth?.token) {
+    config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${auth.token}`;
   }
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (!axios.isAxiosError(error) || error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    const originalRequest = error.config as AuthRequestConfig | undefined;
+
+    if (!originalRequest || originalRequest._retry || isAuthRoute(originalRequest.url)) {
+      return Promise.reject(error);
+    }
+
+    originalRequest._retry = true;
+
+    try {
+      const refreshedAuth = await refreshSession();
+      originalRequest.headers = originalRequest.headers ?? {};
+      originalRequest.headers.Authorization = `Bearer ${refreshedAuth.token}`;
+      return api.request(originalRequest);
+    } catch {
+      return Promise.reject(error);
+    }
+  },
+);
 
 export function unwrapResponse<T>(response: { data: ApiResponse<T> }) {
   return response.data.data;

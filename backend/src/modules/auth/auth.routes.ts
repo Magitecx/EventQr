@@ -5,6 +5,8 @@ import {
   forgotPassword,
   getMe,
   login,
+  logout,
+  refreshAuth,
   register,
   resetPassword,
   switchOrganization,
@@ -15,6 +17,8 @@ const authRouter = Router();
 
 authRouter.post("/login", login);
 authRouter.post("/register", register);
+authRouter.post("/refresh", refreshAuth);
+authRouter.post("/logout", logout);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password", resetPassword);
 authRouter.get("/me", requireAuth, getMe);

@@ -10,7 +10,7 @@ type TokenPayload = {
 
 export function signJwt(payload: TokenPayload) {
   return jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: "12h",
+    expiresIn: `${env.ACCESS_TOKEN_TTL_MINUTES}m`,
   });
 }
 

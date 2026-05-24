@@ -24,7 +24,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { auth, login } = useAuth();
+  const { auth, isInitializing, login } = useAuth();
   const {
     register,
     handleSubmit,
@@ -34,10 +34,10 @@ export function LoginPage() {
   });
 
   useEffect(() => {
-    if (auth) {
+    if (!isInitializing && auth) {
       navigate("/app", { replace: true });
     }
-  }, [auth, navigate]);
+  }, [auth, isInitializing, navigate]);
 
   const mutation = useMutation({
     mutationFn: async (values: LoginFormValues) =>

@@ -35,3 +35,7 @@ export const resetPasswordSchema = z.object({
   token: z.string().min(32),
   newPassword: z.string().min(6),
 });
+
+export const refreshAuthSchema = z.object({
+  activeOrganizationId: z.string().uuid().nullable().optional(),
+});
