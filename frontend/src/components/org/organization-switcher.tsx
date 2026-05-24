@@ -1,6 +1,5 @@
 import { ChevronDown, ArrowRightLeft, PlusCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { api, unwrapResponse } from "../../lib/api";
@@ -14,20 +13,10 @@ type OrganizationSwitcherProps = {
   compact?: boolean;
 };
 
-function calcPanelStyle(trigger: HTMLElement): CSSProperties {
-  const rect = trigger.getBoundingClientRect();
-  const vw = window.innerWidth;
-  const w = Math.min(vw - 32, 352);
-  const left = Math.max(16, Math.min(rect.right - w, vw - w - 16));
-  return { position: "fixed", top: rect.bottom + 8, left, width: w, zIndex: 50 };
-}
-
 export function OrganizationSwitcher({ className, compact = false }: OrganizationSwitcherProps) {
   const { auth, activeMembership, setAuthState } = useAuth();
   const [open, setOpen] = useState(false);
-  const [panelStyle, setPanelStyle] = useState<CSSProperties>({});
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const triggerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -70,9 +59,6 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
   }, []);
 
   function handleToggle() {
-    if (!open && triggerRef.current) {
-      setPanelStyle(calcPanelStyle(triggerRef.current));
-    }
     setOpen((o) => !o);
   }
 
@@ -84,10 +70,13 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
     () => cn("relative", className, compact ? "w-full" : "w-full sm:w-auto"),
     [className, compact],
   );
+  const panelClassName = compact
+    ? "absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)]"
+    : "absolute right-0 top-full z-50 mt-2 w-[min(352px,calc(100vw-2rem))] overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)]";
 
   return (
     <div className={containerClassName} ref={menuRef}>
-      <div ref={triggerRef}>
+      <div>
         <Button
           aria-expanded={open}
           aria-haspopup="menu"
@@ -104,10 +93,7 @@ export function OrganizationSwitcher({ className, compact = false }: Organizatio
       </div>
 
       {open ? (
-        <div
-          className="overflow-hidden rounded-[8px] border border-[var(--color-border)] bg-[var(--color-panel)] shadow-[var(--shadow-panel)]"
-          style={panelStyle}
-        >
+        <div className={panelClassName}>
           <div className="border-b border-[var(--color-border)] px-4 py-3">
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Current workspace</p>
             <p className="mt-2 break-words text-sm font-semibold text-slate-900">{currentName}</p>

@@ -140,8 +140,17 @@ export function isTokenExpired(token: string, bufferMs = 0) {
   return payload.exp * 1000 <= Date.now() + bufferMs;
 }
 
-function isAuthRoute(url?: string) {
-  return Boolean(url?.startsWith("/auth/"));
+function isPublicAuthRoute(url?: string) {
+  return Boolean(
+    url &&
+      [
+        "/auth/login",
+        "/auth/register",
+        "/auth/forgot-password",
+        "/auth/reset-password",
+        "/auth/refresh",
+      ].some((path) => url.startsWith(path)),
+  );
 }
 
 const refreshClient = axios.create({
@@ -200,7 +209,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-  if (isAuthRoute(config.url)) {
+  if (isPublicAuthRoute(config.url)) {
     return config;
   }
 
@@ -234,7 +243,7 @@ api.interceptors.response.use(
 
     const originalRequest = error.config as AuthRequestConfig | undefined;
 
-    if (!originalRequest || originalRequest._retry || isAuthRoute(originalRequest.url)) {
+    if (!originalRequest || originalRequest._retry || isPublicAuthRoute(originalRequest.url)) {
       return Promise.reject(error);
     }
 
