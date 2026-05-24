@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Users } from "lucide-react";
-import { useDeferredValue, useState } from "react";
+import { ChevronLeft, ChevronRight, Plus, Search, Users } from "lucide-react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
@@ -10,7 +10,7 @@ import { Card } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { api, getErrorMessage, unwrapResponse } from "../lib/api";
 import { resolveMediaUrl } from "../lib/utils";
-import type { Attendee } from "../types/api";
+import type { Attendee, PaginatedResult } from "../types/api";
 
 const attendeeSchema = z.object({
   name: z.string().min(1),
@@ -23,6 +23,7 @@ type AttendeeFormValues = z.infer<typeof attendeeSchema>;
 export function AttendeesPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [imageInputKey, setImageInputKey] = useState(0);
   const deferredSearch = useDeferredValue(search);
@@ -36,8 +37,17 @@ export function AttendeesPage() {
   });
 
   const attendeesQuery = useQuery({
-    queryKey: ["attendees"],
-    queryFn: async () => unwrapResponse<Attendee[]>(await api.get("/attendees")),
+    queryKey: ["attendees", deferredSearch, page],
+    queryFn: async () =>
+      unwrapResponse<PaginatedResult<Attendee>>(
+        await api.get("/attendees", {
+          params: {
+            search: deferredSearch || undefined,
+            page,
+            pageSize: 12,
+          },
+        }),
+      ),
   });
 
   const mutation = useMutation({
@@ -67,17 +77,14 @@ export function AttendeesPage() {
     },
   });
 
-  const attendees = attendeesQuery.data ?? [];
-  const filteredAttendees = attendees.filter((attendee) => {
-    const query = deferredSearch.trim().toLowerCase();
-    if (!query) {
-      return true;
-    }
+  const attendees = attendeesQuery.data?.items ?? [];
+  const pagination = attendeesQuery.data?.pagination;
 
-    return [attendee.name, attendee.email, attendee.phone ?? ""].some((value) =>
-      value.toLowerCase().includes(query),
-    );
-  });
+  useEffect(() => {
+    if (page > 1 && pagination && page > pagination.totalPages) {
+      setPage(pagination.totalPages);
+    }
+  }, [page, pagination]);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.72fr_1.28fr]">
@@ -139,14 +146,17 @@ export function AttendeesPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm font-semibold text-slate-900">Directory</p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900">{filteredAttendees.length}</h2>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900">{pagination?.total ?? 0}</h2>
           </div>
 
           <div className="relative w-full max-w-sm">
             <Search className="pointer-events-none absolute left-4 top-3.5 size-4 text-slate-400" />
             <Input
               className="pl-11"
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
               placeholder="Search name, email, phone"
               value={search}
             />
@@ -161,7 +171,7 @@ export function AttendeesPage() {
           </div>
 
           <div className="divide-y divide-[var(--color-border)] [content-visibility:auto]">
-            {filteredAttendees.map((attendee) => (
+            {attendees.map((attendee) => (
               <div
                 key={attendee.id}
                 className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_140px] items-center gap-4 bg-white px-5 py-4"
@@ -199,14 +209,14 @@ export function AttendeesPage() {
               </div>
             ))}
 
-            {filteredAttendees.length === 0 ? (
+            {attendees.length === 0 ? (
               <p className="p-5 text-sm text-slate-500">No attendees match the current search.</p>
             ) : null}
           </div>
         </div>
 
         <div className="mt-6 space-y-3 md:hidden">
-          {filteredAttendees.map((attendee) => (
+          {attendees.map((attendee) => (
             <div
               key={attendee.id}
               className="rounded-[8px] bg-[var(--color-surface-soft)] p-4"
@@ -241,12 +251,40 @@ export function AttendeesPage() {
             </div>
           ))}
 
-          {filteredAttendees.length === 0 ? (
+          {attendees.length === 0 ? (
             <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-5 text-sm text-slate-500">
               No attendees match the current search.
             </p>
           ) : null}
         </div>
+
+        {pagination && pagination.totalPages > 1 ? (
+          <div className="mt-6 flex items-center justify-between gap-3 rounded-[8px] bg-[var(--color-surface-soft)] px-4 py-3">
+            <p className="text-sm text-slate-500">
+              Page {pagination.page} of {pagination.totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                disabled={pagination.page <= 1 || attendeesQuery.isFetching}
+                icon={<ChevronLeft className="size-4" />}
+                onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                type="button"
+                variant="ghost"
+              >
+                Previous
+              </Button>
+              <Button
+                disabled={pagination.page >= pagination.totalPages || attendeesQuery.isFetching}
+                icon={<ChevronRight className="size-4" />}
+                onClick={() => setPage((current) => current + 1)}
+                type="button"
+                variant="secondary"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </Card>
     </div>
   );

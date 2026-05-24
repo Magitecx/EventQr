@@ -132,6 +132,16 @@ export type AttendeeDetail = Attendee & {
   attendance: AttendanceHistory[];
 };
 
+export type PaginatedResult<T> = {
+  items: T[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
 export type ScanResult = {
   status: "success" | "already_checked_in" | "invalid_qr" | "wrong_event_session";
   attendee?: {

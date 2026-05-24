@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { prisma } from "../lib/prisma";
 import { requireActiveOrganization, requireAuth } from "../middleware/auth";
 import { attendeesRouter } from "../modules/attendees/attendees.routes";
 import { authRouter } from "../modules/auth/auth.routes";
@@ -9,6 +10,7 @@ import {
 } from "../modules/organizations/organizations.routes";
 import { reportsRouter } from "../modules/reports/reports.routes";
 import { publicScanRouter, scanRouter } from "../modules/scan/scan.routes";
+import { successResponse } from "../utils/api-response";
 
 const router = Router();
 
@@ -19,6 +21,19 @@ router.get("/health", (_request, response) => {
       status: "ok",
     },
   });
+});
+
+router.get("/health/ready", async (_request, response, next) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    response.json(
+      successResponse({
+        status: "ready",
+      }),
+    );
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.use("/auth", authRouter);

@@ -1,3 +1,4 @@
+import { env } from "../../config/env";
 import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
 import { successResponse } from "../../utils/api-response";
@@ -23,17 +24,63 @@ function getRequestBody(request: { body?: Record<string, unknown> }) {
 
 export const listAttendees = asyncHandler(async (request, response) => {
   const organizationId = request.auth!.organizationId as string;
+  const page = Math.max(Number(request.query.page ?? 1) || 1, 1);
+  const requestedPageSize = Number(request.query.pageSize ?? env.DEFAULT_PAGE_SIZE) || env.DEFAULT_PAGE_SIZE;
+  const pageSize = Math.min(Math.max(requestedPageSize, 1), env.MAX_PAGE_SIZE);
+  const search = typeof request.query.search === "string" ? request.query.search.trim() : "";
+  const where = {
+    organizationId,
+    ...(search
+      ? {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: "insensitive" as const,
+              },
+            },
+            {
+              email: {
+                contains: search,
+                mode: "insensitive" as const,
+              },
+            },
+            {
+              phone: {
+                contains: search,
+                mode: "insensitive" as const,
+              },
+            },
+          ],
+        }
+      : {}),
+  };
 
-  const attendees = await prisma.attendee.findMany({
-    where: {
-      organizationId,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const [attendees, total] = await prisma.$transaction([
+    prisma.attendee.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.attendee.count({
+      where,
+    }),
+  ]);
 
-  response.json(successResponse(attendees));
+  response.json(
+    successResponse({
+      items: attendees,
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.max(Math.ceil(total / pageSize), 1),
+      },
+    }),
+  );
 });
 
 export const createAttendee = asyncHandler(async (request, response) => {

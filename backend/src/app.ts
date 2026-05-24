@@ -26,6 +26,8 @@ app.use(
   express.static(path.join(process.cwd(), "uploads"), {
     fallthrough: false,
     index: false,
+    maxAge: "30d",
+    immutable: true,
     setHeaders: (response) => {
       response.setHeader("X-Content-Type-Options", "nosniff");
       response.setHeader("Cross-Origin-Resource-Policy", "cross-origin");

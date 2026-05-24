@@ -1,5 +1,5 @@
-import { stringify } from "csv-stringify/sync";
 import XLSX from "xlsx";
+import { env } from "../../config/env";
 import { prisma } from "../../lib/prisma";
 import { ApiError } from "../../utils/api-error";
 import { successResponse } from "../../utils/api-response";
@@ -104,6 +104,32 @@ function buildReportRowsForExport(report: Awaited<ReturnType<typeof buildAttenda
   });
 }
 
+function ensureExportRowLimit(totalRows: number) {
+  if (totalRows > env.REPORT_EXPORT_MAX_ROWS) {
+    throw new ApiError(
+      413,
+      `Report export is limited to ${env.REPORT_EXPORT_MAX_ROWS} attendees. Narrow the dataset before exporting.`,
+    );
+  }
+}
+
+function toCsvCell(value: unknown) {
+  const stringValue = value == null ? "" : String(value);
+  return `"${stringValue.replace(/"/g, '""')}"`;
+}
+
+function streamCsv(response: Parameters<typeof exportSeriesReportCsv>[1], rows: Record<string, unknown>[]) {
+  const headers = Object.keys(rows[0] ?? {});
+  response.setHeader("Content-Type", "text/csv; charset=utf-8");
+  response.write(`${headers.map(toCsvCell).join(",")}\n`);
+
+  for (const row of rows) {
+    response.write(`${headers.map((header) => toCsvCell(row[header])).join(",")}\n`);
+  }
+
+  response.end();
+}
+
 export const getSeriesReport = asyncHandler(async (request, response) => {
   const seriesId = request.params.id as string;
   const organizationId = request.auth!.organizationId as string;
@@ -115,21 +141,21 @@ export const exportSeriesReportCsv = asyncHandler(async (request, response) => {
   const seriesId = request.params.id as string;
   const organizationId = request.auth!.organizationId as string;
   const report = await buildAttendanceReport(seriesId, organizationId);
+  ensureExportRowLimit(report.items.length);
+  const rows = buildReportRowsForExport(report);
 
-  const csv = stringify(buildReportRowsForExport(report), { header: true });
-
-  response.setHeader("Content-Type", "text/csv");
   response.setHeader(
     "Content-Disposition",
     `attachment; filename="${report.series.name.toLowerCase().replace(/\s+/g, "-")}-attendance-report.csv"`,
   );
-  response.send(csv);
+  streamCsv(response, rows);
 });
 
 export const exportSeriesReportExcel = asyncHandler(async (request, response) => {
   const seriesId = request.params.id as string;
   const organizationId = request.auth!.organizationId as string;
   const report = await buildAttendanceReport(seriesId, organizationId);
+  ensureExportRowLimit(report.items.length);
 
   const workbook = XLSX.utils.book_new();
   const attendanceSheet = XLSX.utils.json_to_sheet(buildReportRowsForExport(report));

@@ -157,7 +157,7 @@ export async function refreshSession() {
       try {
         const auth = unwrapResponse<AuthResponse>(
           await refreshClient.post("/auth/refresh", {
-            activeOrganizationId: currentAuth?.activeOrganizationId ?? null,
+            ...(currentAuth ? { activeOrganizationId: currentAuth.activeOrganizationId } : {}),
           }),
         );
         syncAuthState(auth);

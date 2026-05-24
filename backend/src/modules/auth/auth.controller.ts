@@ -161,7 +161,10 @@ export const refreshAuth = asyncHandler(async (request, response) => {
 
   response.json(
     successResponse(
-      await buildAuthPayload(existingSession.userId, body.activeOrganizationId ?? null),
+      await buildAuthPayload(
+        existingSession.userId,
+        body.activeOrganizationId === undefined ? undefined : body.activeOrganizationId,
+      ),
       "Session refreshed",
     ),
   );

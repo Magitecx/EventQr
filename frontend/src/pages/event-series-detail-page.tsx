@@ -1,14 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarClock, QrCode, TableProperties } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { z } from "zod";
 import { Badge } from "../components/ui/badge";
+import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
-import { api, unwrapResponse } from "../lib/api";
+import { Input } from "../components/ui/input";
+import { api, getErrorMessage, unwrapResponse } from "../lib/api";
 import { formatDate } from "../lib/utils";
 import type { EventSeries } from "../types/api";
 
+const seriesSchema = z.object({
+  name: z.string().min(1),
+  description: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+});
+
+type SeriesValues = z.infer<typeof seriesSchema>;
+
 export function EventSeriesDetailPage() {
   const { id = "" } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const seriesQuery = useQuery({
     queryKey: ["event-series", id],
@@ -16,6 +33,51 @@ export function EventSeriesDetailPage() {
   });
 
   const series = seriesQuery.data;
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<SeriesValues>({
+    resolver: zodResolver(seriesSchema),
+  });
+
+  useEffect(() => {
+    if (!series) {
+      return;
+    }
+
+    reset({
+      name: series.name,
+      description: series.description ?? "",
+      startDate: series.startDate ? toDateTimeLocal(series.startDate) : "",
+      endDate: series.endDate ? toDateTimeLocal(series.endDate) : "",
+    });
+  }, [reset, series]);
+
+  const updateMutation = useMutation({
+    mutationFn: async (values: SeriesValues) =>
+      unwrapResponse<EventSeries>(
+        await api.patch(`/event-series/${id}`, {
+          ...values,
+          startDate: values.startDate ? new Date(values.startDate).toISOString() : "",
+          endDate: values.endDate ? new Date(values.endDate).toISOString() : "",
+        }),
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      queryClient.invalidateQueries({ queryKey: ["event-series", id] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => unwrapResponse(await api.delete(`/event-series/${id}`)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+      navigate("/app/event-series");
+    },
+  });
 
   if (!series) {
     return <Card>Loading event series...</Card>;
@@ -57,7 +119,56 @@ export function EventSeriesDetailPage() {
 
       <div className="grid gap-6 xl:grid-cols-[0.75fr_1.25fr]">
         <Card>
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSubmit((values) => updateMutation.mutate(values))}>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Edit series</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Details</h2>
+            </div>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-600">Series name</span>
+              <Input {...register("name")} />
+              {errors.name ? <p className="mt-2 text-xs text-rose-500">{errors.name.message}</p> : null}
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-600">Description</span>
+              <Input {...register("description")} />
+            </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-600">Start date</span>
+                <Input type="datetime-local" {...register("startDate")} />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-600">End date</span>
+                <Input type="datetime-local" {...register("endDate")} />
+              </label>
+            </div>
+            {updateMutation.isError ? (
+              <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {getErrorMessage(updateMutation.error)}
+              </p>
+            ) : null}
+            {deleteMutation.isError ? (
+              <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {getErrorMessage(deleteMutation.error)}
+              </p>
+            ) : null}
+            <div className="flex flex-wrap gap-3">
+              <Button type="submit">{updateMutation.isPending ? "Saving..." : "Save changes"}</Button>
+              <Button
+                onClick={() => {
+                  if (window.confirm(`Delete ${series.name} and all its sessions and attendance records?`)) {
+                    deleteMutation.mutate();
+                  }
+                }}
+                type="button"
+                variant="danger"
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Delete series"}
+              </Button>
+            </div>
+          </form>
+          <div className="mt-6 space-y-4">
             {[
               {
                 title: "Scanner-ready",
@@ -131,4 +242,8 @@ export function EventSeriesDetailPage() {
       </div>
     </div>
   );
+}
+
+function toDateTimeLocal(value: string) {
+  return new Date(value).toISOString().slice(0, 16);
 }

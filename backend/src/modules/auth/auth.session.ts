@@ -92,4 +92,23 @@ export function getSessionMetadata(request: Request) {
   };
 }
 
+export async function deleteExpiredRefreshSessions(now = new Date()) {
+  await prisma.refreshSession.deleteMany({
+    where: {
+      OR: [
+        {
+          expiresAt: {
+            lt: now,
+          },
+        },
+        {
+          revokedAt: {
+            lt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+          },
+        },
+      ],
+    },
+  });
+}
+
 export { REFRESH_COOKIE_NAME };

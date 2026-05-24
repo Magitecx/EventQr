@@ -19,8 +19,12 @@ export const createEventSeriesSchema = z.object({
   endDate: optionalDate,
 });
 
+export const updateEventSeriesSchema = createEventSeriesSchema;
+
 export const createEventSessionSchema = z.object({
   title: z.string().trim().min(1),
   description: optionalString,
   sessionDate: z.string().datetime(),
 });
+
+export const updateEventSessionSchema = createEventSessionSchema;

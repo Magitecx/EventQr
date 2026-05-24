@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Pencil, Trash2, X } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { z } from "zod";
@@ -21,12 +23,16 @@ type SessionFormValues = z.infer<typeof sessionSchema>;
 export function SessionsManagementPage() {
   const { id = "" } = useParams();
   const queryClient = useQueryClient();
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<SessionFormValues>({
+    resolver: zodResolver(sessionSchema),
+  });
+  const editForm = useForm<SessionFormValues>({
     resolver: zodResolver(sessionSchema),
   });
 
@@ -45,6 +51,33 @@ export function SessionsManagementPage() {
       ),
     onSuccess: () => {
       reset();
+      queryClient.invalidateQueries({ queryKey: ["event-series", id] });
+      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ sessionId, values }: { sessionId: string; values: SessionFormValues }) =>
+      unwrapResponse<EventSession>(
+        await api.patch(`/event-series/${id}/sessions/${sessionId}`, {
+          ...values,
+          sessionDate: new Date(values.sessionDate).toISOString(),
+        }),
+      ),
+    onSuccess: () => {
+      setEditingSessionId(null);
+      queryClient.invalidateQueries({ queryKey: ["event-series", id] });
+      queryClient.invalidateQueries({ queryKey: ["event-series"] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (sessionId: string) =>
+      unwrapResponse(await api.delete(`/event-series/${id}/sessions/${sessionId}`)),
+    onSuccess: () => {
+      if (editingSessionId) {
+        setEditingSessionId(null);
+      }
       queryClient.invalidateQueries({ queryKey: ["event-series", id] });
       queryClient.invalidateQueries({ queryKey: ["event-series"] });
     },
@@ -98,25 +131,97 @@ export function SessionsManagementPage() {
           {series?.sessions.length ?? 0} scheduled sessions
         </h2>
 
-        <div className="mt-6 space-y-3">
-          {series?.sessions.map((session) => (
-            <div key={session.id} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-slate-900">{session.title}</h3>
-                  <p className="mt-1 text-sm text-slate-500">
-                    {session.description ?? "No description set."}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-slate-700">{formatDate(session.sessionDate)}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
-                    {session._count?.attendance ?? 0} check-ins
-                  </p>
-                </div>
+          <div className="mt-6 space-y-3">
+            {series?.sessions.map((session) => (
+              <div key={session.id} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
+                {editingSessionId === session.id ? (
+                  <form
+                    className="space-y-4"
+                    onSubmit={editForm.handleSubmit((values) =>
+                      updateMutation.mutate({
+                        sessionId: session.id,
+                        values,
+                      }),
+                    )}
+                  >
+                    <label className="block">
+                      <span className="mb-2 block text-sm font-medium text-slate-600">Session title</span>
+                      <Input {...editForm.register("title")} />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm font-medium text-slate-600">Description</span>
+                      <Input {...editForm.register("description")} />
+                    </label>
+                    <label className="block">
+                      <span className="mb-2 block text-sm font-medium text-slate-600">Session date and time</span>
+                      <Input type="datetime-local" {...editForm.register("sessionDate")} />
+                    </label>
+                    {updateMutation.isError ? (
+                      <p className="rounded-[8px] bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                        {getErrorMessage(updateMutation.error)}
+                      </p>
+                    ) : null}
+                    <div className="flex flex-wrap gap-3">
+                      <Button type="submit">{updateMutation.isPending ? "Saving..." : "Save session"}</Button>
+                      <Button
+                        icon={<X className="size-4" />}
+                        onClick={() => setEditingSessionId(null)}
+                        type="button"
+                        variant="ghost"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-slate-900">{session.title}</h3>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {session.description ?? "No description set."}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-slate-700">{formatDate(session.sessionDate)}</p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">
+                        {session._count?.attendance ?? 0} check-ins
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {editingSessionId !== session.id ? (
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Button
+                      icon={<Pencil className="size-4" />}
+                      onClick={() => {
+                        editForm.reset({
+                          title: session.title,
+                          description: session.description ?? "",
+                          sessionDate: toDateTimeLocal(session.sessionDate),
+                        });
+                        setEditingSessionId(session.id);
+                      }}
+                      type="button"
+                      variant="secondary"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      icon={<Trash2 className="size-4" />}
+                      onClick={() => {
+                        if (window.confirm(`Delete ${session.title} and all of its attendance records?`)) {
+                          deleteMutation.mutate(session.id);
+                        }
+                      }}
+                      type="button"
+                      variant="danger"
+                    >
+                      {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                    </Button>
+                  </div>
+                ) : null}
               </div>
-            </div>
-          ))}
+            ))}
 
           {!series?.sessions.length ? (
             <p className="rounded-[8px] bg-[var(--color-surface-soft)] p-4 text-sm text-slate-500">
@@ -127,4 +232,8 @@ export function SessionsManagementPage() {
       </Card>
     </div>
   );
+}
+
+function toDateTimeLocal(value: string) {
+  return new Date(value).toISOString().slice(0, 16);
 }

@@ -13,12 +13,20 @@ import { Button } from "../components/ui/button";
 import { Card } from "../components/ui/card";
 import { api, unwrapResponse } from "../lib/api";
 import { formatDate, formatPercentage, resolveMediaUrl } from "../lib/utils";
-import type { Attendee, EventSeries, SeriesReport } from "../types/api";
+import type { EventSeries, PaginatedResult, SeriesReport } from "../types/api";
 
 export function DashboardPage() {
   const attendeesQuery = useQuery({
     queryKey: ["attendees"],
-    queryFn: async () => unwrapResponse<Attendee[]>(await api.get("/attendees")),
+    queryFn: async () =>
+      unwrapResponse<PaginatedResult<unknown>>(
+        await api.get("/attendees", {
+          params: {
+            page: 1,
+            pageSize: 1,
+          },
+        }),
+      ),
   });
 
   const seriesQuery = useQuery({
@@ -36,7 +44,7 @@ export function DashboardPage() {
   });
 
   const seriesList = seriesQuery.data ?? [];
-  const attendees = attendeesQuery.data ?? [];
+  const attendeeCount = attendeesQuery.data?.pagination.total ?? 0;
   const reportItems = reportQuery.data?.items ?? [];
   const averageAttendance =
     reportItems.length === 0
@@ -113,7 +121,7 @@ export function DashboardPage() {
 
       <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Attendees", value: attendees.length, icon: Users },
+          { label: "Attendees", value: attendeeCount, icon: Users },
           { label: "Series", value: seriesList.length, icon: CalendarRange },
           {
             label: "Sessions",

@@ -102,6 +102,11 @@ npm run dev:backend   # http://localhost:4000
 npm run dev:frontend  # http://localhost:5173
 ```
 
+## Documentation
+
+- [Deletion lifecycle](docs/deletion-lifecycle.md)
+- [Local production runbook](docs/production-local.md)
+
 ## Environment Variables
 
 ### Root `.env` (docker-compose)
