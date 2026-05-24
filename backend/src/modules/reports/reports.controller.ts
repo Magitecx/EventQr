@@ -59,7 +59,6 @@ async function buildAttendanceReport(seriesId: string, organizationId: string) {
       attendedSessions,
       totalSessions,
       attendancePercentage: Number(attendancePercentage.toFixed(2)),
-      deletedAt: attendee.deletedAt,
       sessionAttendance: series.sessions.map((session) => {
         const record = attendanceBySessionId.get(session.id);
 

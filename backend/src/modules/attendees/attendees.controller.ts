@@ -27,7 +27,6 @@ export const listAttendees = asyncHandler(async (request, response) => {
   const attendees = await prisma.attendee.findMany({
     where: {
       organizationId,
-      deletedAt: null,
     },
     orderBy: {
       createdAt: "desc",
@@ -114,7 +113,6 @@ export const updateAttendee = asyncHandler(async (request, response) => {
     where: {
       id: attendeeId,
       organizationId,
-      deletedAt: null,
     },
   });
 
@@ -173,7 +171,6 @@ export const deleteAttendee = asyncHandler(async (request, response) => {
     where: {
       id: attendeeId,
       organizationId,
-      deletedAt: null,
     },
   });
 
@@ -181,14 +178,18 @@ export const deleteAttendee = asyncHandler(async (request, response) => {
     throw new ApiError(404, "Attendee not found");
   }
 
-  await prisma.attendee.update({
-    where: {
-      id: existing.id,
-    },
-    data: {
-      deletedAt: new Date(),
-    },
-  });
+  await prisma.$transaction([
+    prisma.attendanceRecord.deleteMany({
+      where: {
+        attendeeId: existing.id,
+      },
+    }),
+    prisma.attendee.delete({
+      where: {
+        id: existing.id,
+      },
+    }),
+  ]);
 
   await removeStoredAttendeeImage(existing.profileImageUrl);
 

@@ -5,6 +5,7 @@ import {
   acceptInvite,
   createInvite,
   createOrganization,
+  deleteCurrentOrganization,
   getCurrentOrganization,
   getInvitePublicInfo,
   getOrganizations,
@@ -32,6 +33,12 @@ organizationsRouter.patch(
   requireActiveOrganization,
   requireOrganizationRole([OrganizationRole.OWNER, OrganizationRole.ADMIN]),
   updateCurrentOrganization,
+);
+organizationsRouter.delete(
+  "/current",
+  requireActiveOrganization,
+  requireOrganizationRole([OrganizationRole.OWNER, OrganizationRole.ADMIN]),
+  deleteCurrentOrganization,
 );
 organizationsRouter.post(
   "/current/regenerate-join-code",

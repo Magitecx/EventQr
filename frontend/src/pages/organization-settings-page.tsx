@@ -19,6 +19,7 @@ export function OrganizationSettingsPage() {
   const [inviteExpiryDays, setInviteExpiryDays] = useState("30");
   const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
   const [joinCodeCopied, setJoinCodeCopied] = useState(false);
+  const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
 
   const organizationQuery = useQuery({
     queryKey: ["organization-current"],
@@ -78,6 +79,18 @@ export function OrganizationSettingsPage() {
     },
   });
 
+  const deleteOrganizationMutation = useMutation({
+    mutationFn: async () => unwrapResponse<AuthResponse>(await api.delete("/organizations/current")),
+    onSuccess: (result) => {
+      setAuthState(result);
+      queryClient.removeQueries({ queryKey: ["organization-current"] });
+      queryClient.removeQueries({ queryKey: ["organization-current-banner"] });
+      queryClient.invalidateQueries({ queryKey: ["attendees"] });
+      setDeleteConfirmationName("");
+      navigate(result.activeOrganizationId ? "/app" : "/app/onboarding");
+    },
+  });
+
   const inviteBaseUrl = typeof window === "undefined" ? "" : window.location.origin;
 
   async function copyJoinCode() {
@@ -97,6 +110,8 @@ export function OrganizationSettingsPage() {
       setCopiedInviteId((current) => (current === inviteId ? null : current));
     }, 1800);
   }
+
+  const deleteNameMatches = organization ? deleteConfirmationName.trim() === organization.name : false;
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
@@ -244,6 +259,42 @@ export function OrganizationSettingsPage() {
             </p>
           ) : null}
         </div>
+
+        {canManageOrganization ? (
+          <div className="mt-6 rounded-[8px] border border-rose-200 bg-rose-50 p-5">
+            <p className="text-sm font-semibold text-slate-900">Delete organization</p>
+            <p className="mt-1 text-sm text-slate-600">
+              Permanently delete this workspace, all attendees, check-ins, sessions, invites, and organization data.
+            </p>
+            <label className="mt-4 block">
+              <span className="mb-2 block text-sm font-medium text-slate-700">
+                Type <span className="font-semibold">{organization?.name ?? "the workspace name"}</span> to confirm
+              </span>
+              <Input
+                disabled={deleteOrganizationMutation.isPending || !organization}
+                onChange={(event) => setDeleteConfirmationName(event.target.value)}
+                value={deleteConfirmationName}
+              />
+            </label>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button
+                disabled={!deleteNameMatches || deleteOrganizationMutation.isPending}
+                icon={<Trash2 className="size-4" />}
+                onClick={() => deleteOrganizationMutation.mutate()}
+                type="button"
+                variant="danger"
+              >
+                {deleteOrganizationMutation.isPending ? "Deleting workspace..." : "Delete workspace"}
+              </Button>
+              <p className="text-xs text-slate-500">This cannot be undone.</p>
+            </div>
+            {deleteOrganizationMutation.isError ? (
+              <p className="mt-4 rounded-[8px] bg-white px-4 py-3 text-sm text-rose-700">
+                {getErrorMessage(deleteOrganizationMutation.error)}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </Card>
 
       <div className="grid gap-6">

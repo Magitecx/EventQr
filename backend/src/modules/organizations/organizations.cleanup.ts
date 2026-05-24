@@ -12,7 +12,7 @@ function addDays(days: number, from: Date) {
   return new Date(from.getTime() + days * 24 * 60 * 60 * 1000);
 }
 
-async function purgeOrganization(organizationId: string) {
+export async function purgeOrganization(organizationId: string) {
   const attendees = await prisma.attendee.findMany({
     where: {
       organizationId,

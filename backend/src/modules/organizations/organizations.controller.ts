@@ -13,6 +13,7 @@ import {
   updateMembershipRoleSchema,
   updateOrganizationSchema,
 } from "./organizations.schemas";
+import { purgeOrganization } from "./organizations.cleanup";
 import { touchOrganizationActivity } from "./organizations.activity";
 
 async function generateUniqueJoinCode() {
@@ -310,6 +311,20 @@ export const updateCurrentOrganization = asyncHandler(async (request, response) 
   await touchOrganizationActivity(organizationId);
 
   response.json(successResponse(organization, "Organization updated"));
+});
+
+export const deleteCurrentOrganization = asyncHandler(async (request, response) => {
+  const organizationId = request.auth!.organizationId!;
+  await requireMembership(request.auth!.userId, organizationId);
+
+  await purgeOrganization(organizationId);
+
+  response.json(
+    successResponse(
+      await buildAuthPayload(request.auth!.userId, undefined),
+      "Organization deleted",
+    ),
+  );
 });
 
 export const regenerateJoinCode = asyncHandler(async (request, response) => {

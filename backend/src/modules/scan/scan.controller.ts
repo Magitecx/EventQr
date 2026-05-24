@@ -86,7 +86,7 @@ async function performCheckIn(eventSessionId: string, organizationId: string, qr
     };
   }
 
-  if (!attendee || attendee.deletedAt) {
+  if (!attendee) {
     return {
       statusCode: 200,
       body: successResponse(

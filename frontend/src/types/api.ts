@@ -124,7 +124,6 @@ export type Attendee = {
   phone?: string | null;
   profileImageUrl?: string | null;
   qrToken: string;
-  deletedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -180,7 +179,6 @@ export type ReportItem = {
   attendedSessions: number;
   totalSessions: number;
   attendancePercentage: number;
-  deletedAt?: string | null;
   sessionAttendance: Array<{
     sessionId: string;
     title: string;
