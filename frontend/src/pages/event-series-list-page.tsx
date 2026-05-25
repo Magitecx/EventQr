@@ -331,9 +331,10 @@ export function EventSeriesListPage() {
 
             <div className="mt-6 space-y-3">
               {selectedSeries.sessions.map((session) => (
-                <div
+                <Link
                   key={session.id}
-                  className="rounded-[8px] bg-[var(--color-surface-soft)] p-4"
+                  className="block rounded-[8px] bg-[var(--color-surface-soft)] p-4 transition hover:bg-white"
+                  to={`/app/event-series/${selectedSeries.id}/sessions/${session.id}`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -349,7 +350,7 @@ export function EventSeriesListPage() {
                       </p>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
 
               {selectedSeries.sessions.length === 0 ? (

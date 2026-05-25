@@ -216,7 +216,11 @@ export function EventSeriesDetailPage() {
 
           <div className="mt-6 space-y-3">
             {series.sessions.map((session) => (
-              <div key={session.id} className="rounded-[8px] bg-[var(--color-surface-soft)] p-4">
+              <Link
+                key={session.id}
+                className="block rounded-[8px] bg-[var(--color-surface-soft)] p-4 transition hover:bg-white"
+                to={`/app/event-series/${series.id}/sessions/${session.id}`}
+              >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h3 className="break-words font-semibold text-slate-900">{session.title}</h3>
@@ -231,7 +235,7 @@ export function EventSeriesDetailPage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
 
             {series.sessions.length === 0 ? (

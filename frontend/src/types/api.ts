@@ -92,6 +92,25 @@ export type EventSession = {
   };
 };
 
+export type SessionAttendanceRecord = {
+  id: string;
+  attendeeId: string;
+  eventSessionId: string;
+  checkedInAt: string;
+  createdAt: string;
+  updatedAt: string;
+  attendee: Attendee;
+};
+
+export type EventSessionDetail = EventSession & {
+  eventSeries: {
+    id: string;
+    name: string;
+  };
+  attendance: SessionAttendanceRecord[];
+  allAttendees: Attendee[];
+};
+
 export type EventSeries = {
   id: string;
   name: string;

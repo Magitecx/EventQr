@@ -6,6 +6,7 @@ import { touchOrganizationActivity } from "../organizations/organizations.activi
 import {
   createEventSeriesSchema,
   createEventSessionSchema,
+  manageSessionAttendanceSchema,
   updateEventSeriesSchema,
   updateEventSessionSchema,
 } from "./event-series.schemas";
@@ -41,6 +42,21 @@ async function requireScopedSession(eventSeriesId: string, sessionId: string, or
   }
 
   return session;
+}
+
+async function requireScopedAttendee(attendeeId: string, organizationId: string) {
+  const attendee = await prisma.attendee.findFirst({
+    where: {
+      id: attendeeId,
+      organizationId,
+    },
+  });
+
+  if (!attendee) {
+    throw new ApiError(404, "Attendee not found");
+  }
+
+  return attendee;
 }
 
 export const listEventSeries = asyncHandler(async (request, response) => {
@@ -140,6 +156,75 @@ export const createEventSession = asyncHandler(async (request, response) => {
   await touchOrganizationActivity(organizationId);
 
   response.status(201).json(successResponse(session, "Session created"));
+});
+
+export const getEventSession = asyncHandler(async (request, response) => {
+  const eventSeriesId = request.params.id as string;
+  const sessionId = request.params.sessionId as string;
+  const organizationId = request.auth!.organizationId as string;
+
+  const [session, attendees] = await Promise.all([
+    prisma.eventSession.findFirst({
+      where: {
+        id: sessionId,
+        eventSeriesId,
+        eventSeries: {
+          organizationId,
+        },
+      },
+      include: {
+        eventSeries: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        attendance: {
+          include: {
+            attendee: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                profileImageUrl: true,
+                qrToken: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+          orderBy: {
+            checkedInAt: "desc",
+          },
+        },
+        _count: {
+          select: {
+            attendance: true,
+          },
+        },
+      },
+    }),
+    prisma.attendee.findMany({
+      where: {
+        organizationId,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    }),
+  ]);
+
+  if (!session) {
+    throw new ApiError(404, "Session not found");
+  }
+
+  response.json(
+    successResponse({
+      ...session,
+      allAttendees: attendees,
+    }),
+  );
 });
 
 export const updateEventSeries = asyncHandler(async (request, response) => {
@@ -244,4 +329,79 @@ export const deleteEventSession = asyncHandler(async (request, response) => {
   await touchOrganizationActivity(organizationId);
 
   response.json(successResponse(null, "Session deleted"));
+});
+
+export const addSessionAttendance = asyncHandler(async (request, response) => {
+  const eventSeriesId = request.params.id as string;
+  const sessionId = request.params.sessionId as string;
+  const organizationId = request.auth!.organizationId as string;
+  const body = manageSessionAttendanceSchema.parse(request.body);
+
+  const [session, attendee] = await Promise.all([
+    requireScopedSession(eventSeriesId, sessionId, organizationId),
+    requireScopedAttendee(body.attendeeId, organizationId),
+  ]);
+
+  const existingRecord = await prisma.attendanceRecord.findUnique({
+    where: {
+      attendeeId_eventSessionId: {
+        attendeeId: attendee.id,
+        eventSessionId: session.id,
+      },
+    },
+  });
+
+  if (existingRecord) {
+    response.json(successResponse(existingRecord, "Attendee already marked attended"));
+    return;
+  }
+
+  const record = await prisma.attendanceRecord.create({
+    data: {
+      attendeeId: attendee.id,
+      eventSessionId: session.id,
+    },
+  });
+
+  await touchOrganizationActivity(organizationId);
+
+  response.status(201).json(successResponse(record, "Attendance recorded"));
+});
+
+export const removeSessionAttendance = asyncHandler(async (request, response) => {
+  const eventSeriesId = request.params.id as string;
+  const sessionId = request.params.sessionId as string;
+  const attendeeId = request.params.attendeeId as string;
+  const organizationId = request.auth!.organizationId as string;
+
+  const [session, attendee] = await Promise.all([
+    requireScopedSession(eventSeriesId, sessionId, organizationId),
+    requireScopedAttendee(attendeeId, organizationId),
+  ]);
+
+  const existingRecord = await prisma.attendanceRecord.findUnique({
+    where: {
+      attendeeId_eventSessionId: {
+        attendeeId: attendee.id,
+        eventSessionId: session.id,
+      },
+    },
+  });
+
+  if (!existingRecord) {
+    throw new ApiError(404, "Attendance record not found");
+  }
+
+  await prisma.attendanceRecord.delete({
+    where: {
+      attendeeId_eventSessionId: {
+        attendeeId: attendee.id,
+        eventSessionId: session.id,
+      },
+    },
+  });
+
+  await touchOrganizationActivity(organizationId);
+
+  response.json(successResponse(null, "Attendance removed"));
 });

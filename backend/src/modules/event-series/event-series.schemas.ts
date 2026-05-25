@@ -28,3 +28,7 @@ export const createEventSessionSchema = z.object({
 });
 
 export const updateEventSessionSchema = createEventSessionSchema;
+
+export const manageSessionAttendanceSchema = z.object({
+  attendeeId: z.string().uuid(),
+});
