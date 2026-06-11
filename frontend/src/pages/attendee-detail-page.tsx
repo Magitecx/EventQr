@@ -18,6 +18,12 @@ const updateAttendeeSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
   phone: z.string().optional(),
+  attendeeNumber: z
+    .string()
+    .optional()
+    .refine((value) => !value || /^\d+$/.test(value.trim()), {
+      message: "Attendee number must be a whole number",
+    }),
 });
 
 type UpdateAttendeeValues = z.infer<typeof updateAttendeeSchema>;
@@ -74,6 +80,7 @@ export function AttendeeDetailPage() {
       name: attendee.name,
       email: attendee.email,
       phone: attendee.phone ?? "",
+      attendeeNumber: attendee.attendeeNumber != null ? String(attendee.attendeeNumber) : "",
     });
     setProfileImageFile(null);
     setImagePreviewUrl("");
@@ -106,6 +113,8 @@ export function AttendeeDetailPage() {
             if (values.phone) {
               formData.append("phone", values.phone);
             }
+            // Always sent so an emptied field clears the stored number.
+            formData.append("attendeeNumber", values.attendeeNumber?.trim() ?? "");
             if (profileImageFile) {
               formData.append("profileImage", profileImageFile);
             } else if (removeProfileImage) {
@@ -158,6 +167,7 @@ export function AttendeeDetailPage() {
               <h1 className="mt-2 break-words font-display text-3xl font-semibold text-slate-900">{attendee.name}</h1>
               <p className="mt-2 break-words text-sm text-slate-500">{attendee.email}</p>
               <div className="mt-4 flex flex-wrap gap-3">
+                {attendee.attendeeNumber != null ? <Badge>#{attendee.attendeeNumber}</Badge> : null}
                 <Badge>{attendee.phone ?? "No phone"}</Badge>
                 <Badge>Created {formatDate(attendee.createdAt)}</Badge>
               </div>
@@ -222,6 +232,20 @@ export function AttendeeDetailPage() {
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-slate-600">Phone</span>
               <Input {...register("phone")} />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-600">Attendee number</span>
+              <Input
+                inputMode="numeric"
+                placeholder="Optional, e.g. 1"
+                type="number"
+                min={0}
+                {...register("attendeeNumber")}
+              />
+              {errors.attendeeNumber ? (
+                <p className="mt-2 text-xs text-rose-500">{errors.attendeeNumber.message}</p>
+              ) : null}
             </label>
 
             <label className="block">

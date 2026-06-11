@@ -154,6 +154,7 @@ model Attendee {
   name            String
   email           String
   phone           String?
+  attendeeNumber  Int?               @map("attendee_number")
   profileImageUrl String?
   qrToken         String             @unique
   deletedAt       DateTime?

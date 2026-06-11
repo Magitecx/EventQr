@@ -17,6 +17,12 @@ const attendeeSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
   phone: z.string().optional(),
+  attendeeNumber: z
+    .string()
+    .optional()
+    .refine((value) => !value || /^\d+$/.test(value.trim()), {
+      message: "Attendee number must be a whole number",
+    }),
 });
 
 type AttendeeFormValues = z.infer<typeof attendeeSchema>;
@@ -80,6 +86,9 @@ export function AttendeesPage() {
             if (values.phone) {
               formData.append("phone", values.phone);
             }
+            if (values.attendeeNumber && values.attendeeNumber.trim()) {
+              formData.append("attendeeNumber", values.attendeeNumber.trim());
+            }
             if (profileImageFile) {
               formData.append("profileImage", profileImageFile);
             }
@@ -137,6 +146,20 @@ export function AttendeesPage() {
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-slate-600">Phone</span>
             <Input placeholder="555-0101" {...register("phone")} />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-600">Attendee number</span>
+            <Input
+              inputMode="numeric"
+              placeholder="Optional, e.g. 1"
+              type="number"
+              min={0}
+              {...register("attendeeNumber")}
+            />
+            {errors.attendeeNumber ? (
+              <p className="mt-2 text-xs text-rose-500">{errors.attendeeNumber.message}</p>
+            ) : null}
           </label>
 
           <label className="block">
@@ -212,7 +235,14 @@ export function AttendeesPage() {
                     }
                   />
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-slate-900">{attendee.name}</p>
+                    <p className="truncate font-medium text-slate-900">
+                      {attendee.attendeeNumber != null ? (
+                        <span className="mr-2 inline-flex items-center rounded-[6px] bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                          #{attendee.attendeeNumber}
+                        </span>
+                      ) : null}
+                      {attendee.name}
+                    </p>
                     <p className="truncate text-sm text-slate-500">{attendee.email}</p>
                   </div>
                 </div>
@@ -263,7 +293,14 @@ export function AttendeesPage() {
                   }
                 />
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-slate-900">{attendee.name}</p>
+                  <p className="truncate font-medium text-slate-900">
+                    {attendee.attendeeNumber != null ? (
+                      <span className="mr-2 inline-flex items-center rounded-[6px] bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                        #{attendee.attendeeNumber}
+                      </span>
+                    ) : null}
+                    {attendee.name}
+                  </p>
                   <p className="truncate text-sm text-slate-500">{attendee.email}</p>
                 </div>
               </div>

@@ -15,6 +15,10 @@ function getRequestBody(request: { body?: Record<string, unknown> }) {
     name: typeof body.name === "string" ? body.name : undefined,
     email: typeof body.email === "string" ? body.email : undefined,
     phone: typeof body.phone === "string" ? body.phone : undefined,
+    attendeeNumber:
+      typeof body.attendeeNumber === "string" || typeof body.attendeeNumber === "number"
+        ? body.attendeeNumber
+        : undefined,
     removeProfileImage:
       typeof body.removeProfileImage === "string"
         ? body.removeProfileImage === "true"
@@ -59,9 +63,17 @@ export const listAttendees = asyncHandler(async (request, response) => {
   const [attendees, total] = await prisma.$transaction([
     prisma.attendee.findMany({
       where,
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [
+        {
+          attendeeNumber: {
+            sort: "asc",
+            nulls: "last",
+          },
+        },
+        {
+          createdAt: "desc",
+        },
+      ],
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

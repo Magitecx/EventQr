@@ -141,6 +141,7 @@ export type Attendee = {
   name: string;
   email: string;
   phone?: string | null;
+  attendeeNumber?: number | null;
   profileImageUrl?: string | null;
   qrToken: string;
   createdAt: string;
