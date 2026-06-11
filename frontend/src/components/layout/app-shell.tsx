@@ -30,6 +30,7 @@ const navigation = [
   { to: "/app/event-series", label: "Event Series", icon: CalendarDays },
   { to: "/app/attendees", label: "Attendees", icon: Users },
   { to: "/app/scanner", label: "Scanner", icon: Radio },
+  { to: "/app/reports", label: "Reports", icon: Sheet },
   { to: "/app/settings/account", label: "Settings", icon: Settings2 },
 ];
 

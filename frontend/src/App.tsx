@@ -23,6 +23,7 @@ const OnboardingPage = lazy(() => import("./pages/onboarding-page").then((module
 const OrganizationSettingsPage = lazy(() => import("./pages/organization-settings-page").then((module) => ({ default: module.OrganizationSettingsPage })));
 const PrivacyPolicyPage = lazy(() => import("./pages/privacy-policy-page").then((module) => ({ default: module.PrivacyPolicyPage })));
 const RegisterPage = lazy(() => import("./pages/register-page").then((module) => ({ default: module.RegisterPage })));
+const ReportsPage = lazy(() => import("./pages/reports-page").then((module) => ({ default: module.ReportsPage })));
 const ResetPasswordPage = lazy(() => import("./pages/reset-password-page").then((module) => ({ default: module.ResetPasswordPage })));
 const ScannerPage = lazy(() => import("./pages/scanner-page").then((module) => ({ default: module.ScannerPage })));
 const SessionDetailPage = lazy(() => import("./pages/session-detail-page").then((module) => ({ default: module.SessionDetailPage })));
@@ -60,6 +61,7 @@ function App() {
               <Route path="attendees" element={<AttendeesPage />} />
               <Route path="attendees/:id" element={<AttendeeDetailPage />} />
               <Route path="scanner" element={<ScannerPage />} />
+              <Route path="reports" element={<ReportsPage />} />
               <Route path="reports/event-series/:id" element={<AttendanceReportPage />} />
             </Route>
           </Route>
