@@ -187,6 +187,7 @@ export const getEventSession = asyncHandler(async (request, response) => {
                 name: true,
                 email: true,
                 phone: true,
+                attendeeNumber: true,
                 profileImageUrl: true,
                 qrToken: true,
                 createdAt: true,
@@ -209,9 +210,17 @@ export const getEventSession = asyncHandler(async (request, response) => {
       where: {
         organizationId,
       },
-      orderBy: {
-        name: "asc",
-      },
+      orderBy: [
+        {
+          attendeeNumber: {
+            sort: "asc",
+            nulls: "last",
+          },
+        },
+        {
+          name: "asc",
+        },
+      ],
     }),
   ]);
 

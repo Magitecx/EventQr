@@ -37,9 +37,17 @@ async function buildAttendanceReport(seriesId: string, organizationId: string) {
         },
       },
     },
-    orderBy: {
-      name: "asc",
-    },
+    orderBy: [
+      {
+        attendeeNumber: {
+          sort: "asc",
+          nulls: "last",
+        },
+      },
+      {
+        name: "asc",
+      },
+    ],
   });
 
   const totalSessions = series.sessions.length;

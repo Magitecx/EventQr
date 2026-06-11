@@ -136,6 +136,11 @@ export function SessionDetailPage() {
           return 1;
         }
 
+        const byNumber = compareAttendeeNumber(left.attendee.attendeeNumber, right.attendee.attendeeNumber);
+        if (byNumber !== 0) {
+          return byNumber;
+        }
+
         return left.attendee.name.localeCompare(right.attendee.name);
       });
   }, [attendedById, deferredSearch, session?.allAttendees]);
@@ -434,6 +439,26 @@ function invalidateSessionQueries(
   queryClient.invalidateQueries({ queryKey: ["event-series", activeOrganizationId] });
   queryClient.invalidateQueries({ queryKey: ["event-series", activeOrganizationId, eventSeriesId] });
   queryClient.invalidateQueries({ queryKey: ["event-session", activeOrganizationId, eventSeriesId, sessionId] });
+}
+
+function compareAttendeeNumber(left: number | null | undefined, right: number | null | undefined) {
+  const hasLeft = left != null;
+  const hasRight = right != null;
+
+  if (hasLeft && hasRight) {
+    return left - right;
+  }
+
+  // Attendees without a number sort after those that have one.
+  if (hasLeft) {
+    return -1;
+  }
+
+  if (hasRight) {
+    return 1;
+  }
+
+  return 0;
 }
 
 function toDateTimeLocal(value: string) {
